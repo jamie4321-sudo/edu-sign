@@ -12,6 +12,23 @@
 
   var CATEGORIES = ["정기 교육", "산업안전보건교육", "장애인 인식개선교육", "성희롱 예방교육", "개인정보보호교육", "퇴직연금교육", "기타"];
 
+  /* SNACK&GARDEN OPS의 크루 목록을 명단 등록 시 참고용으로 불러온다 (이름 · 부서만 사용) */
+  var CREW_SOURCE_URL = "https://script.google.com/macros/s/AKfycbxNV7X2fDwkEB3yXnbrXfkm6y-0kChB0uLzMBUx2jKEfG61QcJXDVujQiSN8V4eOYHX/exec";
+  var crewListCache = null;
+  function fetchCrewList() {
+    if (crewListCache) return crewListCache;
+    crewListCache = fetch(CREW_SOURCE_URL + "?action=crew")
+      .then(function (r) { return r.json(); })
+      .then(function (list) {
+        return (list || [])
+          .filter(function (c) { return c.status === "재직"; })
+          .map(function (c) { return { name: c.name, group: c.group || "", role: c.role || "" }; })
+          .sort(function (a, b) { return (a.group || "").localeCompare(b.group || "", "ko") || a.name.localeCompare(b.name, "ko"); });
+      })
+      .catch(function () { crewListCache = null; return []; });
+    return crewListCache;
+  }
+
   /* ---------------- 테마 ---------------- */
   var themeBtn = document.getElementById("themeToggle");
   function applyTheme(t) {
@@ -193,7 +210,7 @@
         navigator.clipboard && navigator.clipboard.writeText(input.value).then(function () { toast("링크를 복사했습니다"); }).catch(function () { document.execCommand("copy"); toast("링크를 복사했습니다"); });
       });
       var addBtn = document.getElementById("addRosterBtn");
-      if (addBtn) addBtn.addEventListener("click", function () { openRosterModal(s.id); });
+      if (addBtn) addBtn.addEventListener("click", function () { openRosterModal(s.id, roster); });
 
       view.querySelectorAll("[data-edit-roster]").forEach(function (btn) {
         btn.addEventListener("click", function () {
@@ -303,21 +320,43 @@
   }
 
   /* ---------------- 명단 일괄 등록 모달 ---------------- */
-  function openRosterModal(sessionId) {
+  function openRosterModal(sessionId, existingRoster) {
+    var existingNames = {};
+    (existingRoster || []).forEach(function (r) { existingNames[r.name] = true; });
+
     var wrap = document.createElement("div");
     wrap.className = "modal";
     wrap.innerHTML = '<div class="modal__backdrop" data-close></div>'
       + '<div class="modal__card modal__card--wide" role="dialog" aria-modal="true">'
-      + '<div class="modal__head"><h3>명단 일괄 등록</h3><button class="modal__x" data-close>×</button></div>'
-      + '<form>'
-      + '<label class="fld"><span>부서, 성명을 한 줄에 한 명씩 붙여넣으세요</span>'
-      + '<textarea name="paste" class="roster-paste" placeholder="스낵, 정배라&#10;가든, 한카렌&#10;스낵, 오미라" required></textarea></label>'
-      + '<p class="hint">쉼표(,) 또는 탭(엑셀에서 복사)으로 부서와 이름을 구분합니다. 부서 없이 이름만 입력해도 됩니다.</p>'
-      + '<div class="modal__foot"><div class="modal__spacer"></div><button type="button" class="btn" data-close>취소</button><button type="submit" class="btn btn--primary">등록</button></div>'
-      + '</form></div>';
+      + '<div class="modal__head"><h3>명단 등록</h3><button class="modal__x" data-close>×</button></div>'
+      + '<div class="roster-src-tabs">'
+        + '<button type="button" class="roster-src-tab is-on" data-src="org">크루 목록에서 선택</button>'
+        + '<button type="button" class="roster-src-tab" data-src="paste">직접 붙여넣기</button>'
+      + '</div>'
+      + '<div id="rosterSrcOrg"></div>'
+      + '<form id="rosterPasteForm" hidden style="padding:16px 20px 0">'
+        + '<label class="fld"><span>부서, 성명을 한 줄에 한 명씩 붙여넣으세요</span>'
+        + '<textarea name="paste" class="roster-paste" placeholder="스낵, 정배라&#10;가든, 한카렌&#10;스낵, 오미라" required></textarea></label>'
+        + '<p class="hint">쉼표(,) 또는 탭(엑셀에서 복사)으로 부서와 이름을 구분합니다. 부서 없이 이름만 입력해도 됩니다.</p>'
+        + '<div class="modal__foot"><div class="modal__spacer"></div><button type="button" class="btn" data-close>취소</button><button type="submit" class="btn btn--primary">등록</button></div>'
+      + '</form>'
+      + '</div>';
     document.body.appendChild(wrap);
     wrap.querySelectorAll("[data-close]").forEach(function (el) { el.addEventListener("click", function () { wrap.remove(); }); });
-    wrap.querySelector("form").addEventListener("submit", function (e) {
+
+    var orgBox = wrap.querySelector("#rosterSrcOrg");
+    var pasteForm = wrap.querySelector("#rosterPasteForm");
+
+    wrap.querySelectorAll(".roster-src-tab").forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        wrap.querySelectorAll(".roster-src-tab").forEach(function (t) { t.classList.toggle("is-on", t === tab); });
+        var isOrg = tab.dataset.src === "org";
+        orgBox.hidden = !isOrg;
+        pasteForm.hidden = isOrg;
+      });
+    });
+
+    pasteForm.addEventListener("submit", function (e) {
       e.preventDefault();
       var lines = e.target.paste.value.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
       var rows = lines.map(function (line) {
@@ -333,6 +372,83 @@
         renderDetail(sessionId);
       });
     });
+
+    orgBox.innerHTML = '<div class="org-empty">크루 목록을 불러오는 중…</div>';
+    fetchCrewList().then(function (crew) {
+      if (!crew.length) {
+        orgBox.innerHTML = '<div class="org-empty">SNACK&amp;GARDEN OPS에서 크루 목록을 불러오지 못했습니다.<br>네트워크 상태를 확인하거나 "직접 붙여넣기"를 이용해주세요.</div>';
+        return;
+      }
+      renderOrgPicker(orgBox, crew, existingNames, sessionId, wrap);
+    });
+  }
+
+  function renderOrgPicker(orgBox, crew, existingNames, sessionId, wrap) {
+    var query = "";
+
+    function groups(list) {
+      var order = [], map = {};
+      list.forEach(function (c) {
+        var g = c.group || "미지정";
+        if (!map[g]) { map[g] = []; order.push(g); }
+        map[g].push(c);
+      });
+      return order.map(function (g) { return { name: g, members: map[g] }; });
+    }
+
+    function render() {
+      var q = query.trim().toLowerCase();
+      var filtered = q ? crew.filter(function (c) { return c.name.toLowerCase().indexOf(q) > -1; }) : crew;
+      var gs = groups(filtered);
+
+      orgBox.innerHTML = '<div class="org-search"><input type="search" id="orgSearch" placeholder="이름 검색" value="' + esc(query) + '"></div>'
+        + '<div class="org-toolbar"><span id="orgSelCount">0명 선택</span><button type="button" id="orgSelectAll">보이는 전체 선택</button></div>'
+        + '<div class="org-list">'
+        + (gs.length ? gs.map(function (g) {
+            return '<div class="org-group"><div class="org-group__head"><span class="dot"></span>' + esc(g.name) + ' · ' + g.members.length + '명</div>'
+              + g.members.map(function (c) {
+                  var added = !!existingNames[c.name];
+                  return '<label class="org-row' + (added ? " is-added" : "") + '">'
+                    + '<input type="checkbox" value="' + esc(c.name) + '" data-group="' + esc(c.group) + '"' + (added ? " disabled" : "") + '>'
+                    + '<span class="org-row__name">' + esc(c.name) + '</span>'
+                    + '<span class="org-row__role">' + (added ? "이미 등록됨" : esc(c.role || "")) + '</span>'
+                    + '</label>';
+                }).join("")
+              + '</div>';
+          }).join("") : '<div class="org-empty">검색 결과가 없습니다.</div>')
+        + '</div>'
+        + '<div class="modal__foot"><div class="modal__spacer"></div><button type="button" class="btn" data-close>취소</button><button type="button" class="btn btn--primary" id="orgSubmit" disabled>선택 등록</button></div>';
+
+      var searchInput = orgBox.querySelector("#orgSearch");
+      searchInput.addEventListener("input", function () { query = searchInput.value; render(); searchInput.focus(); if (searchInput.value) searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length); });
+
+      var boxes = Array.prototype.slice.call(orgBox.querySelectorAll('input[type="checkbox"]:not([disabled])'));
+      var submitBtn = orgBox.querySelector("#orgSubmit");
+      var countEl = orgBox.querySelector("#orgSelCount");
+      function syncCount() {
+        var n = boxes.filter(function (b) { return b.checked; }).length;
+        countEl.textContent = n + "명 선택";
+        submitBtn.disabled = !n;
+      }
+      boxes.forEach(function (b) { b.addEventListener("change", syncCount); });
+      orgBox.querySelector("#orgSelectAll").addEventListener("click", function () {
+        var allOn = boxes.length && boxes.every(function (b) { return b.checked; });
+        boxes.forEach(function (b) { b.checked = !allOn; });
+        syncCount();
+      });
+      orgBox.querySelectorAll("[data-close]").forEach(function (el) { el.addEventListener("click", function () { wrap.remove(); }); });
+      submitBtn.addEventListener("click", function () {
+        var rows = boxes.filter(function (b) { return b.checked; }).map(function (b) { return { dept: b.dataset.group, name: b.value }; });
+        if (!rows.length) return;
+        Store.bulkAddRoster(sessionId, rows).then(function () {
+          wrap.remove();
+          toast(rows.length + "명을 추가했습니다");
+          renderDetail(sessionId);
+        });
+      });
+    }
+
+    render();
   }
 
   function openRosterEditModal(r) {
