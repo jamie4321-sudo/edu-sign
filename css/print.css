@@ -18,7 +18,7 @@ table.roster th, table.roster td {
   border: 1px solid #333;
   text-align: center;
   padding: 0;
-  height: 9.2mm;
+  height: 10mm;
   font-size: 12px;
 }
 table.roster thead th { background: #eef0ea; font-weight: 700; height: 8mm; }
@@ -28,7 +28,8 @@ table.roster col.c-name { width: 17%; }
 table.roster col.c-sig  { width: 17%; }
 
 td.c-name { font-weight: 600; }
-td.c-sig img { max-height: 8mm; max-width: 90%; }
+td.c-sig { padding: 1mm 0; }
+td.c-sig img { display: block; margin: 0 auto; max-height: 6.5mm; max-width: 85%; }
 
 .print-toolbar { position: fixed; top: 12px; right: 16px; display: flex; gap: 8px; z-index: 10; }
 .print-toolbar button {
