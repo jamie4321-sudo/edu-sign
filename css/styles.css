@@ -112,6 +112,7 @@ html:not([data-authed="1"]) .app { display: none; }
 .btn--sm { padding: 6px 12px; font-size: 12px; }
 .btn--lg { padding: 14px 22px; font-size: 15px; width: 100%; justify-content: center; }
 .btn[disabled] { opacity: .45; cursor: not-allowed; }
+.btn--disabled { opacity: .4; cursor: not-allowed; }
 
 /* ---------------- PAGE HEAD ---------------- */
 .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }

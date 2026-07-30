@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EDU SIGN — 교육 서명 관리</title>
-  <meta name="description" content="법정의무교육 참석자 서명을 온라인으로 받고 원본 서식대로 출력합니다" />
+  <meta name="description" content="정기 교육 참석자 서명을 온라인으로 받고 원본 서식대로 출력합니다" />
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -34,9 +34,10 @@
     <header class="topbar">
       <div>
         <div class="topbar__brand">EDU<em>·</em>SIGN</div>
-        <div class="topbar__sub">법정의무교육 참석 서명 관리</div>
+        <div class="topbar__sub">정기 교육 참석 서명 관리</div>
       </div>
       <div class="topbar__right">
+        <a class="btn btn--sm btn--ghost" id="driveNavLink" href="#" target="_blank" rel="noopener">사진 폴더 (Drive)</a>
         <button class="theme-toggle" id="themeToggle" aria-label="라이트/다크 테마 전환"><span class="knob"></span><span class="lbl">DARK</span></button>
       </div>
     </header>
@@ -44,6 +45,7 @@
   </div>
 
   <script src="./js/config.js?v=1"></script>
+  <script src="./js/config.local.js?v=1"></script>
   <script src="./js/data.js?v=1"></script>
   <script src="./js/store.js?v=1"></script>
   <script src="./js/app.js?v=1"></script>

@@ -1,29 +1,38 @@
 /**
  * EDU SIGN — Google Apps Script 백엔드
  * =====================================================
- * 하나의 Google 시트에 교육 세션 · 참석자 명단(서명 포함)을 저장/조회합니다.
+ * 하나의 Google 시트에 교육 세션 · 참석자 명단(서명 포함) · 교육 사진을 저장/조회합니다.
  * 정적 사이트(GitHub Pages / Vercel)에서 fetch 로 호출합니다.
  *
  * 시트 탭 (없으면 자동 생성, 필드가 늘어나면 끝에 컬럼을 자동 추가):
- *  - "sessions" : id | date | category | title | locked | createdAt
+ *  - "sessions" : id | date | category | title | locked | createdAt | driveFolderUrl
  *  - "roster"   : id | sessionId | seq | dept | name | signature | signedAt
- *                 (signature = base64 PNG dataURL, 서명 전에는 빈 문자열)
+ *                 signature = base64 PNG dataURL(짧으면) 또는 "drive:<fileId>"(길면, 자동)
+ *  - "photos"   : id | sessionId | fileId | url | uploadedAt
+ *
+ * 교육 사진은 "EDU SIGN 교육사진" 이라는 이름의 내 드라이브 폴더 아래,
+ * 세션별로 하위 폴더를 만들어 저장합니다(setupFolders() 로 미리 만들 필요 없음 — 첫 업로드 시 자동 생성).
  *
  * 읽기/쓰기 모두 "컬럼 순서"가 아니라 "헤더 이름"으로 매칭합니다.
  *
  * 배포: 배포 > 배포 관리 > 기존 배포 수정 > 새 버전으로 배포
  *   - 실행 계정: 나 / 액세스 권한: 모든 사용자
- * 배포 후 /exec URL 을 js/config.js 의 CONFIG.endpoint 에 붙여넣으세요.
- * sign.html 에는 로그인/PIN 이 없으므로, 참석자는 세션 링크만으로 서명 API를 호출합니다.
+ * 배포 후 /exec URL 을 js/config.local.js 의 CONFIG.endpoint 에 붙여넣으세요.
+ * (이 저장소는 공개 저장소라 config.js 에는 절대 실제 endpoint를 적지 않습니다 — config.local.js 사용)
  */
 
-var SESSION_FIELDS = ["id", "date", "category", "title", "locked", "createdAt"];
+var SESSION_FIELDS = ["id", "date", "category", "title", "locked", "createdAt", "driveFolderUrl"];
 var ROSTER_FIELDS = ["id", "sessionId", "seq", "dept", "name", "signature", "signedAt"];
+var PHOTO_FIELDS = ["id", "sessionId", "fileId", "url", "uploadedAt"];
 
-// 이 스프레드시트 ID를 새로 만든 시트 ID로 바꿔주세요 (시트 URL의 /d/ 와 /edit 사이 문자열)
-var SHEET_ID = "여기에_새_스프레드시트_ID를_붙여넣으세요";
+var ROOT_FOLDER_NAME = "EDU SIGN 교육사진";
+var SIGN_FOLDER_NAME = "EDU SIGN 서명원본";
+var SIGNATURE_INLINE_LIMIT = 8000; // 이보다 긴 서명 dataURL은 드라이브에 저장하고 참조만 남김
 
-function ss_() { return SHEET_ID && SHEET_ID.indexOf("여기에") !== 0 ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet(); }
+// 새로 만든 스프레드시트 ID
+var SHEET_ID = "1tqD6P2IcfuIaIDGaPz2aOWst_5XPD1mH81VNFkBzrBY";
+
+function ss_() { return SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet(); }
 
 function sheet_(name, fields) {
   var ss = ss_();
@@ -130,6 +139,32 @@ function fmtDate_(v) {
 
 function boolOf_(v) { return v === true || String(v).toLowerCase() === "true"; }
 
+/* ---------------- 드라이브 폴더 ---------------- */
+function rootFolder_() {
+  var it = DriveApp.getFoldersByName(ROOT_FOLDER_NAME);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(ROOT_FOLDER_NAME);
+}
+function signFolder_() {
+  var it = DriveApp.getFoldersByName(SIGN_FOLDER_NAME);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(SIGN_FOLDER_NAME);
+}
+function sessionFolder_(session) {
+  var root = rootFolder_();
+  var name = (session.date || "") + " " + (session.title || session.category || session.id || "");
+  var it = root.getFoldersByName(name);
+  return it.hasNext() ? it.next() : root.createFolder(name);
+}
+function resolveSignature_(v) {
+  if (!v) return "";
+  var s = String(v);
+  if (s.indexOf("drive:") === 0) return "https://drive.google.com/thumbnail?id=" + s.slice(6) + "&sz=w400";
+  return s;
+}
+function decodeDataUrl_(dataUrl) {
+  var m = String(dataUrl || "").match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.*)$/);
+  return m ? { mime: m[1], bytes: Utilities.base64Decode(m[2]) } : null;
+}
+
 /* ---------------- GET ---------------- */
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || "sessions";
@@ -145,9 +180,19 @@ function doGet(e) {
     var s = mapSessions_(rows_("sessions", SESSION_FIELDS)).filter(function (r) { return String(r.id) === String(id); })[0];
     var rosterRows = rows_("roster", ROSTER_FIELDS)
       .filter(function (r) { return String(r.sessionId) === String(id); })
-      .sort(function (a, b) { return (+a.seq || 0) - (+b.seq || 0); });
+      .sort(function (a, b) { return (+a.seq || 0) - (+b.seq || 0); })
+      .map(function (r) { r.signature = resolveSignature_(r.signature); return r; });
     return json_({ session: s, roster: rosterRows });
   }
+
+  if (action === "photos") {
+    var sid = e.parameter.id;
+    var photos = rows_("photos", PHOTO_FIELDS).filter(function (p) { return String(p.sessionId) === String(sid); })
+      .sort(function (a, b) { return a.uploadedAt < b.uploadedAt ? 1 : -1; });
+    return json_({ photos: photos });
+  }
+
+  if (action === "rootFolder") return json_({ url: rootFolder_().getUrl() });
 
   return json_({ error: "unknown action" });
 }
@@ -178,6 +223,7 @@ function doPost(e) {
 
   if (data.type === "session") return handleSession_(action, data);
   if (data.type === "roster") return handleRoster_(action, data);
+  if (data.type === "photo") return handlePhoto_(action, data);
   return json_({ ok: false, error: "unknown type" });
 }
 
@@ -212,6 +258,10 @@ function handleSession_(action, data) {
     rows_("roster", ROSTER_FIELDS).forEach(function (r) {
       if (String(r.sessionId) === String(data.id)) deleteRowById_(rsh, r.id);
     });
+    var psh = sheet_("photos", PHOTO_FIELDS);
+    rows_("photos", PHOTO_FIELDS).forEach(function (p) {
+      if (String(p.sessionId) === String(data.id)) deleteRowById_(psh, p.id);
+    });
     return json_({ ok: true });
   }
   return json_({ ok: false, error: "unknown action" });
@@ -237,10 +287,52 @@ function handleRoster_(action, data) {
     return json_({ ok: true });
   }
   if (action === "sign") {
-    upsertRowByHeader_(sh, data.id, { id: data.id, signature: data.signature || "", signedAt: new Date().toISOString() });
+    var sig = data.signature || "";
+    var stored = sig;
+    if (sig.length > SIGNATURE_INLINE_LIMIT) {
+      var decoded = decodeDataUrl_(sig);
+      if (decoded) {
+        var blob = Utilities.newBlob(decoded.bytes, decoded.mime, "sign_" + data.id + ".png");
+        var file = signFolder_().createFile(blob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        stored = "drive:" + file.getId();
+      }
+    }
+    upsertRowByHeader_(sh, data.id, { id: data.id, signature: stored, signedAt: new Date().toISOString() });
     return json_({ ok: true });
   }
   if (action === "delete") {
+    deleteRowById_(sh, data.id);
+    return json_({ ok: true });
+  }
+  return json_({ ok: false, error: "unknown action" });
+}
+
+function handlePhoto_(action, data) {
+  var sh = sheet_("photos", PHOTO_FIELDS);
+
+  if (action === "add") {
+    var decoded = decodeDataUrl_(data.dataUrl);
+    if (!decoded) return json_({ ok: false, error: "invalid image" });
+
+    var session = rows_("sessions", SESSION_FIELDS).filter(function (s) { return String(s.id) === String(data.sessionId); })[0] || { id: data.sessionId };
+    var folder = sessionFolder_(session);
+    var blob = Utilities.newBlob(decoded.bytes, decoded.mime, data.filename || ("photo_" + Date.now() + ".jpg"));
+    var file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    var url = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w600";
+    var id = Utilities.getUuid();
+    upsertRowByHeader_(sh, id, { id: id, sessionId: data.sessionId, fileId: file.getId(), url: url, uploadedAt: new Date().toISOString() });
+
+    var ssh = sheet_("sessions", SESSION_FIELDS);
+    upsertRowByHeader_(ssh, data.sessionId, { id: data.sessionId, driveFolderUrl: folder.getUrl() });
+
+    return json_({ ok: true, id: id, url: url, folderUrl: folder.getUrl() });
+  }
+  if (action === "delete") {
+    var row = rows_("photos", PHOTO_FIELDS).filter(function (p) { return p.id === data.id; })[0];
+    if (row && row.fileId) { try { DriveApp.getFileById(row.fileId).setTrashed(true); } catch (err) {} }
     deleteRowById_(sh, data.id);
     return json_({ ok: true });
   }

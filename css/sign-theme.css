@@ -1,0 +1,85 @@
+/* =========================================================
+   EDU SIGN — 참석자(크루) 서명 화면 전용 테마
+   관리자 대시보드(styles.css, 다크+라임)와는 완전히 다른, 밝고 쉬운 톤.
+   장애 크루도 부담없이 쓸 수 있도록: 큰 글씨, 큰 버튼, 선택지 최소화.
+   ========================================================= */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Pretendard", system-ui, sans-serif;
+  background: #faf3ea;
+  color: #1c1c1a;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button, select, input { font-family: inherit; }
+[hidden] { display: none !important; }
+
+.sw { max-width: 420px; margin: 0 auto; min-height: 100vh; padding: 28px 20px 40px; display: flex; flex-direction: column; }
+.sw-brand { text-align: center; font-weight: 800; font-size: 13px; letter-spacing: 1px; color: #a49c8c; margin-bottom: 22px; }
+.sw-brand em { color: #d9b400; font-style: normal; }
+
+/* ---- 아이콘 마크 ---- */
+.sw-mark { width: 96px; height: 96px; margin: 0 auto 22px; border-radius: 26px; background: #fee500; display: flex; align-items: center; justify-content: center; box-shadow: 0 14px 28px rgba(254,229,0,.35); }
+.sw-mark svg { width: 46px; height: 46px; }
+
+.sw-title { text-align: center; font-size: 26px; font-weight: 800; letter-spacing: -.5px; margin: 0 0 6px; }
+.sw-sub { text-align: center; color: #8a8578; font-size: 14px; margin: 0 0 30px; }
+
+.sw-fld-label { font-size: 13px; color: #8a8578; font-weight: 600; margin: 0 0 8px; }
+.sw-select-wrap { position: relative; margin-bottom: 18px; }
+.sw-select {
+  width: 100%; appearance: none; background: #fff; border: none; border-radius: 18px;
+  padding: 18px 44px 18px 20px; font-size: 17px; font-weight: 700; color: #1c1c1a;
+  box-shadow: 0 6px 18px rgba(28,28,26,.06); outline: none;
+}
+.sw-select-wrap::after {
+  content: ""; position: absolute; right: 20px; top: 50%; width: 10px; height: 10px;
+  border-right: 2px solid #8a8578; border-bottom: 2px solid #8a8578; transform: translateY(-65%) rotate(45deg); pointer-events: none;
+}
+
+.sw-spacer { flex: 1; }
+
+.sw-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; border: none; border-radius: 18px; padding: 19px 20px; font-size: 17px; font-weight: 800;
+  cursor: pointer; background: #fff; color: #1c1c1a; box-shadow: 0 6px 18px rgba(28,28,26,.06);
+}
+.sw-btn--primary { background: #fee500; }
+.sw-btn[disabled] { opacity: .5; cursor: not-allowed; }
+.sw-btn--ghost { background: transparent; box-shadow: none; color: #8a8578; font-weight: 600; font-size: 14px; padding: 10px; }
+
+.sw-chip {
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin: 22px auto 0;
+  background: #fff; border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 700; color: #4a4638;
+  box-shadow: 0 6px 18px rgba(28,28,26,.06); width: fit-content;
+}
+.sw-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: #34c759; }
+.sw-chip.is-locked .dot { background: #ff5a52; }
+
+/* ---- 인사 카드(2단계) ---- */
+.sw-greet {
+  background: #fee500; border-radius: 22px; padding: 24px 22px; margin-bottom: 18px;
+}
+.sw-greet h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.3px; }
+.sw-greet p { margin: 6px 0 0; font-size: 13px; color: #6b6420; font-weight: 600; }
+.sw-back { display: inline-flex; align-items: center; gap: 4px; color: #8a8578; font-size: 13px; font-weight: 600; margin-bottom: 14px; cursor: pointer; }
+
+.sw-card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 6px 18px rgba(28,28,26,.06); margin-bottom: 14px; }
+.sw-card h3 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
+.sw-card p.hint { margin: 0; font-size: 13px; color: #8a8578; }
+
+.sw-sigpad { width: 100%; aspect-ratio: 4 / 2.2; background: #f5f1ea; border: 2px dashed #e3dccb; border-radius: 16px; touch-action: none; display: block; margin-top: 14px; }
+.sw-sigpad.has-ink { border-style: solid; border-color: #fee500; background: #fff; }
+.sw-sig-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+.sw-sig-actions button { background: none; border: none; color: #8a8578; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: underline; }
+
+.sw-done-badge { display: flex; align-items: center; gap: 12px; }
+.sw-done-badge .ok { width: 44px; height: 44px; border-radius: 50%; background: #eaf9ee; color: #219a4a; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex-shrink: 0; }
+.sw-done-img { width: 100%; background: #f5f1ea; border-radius: 14px; padding: 10px; margin-top: 14px; }
+.sw-done-img img { display: block; width: 100%; }
+
+.sw-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1c1c1a; color: #fff; padding: 12px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; z-index: 900; }
+
+.sw-empty { text-align: center; color: #8a8578; padding: 60px 20px; font-size: 14px; }

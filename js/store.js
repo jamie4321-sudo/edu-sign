@@ -9,7 +9,7 @@ window.Store = (function () {
   var LS_KEY = "edusign-demo-v1";
 
   function seed() {
-    return { sessions: (window.SESSIONS || []).slice(), roster: (window.ROSTER || []).slice() };
+    return { sessions: (window.SESSIONS || []).slice(), roster: (window.ROSTER || []).slice(), photos: (window.PHOTOS || []).slice() };
   }
   function persist(db) {
     try { localStorage.setItem(LS_KEY, JSON.stringify(db)); } catch (e) {}
@@ -17,7 +17,7 @@ window.Store = (function () {
   function load() {
     try {
       var raw = localStorage.getItem(LS_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) { var db = JSON.parse(raw); db.photos = db.photos || []; return db; }
     } catch (e) {}
     var s = seed();
     persist(s);
@@ -133,6 +133,34 @@ window.Store = (function () {
       if (r) { r.signature = signature; r.signedAt = new Date().toISOString(); }
       persist(DB);
       return Promise.resolve({ ok: true });
+    },
+
+    listPhotos: function (sessionId) {
+      if (LIVE) return apiGet({ action: "photos", id: sessionId }).then(function (d) { return d.photos || []; });
+      DB = load();
+      return Promise.resolve(DB.photos.filter(function (p) { return p.sessionId === sessionId; })
+        .sort(function (a, b) { return a.uploadedAt < b.uploadedAt ? 1 : -1; }));
+    },
+
+    uploadPhoto: function (sessionId, dataUrl, filename) {
+      if (LIVE) return api({ type: "photo", action: "add", sessionId: sessionId, dataUrl: dataUrl, filename: filename });
+      DB = load();
+      DB.photos.push({ id: uid(), sessionId: sessionId, fileId: "", url: dataUrl, uploadedAt: new Date().toISOString() });
+      persist(DB);
+      return Promise.resolve({ ok: true });
+    },
+
+    deletePhoto: function (id) {
+      if (LIVE) return api({ type: "photo", action: "delete", id: id });
+      DB = load();
+      DB.photos = DB.photos.filter(function (p) { return p.id !== id; });
+      persist(DB);
+      return Promise.resolve({ ok: true });
+    },
+
+    getRootFolderUrl: function () {
+      if (LIVE) return apiGet({ action: "rootFolder" }).then(function (d) { return d.url || ""; });
+      return Promise.resolve("");
     }
   };
 })();

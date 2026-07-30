@@ -22,3 +22,6 @@ window.ROSTER = [
     signedAt: "2026-06-10T10:05:30" },
   { id: "r8", sessionId: "sess2", seq: 3, dept: "스낵", name: "오미라", signature: "", signedAt: "" },
 ];
+
+/* 데모 모드용 사진 목록 — 라이브 모드에서는 구글 드라이브에 실제로 저장됨 */
+window.PHOTOS = [];

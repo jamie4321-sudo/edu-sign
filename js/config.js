@@ -4,7 +4,13 @@
    endpoint 를 비워두면 → 데모 모드 (js/data.js 목업, 새로고침하면 초기화)
    Apps Script 웹앱 배포 후 나오는 /exec URL 을 붙여넣으면 → 라이브 모드
 
-   예) endpoint: "https://script.google.com/macros/s/AKfyc.../exec"
+   ⚠️ 이 저장소는 공개(public) 저장소입니다.
+   실제 운영 endpoint(구글시트 API 주소)는 여기에 직접 적지 마세요 — 이 파일은
+   깃에 커밋되어 누구나 볼 수 있고, endpoint 자체가 로그인 없는 열린 API라
+   그대로 노출하면 참석자 명단·서명 이미지를 아무나 조회할 수 있게 됩니다.
+
+   실제 endpoint는 js/config.local.js (깃 추적 제외, .gitignore 처리됨) 에
+   넣으세요 — js/config.local.example.js 를 복사해서 시작하면 됩니다.
    ========================================================= */
 window.CONFIG = {
   endpoint: "",

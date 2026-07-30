@@ -10,7 +10,7 @@
     setTimeout(function () { el.remove(); }, 2200);
   }
 
-  var CATEGORIES = ["산업안전보건교육", "장애인 인식개선교육", "성희롱 예방교육", "개인정보보호교육", "퇴직연금교육", "기타"];
+  var CATEGORIES = ["정기 교육", "산업안전보건교육", "장애인 인식개선교육", "성희롱 예방교육", "개인정보보호교육", "퇴직연금교육", "기타"];
 
   /* ---------------- 테마 ---------------- */
   var themeBtn = document.getElementById("themeToggle");
@@ -25,6 +25,18 @@
     localStorage.setItem("edusign-theme", next);
     applyTheme(next);
   });
+
+  /* ---------------- 드라이브 사진 폴더 링크 ---------------- */
+  var driveNavLink = document.getElementById("driveNavLink");
+  if (driveNavLink) {
+    if (!Store.isLive()) {
+      driveNavLink.classList.add("btn--disabled");
+      driveNavLink.title = "구글시트 연동(라이브 모드) 후 사용할 수 있습니다";
+      driveNavLink.addEventListener("click", function (e) { e.preventDefault(); });
+    } else {
+      Store.getRootFolderUrl().then(function (url) { if (url) driveNavLink.href = url; });
+    }
+  }
 
   /* ---------------- 잠금화면 ---------------- */
   (function () {
@@ -142,6 +154,15 @@
         + (roster.length ? roster.map(rosterRow.bind(null, s.locked)).join("")
             : '<tr><td colspan="6" class="board__empty">등록된 명단이 없습니다. <b>+ 명단 등록</b>으로 참석 예정자를 추가하세요.</td></tr>')
         + '</tbody></table></div></div>'
+
+        + '<div class="board" style="margin-top:16px">'
+        + '<div class="board__head"><h3 class="board__title">교육 사진</h3>'
+        + '<div style="display:flex;gap:8px">'
+        + (s.driveFolderUrl ? '<a class="btn btn--sm" href="' + esc(s.driveFolderUrl) + '" target="_blank" rel="noopener">Drive에서 열기</a>' : "")
+        + '<label class="btn btn--sm btn--primary" style="cursor:pointer">+ 사진 업로드<input type="file" accept="image/*" id="photoInput" multiple hidden></label>'
+        + '</div></div>'
+        + '<div id="photoGrid" style="padding:18px;display:flex;flex-wrap:wrap;gap:12px">불러오는 중…</div>'
+        + '</div>'
         + '</div>';
 
       document.getElementById("editSessionBtn").addEventListener("click", function () { openSessionModal(s); });
@@ -168,6 +189,39 @@
         btn.addEventListener("click", function () {
           if (!confirm("이 명단을 삭제할까요? 서명 기록도 함께 삭제됩니다.")) return;
           Store.deleteRoster(btn.dataset.delRoster).then(function () { renderDetail(id); });
+        });
+      });
+
+      document.getElementById("photoInput").addEventListener("change", function (e) {
+        var files = Array.prototype.slice.call(e.target.files || []);
+        if (!files.length) return;
+        Promise.all(files.map(function (file) {
+          return new Promise(function (resolve) {
+            var reader = new FileReader();
+            reader.onload = function () { resolve(Store.uploadPhoto(s.id, reader.result, file.name)); };
+            reader.readAsDataURL(file);
+          });
+        })).then(function () { toast("사진을 업로드했습니다"); renderPhotoGrid(s.id); });
+      });
+      renderPhotoGrid(s.id);
+    });
+  }
+
+  function renderPhotoGrid(sessionId) {
+    var grid = document.getElementById("photoGrid");
+    if (!grid) return;
+    Store.listPhotos(sessionId).then(function (photos) {
+      if (!photos.length) { grid.innerHTML = '<span class="hint">아직 업로드된 사진이 없습니다.</span>'; return; }
+      grid.innerHTML = photos.map(function (p) {
+        return '<div style="position:relative">'
+          + '<img src="' + esc(p.url) + '" alt="교육 사진" style="width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--line)" />'
+          + '<button class="icon-btn" data-del-photo="' + esc(p.id) + '" style="position:absolute;top:4px;right:4px;background:var(--panel)">×</button>'
+          + '</div>';
+      }).join("");
+      grid.querySelectorAll("[data-del-photo]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (!confirm("이 사진을 삭제할까요?")) return;
+          Store.deletePhoto(btn.dataset.delPhoto).then(function () { renderPhotoGrid(sessionId); });
         });
       });
     });
