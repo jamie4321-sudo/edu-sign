@@ -1,14 +1,28 @@
 /* =========================================================
    EDU SIGN — 참석자(크루) 서명 화면 전용 테마
-   관리자 대시보드(styles.css, 다크+라임)와는 완전히 다른, 밝고 쉬운 톤.
-   장애 크루도 부담없이 쓸 수 있도록: 큰 글씨, 큰 버튼, 선택지 최소화.
+   관리자 대시보드(styles.css)와 같은 다크 + 라임그린(#c6ff2e) 팔레트.
+   장애 크루도 부담없이 쓸 수 있도록: 큰 글씨, 큰 버튼, 선택지 최소화는 유지.
    ========================================================= */
+:root {
+  --sw-bg:      #0a0a0b;
+  --sw-card:    #131315;
+  --sw-card-2:  #151517;
+  --sw-line:    #232326;
+  --sw-ink:     #f4f4f5;
+  --sw-ink-2:   #a1a1a6;
+  --sw-ink-3:   #6b6b70;
+  --sw-accent:      #c6ff2e;
+  --sw-accent-ink:  #0a0a0b;
+  --sw-green: #4ade80;
+  --sw-red:   #ff5a52;
+}
+
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
   font-family: "Pretendard", system-ui, sans-serif;
-  background: #faf3ea;
-  color: #1c1c1a;
+  background: var(--sw-bg);
+  color: var(--sw-ink);
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -17,69 +31,70 @@ button, select, input { font-family: inherit; }
 [hidden] { display: none !important; }
 
 .sw { max-width: 420px; margin: 0 auto; min-height: 100vh; padding: 28px 20px 40px; display: flex; flex-direction: column; }
-.sw-brand { text-align: center; font-weight: 800; font-size: 13px; letter-spacing: 1px; color: #a49c8c; margin-bottom: 22px; }
-.sw-brand em { color: #d9b400; font-style: normal; }
+.sw-brand { text-align: center; font-weight: 800; font-size: 13px; letter-spacing: 1px; color: var(--sw-ink-3); margin-bottom: 22px; }
+.sw-brand em { color: var(--sw-accent); font-style: normal; }
 
 /* ---- 아이콘 마크 ---- */
-.sw-mark { width: 96px; height: 96px; margin: 0 auto 22px; border-radius: 26px; background: #fee500; display: flex; align-items: center; justify-content: center; box-shadow: 0 14px 28px rgba(254,229,0,.35); }
+.sw-mark { width: 96px; height: 96px; margin: 0 auto 22px; border-radius: 26px; background: var(--sw-accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 14px 28px rgba(198,255,46,.22); }
 .sw-mark svg { width: 46px; height: 46px; }
+.sw-mark svg path { stroke: var(--sw-accent-ink) !important; }
 
-.sw-title { text-align: center; font-size: 26px; font-weight: 800; letter-spacing: -.5px; margin: 0 0 6px; }
-.sw-sub { text-align: center; color: #8a8578; font-size: 14px; margin: 0 0 30px; }
+.sw-title { text-align: center; font-size: 26px; font-weight: 800; letter-spacing: -.5px; margin: 0 0 6px; color: var(--sw-ink); }
+.sw-sub { text-align: center; color: var(--sw-ink-2); font-size: 14px; margin: 0 0 30px; }
 
-.sw-fld-label { font-size: 13px; color: #8a8578; font-weight: 600; margin: 0 0 8px; }
+.sw-fld-label { font-size: 13px; color: var(--sw-ink-2); font-weight: 600; margin: 0 0 8px; }
 .sw-select-wrap { position: relative; margin-bottom: 18px; }
 .sw-select {
-  width: 100%; appearance: none; background: #fff; border: none; border-radius: 18px;
-  padding: 18px 44px 18px 20px; font-size: 17px; font-weight: 700; color: #1c1c1a;
-  box-shadow: 0 6px 18px rgba(28,28,26,.06); outline: none;
+  width: 100%; appearance: none; background: var(--sw-card-2); border: 1px solid var(--sw-line); border-radius: 18px;
+  padding: 18px 44px 18px 20px; font-size: 17px; font-weight: 700; color: var(--sw-ink);
+  box-shadow: 0 6px 18px rgba(0,0,0,.3); outline: none;
 }
 .sw-select-wrap::after {
   content: ""; position: absolute; right: 20px; top: 50%; width: 10px; height: 10px;
-  border-right: 2px solid #8a8578; border-bottom: 2px solid #8a8578; transform: translateY(-65%) rotate(45deg); pointer-events: none;
+  border-right: 2px solid var(--sw-ink-3); border-bottom: 2px solid var(--sw-ink-3); transform: translateY(-65%) rotate(45deg); pointer-events: none;
 }
 
 .sw-spacer { flex: 1; }
 
 .sw-btn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; border: none; border-radius: 18px; padding: 19px 20px; font-size: 17px; font-weight: 800;
-  cursor: pointer; background: #fff; color: #1c1c1a; box-shadow: 0 6px 18px rgba(28,28,26,.06);
+  width: 100%; border: 1px solid var(--sw-line); border-radius: 18px; padding: 19px 20px; font-size: 17px; font-weight: 800;
+  cursor: pointer; background: var(--sw-card-2); color: var(--sw-ink); box-shadow: 0 6px 18px rgba(0,0,0,.3);
 }
-.sw-btn--primary { background: #fee500; }
+.sw-btn--primary { background: var(--sw-accent); color: var(--sw-accent-ink); border-color: var(--sw-accent); }
 .sw-btn[disabled] { opacity: .5; cursor: not-allowed; }
-.sw-btn--ghost { background: transparent; box-shadow: none; color: #8a8578; font-weight: 600; font-size: 14px; padding: 10px; }
+.sw-btn--ghost { background: transparent; box-shadow: none; border-color: transparent; color: var(--sw-ink-3); font-weight: 600; font-size: 14px; padding: 10px; }
 
 .sw-chip {
   display: flex; align-items: center; justify-content: center; gap: 8px; margin: 22px auto 0;
-  background: #fff; border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 700; color: #4a4638;
-  box-shadow: 0 6px 18px rgba(28,28,26,.06); width: fit-content;
+  background: var(--sw-card-2); border: 1px solid var(--sw-line); border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 700; color: var(--sw-ink-2);
+  width: fit-content;
 }
-.sw-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: #34c759; }
-.sw-chip.is-locked .dot { background: #ff5a52; }
+.sw-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sw-green); }
+.sw-chip.is-locked .dot { background: var(--sw-red); }
 
 /* ---- 인사 카드(2단계) ---- */
 .sw-greet {
-  background: #fee500; border-radius: 22px; padding: 24px 22px; margin-bottom: 18px;
+  background: var(--sw-accent); border-radius: 22px; padding: 24px 22px; margin-bottom: 18px;
 }
-.sw-greet h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.3px; }
-.sw-greet p { margin: 6px 0 0; font-size: 13px; color: #6b6420; font-weight: 600; }
-.sw-back { display: inline-flex; align-items: center; gap: 4px; color: #8a8578; font-size: 13px; font-weight: 600; margin-bottom: 14px; cursor: pointer; }
+.sw-greet h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.3px; color: var(--sw-accent-ink); }
+.sw-greet p { margin: 6px 0 0; font-size: 13px; color: rgba(10,10,11,.65); font-weight: 600; }
+.sw-back { display: inline-flex; align-items: center; gap: 4px; color: var(--sw-ink-3); font-size: 13px; font-weight: 600; margin-bottom: 14px; cursor: pointer; }
 
-.sw-card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 6px 18px rgba(28,28,26,.06); margin-bottom: 14px; }
-.sw-card h3 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
-.sw-card p.hint { margin: 0; font-size: 13px; color: #8a8578; }
+.sw-card { background: var(--sw-card); border: 1px solid var(--sw-line); border-radius: 20px; padding: 20px; margin-bottom: 14px; }
+.sw-card h3 { margin: 0 0 4px; font-size: 16px; font-weight: 800; color: var(--sw-ink); }
+.sw-card p.hint { margin: 0; font-size: 13px; color: var(--sw-ink-2); }
 
-.sw-sigpad { width: 100%; aspect-ratio: 4 / 2.2; background: #f5f1ea; border: 2px dashed #e3dccb; border-radius: 16px; touch-action: none; display: block; margin-top: 14px; }
-.sw-sigpad.has-ink { border-style: solid; border-color: #fee500; background: #fff; }
+.sw-sigpad { width: 100%; aspect-ratio: 4 / 2.2; background: #fff; border: 2px dashed var(--sw-line); border-radius: 16px; touch-action: none; display: block; margin-top: 14px; }
+.sw-sigpad.has-ink { border-style: solid; border-color: var(--sw-accent); }
 .sw-sig-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
-.sw-sig-actions button { background: none; border: none; color: #8a8578; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: underline; }
+.sw-sig-actions button { background: none; border: none; color: var(--sw-ink-3); font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: underline; }
 
 .sw-done-badge { display: flex; align-items: center; gap: 12px; }
-.sw-done-badge .ok { width: 44px; height: 44px; border-radius: 50%; background: #eaf9ee; color: #219a4a; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex-shrink: 0; }
-.sw-done-img { width: 100%; background: #f5f1ea; border-radius: 14px; padding: 10px; margin-top: 14px; }
-.sw-done-img img { display: block; width: 100%; }
+.sw-done-badge .ok { width: 44px; height: 44px; border-radius: 50%; background: rgba(74,222,128,.15); color: var(--sw-green); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex-shrink: 0; }
+.sw-done-img { width: 100%; background: var(--sw-card-2); border: 1px solid var(--sw-line); border-radius: 14px; padding: 10px; margin-top: 14px; }
+.sw-done-img img { display: block; width: 100%; border-radius: 6px; }
 
-.sw-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1c1c1a; color: #fff; padding: 12px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; z-index: 900; }
+.sw-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--sw-ink); color: var(--sw-bg); padding: 12px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; z-index: 900; }
 
-.sw-empty { text-align: center; color: #8a8578; padding: 60px 20px; font-size: 14px; }
+.sw-empty { text-align: center; color: var(--sw-ink-3); padding: 60px 20px; font-size: 14px; }
