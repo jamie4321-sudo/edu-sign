@@ -37,9 +37,33 @@
     if (saved && allRoster.some(function (r) { return r.name === saved; })) renderSessionSelect(saved);
     else renderLogin();
   }).catch(function () {
-    root.innerHTML = '<div class="sw-brand">EDU<em> · </em>SIGN</div><div class="sw-mark">' + MARK_SVG + '</div>'
+    root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div><div class="sw-mark">' + MARK_SVG + '</div>'
       + '<h1 class="sw-title">불러오지 못했습니다</h1><p class="sw-sub">네트워크 상태를 확인하고 새로고침해주세요.</p>';
   });
+
+  /* ---------------- 커스텀 선택 시트 (네이티브 select 대신) ---------------- */
+  function openPickSheet(title, items, selectedValue, onSelect) {
+    var wrap = document.createElement("div");
+    wrap.className = "sw-sheet";
+    wrap.innerHTML = '<div class="sw-sheet__backdrop"></div>'
+      + '<div class="sw-sheet__panel"><div class="sw-sheet__grip"></div>'
+      + '<div class="sw-sheet__head">' + esc(title) + '<button type="button" class="sw-sheet__close">닫기</button></div>'
+      + '<div class="sw-sheet__list">'
+      + (items.length
+          ? items.map(function (it) {
+              return '<div class="sw-sheet__row' + (it.value === selectedValue ? " is-selected" : "") + '" data-value="' + esc(it.value) + '">'
+                + esc(it.label) + (it.sub ? ' <span>' + esc(it.sub) + '</span>' : "") + '</div>';
+            }).join("")
+          : '<div class="sw-sheet__empty">선택할 항목이 없습니다</div>')
+      + '</div></div>';
+    document.body.appendChild(wrap);
+    function close() { wrap.remove(); }
+    wrap.querySelector(".sw-sheet__backdrop").addEventListener("click", close);
+    wrap.querySelector(".sw-sheet__close").addEventListener("click", close);
+    wrap.querySelectorAll(".sw-sheet__row").forEach(function (row) {
+      row.addEventListener("click", function () { onSelect(row.dataset.value); close(); });
+    });
+  }
 
   /* ---------------- 1단계: 이름으로 로그인 ---------------- */
   function renderLogin() {
@@ -57,20 +81,26 @@
       + '<h1 class="sw-title">교육 서명</h1>'
       + '<p class="sw-sub">이름으로 로그인해주세요</p>'
       + '<p class="sw-fld-label">이름을 선택하세요</p>'
-      + '<div class="sw-select-wrap"><select class="sw-select" id="nameSelect">'
-      + '<option value="">이름 선택</option>'
-      + names.map(function (n) { return '<option value="' + esc(n.name) + '">' + esc(n.name) + (n.dept ? " (" + esc(n.dept) + ")" : "") + '</option>'; }).join("")
-      + '</select></div>'
+      + '<div class="sw-select-wrap"><button type="button" class="sw-select is-placeholder" id="nameTrigger">이름 선택</button></div>'
       + '<div class="sw-spacer"></div>'
       + '<button class="sw-btn sw-btn--primary" id="loginBtn" disabled>로그인 →</button>';
 
-    var select = document.getElementById("nameSelect");
+    var trigger = document.getElementById("nameTrigger");
     var loginBtn = document.getElementById("loginBtn");
-    select.addEventListener("change", function () { loginBtn.disabled = !select.value; });
+    var selectedName = "";
+
+    trigger.addEventListener("click", function () {
+      openPickSheet("이름을 선택하세요", names.map(function (n) { return { value: n.name, label: n.name, sub: n.dept }; }), selectedName, function (value) {
+        selectedName = value;
+        trigger.textContent = value;
+        trigger.classList.remove("is-placeholder");
+        loginBtn.disabled = !value;
+      });
+    });
     loginBtn.addEventListener("click", function () {
-      if (!select.value) return;
-      try { localStorage.setItem(LOGIN_KEY, select.value); } catch (e) {}
-      renderSessionSelect(select.value);
+      if (!selectedName) return;
+      try { localStorage.setItem(LOGIN_KEY, selectedName); } catch (e) {}
+      renderSessionSelect(selectedName);
     });
   }
 
