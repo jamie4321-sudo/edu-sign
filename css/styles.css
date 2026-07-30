@@ -164,6 +164,8 @@ html[data-authed="1"] .layout { display: grid; }
 .progress-bar { flex: 1; height: 6px; border-radius: 999px; background: var(--line-soft); overflow: hidden; }
 .progress-bar__fill { height: 100%; background: var(--accent); border-radius: 999px; }
 .session-card__count { font-family: var(--mono); font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.session-card__drive { align-self: flex-start; font-size: 11px; color: var(--ink-3); text-decoration: underline; cursor: pointer; }
+.session-card__drive:hover { color: var(--accent-text); }
 
 .empty { text-align: center; padding: 60px 20px; color: var(--ink-3); }
 .empty b { color: var(--ink); }

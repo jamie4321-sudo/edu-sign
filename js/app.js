@@ -107,8 +107,15 @@
           + '<div class="session-card__cat">' + esc(s.category || "") + '</div></div>'
           + '<div class="session-card__progress"><div class="progress-bar"><div class="progress-bar__fill" style="width:' + pct + '%"></div></div>'
           + '<span class="session-card__count mono">' + s.signed + '/' + s.total + '명</span></div>'
+          + (s.driveFolderUrl ? '<span class="session-card__drive" data-drive="' + esc(s.driveFolderUrl) + '">드라이브 링크</span>' : "")
           + '</a>';
       }).join("");
+      grid.querySelectorAll(".session-card__drive").forEach(function (el) {
+        el.addEventListener("click", function (e) {
+          e.preventDefault(); e.stopPropagation();
+          window.open(el.dataset.drive, "_blank", "noopener");
+        });
+      });
     });
   }
 

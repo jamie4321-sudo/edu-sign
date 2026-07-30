@@ -10,8 +10,8 @@
  *                 signature = base64 PNG dataURL(짧으면) 또는 "drive:<fileId>"(길면, 자동)
  *  - "photos"   : id | sessionId | fileId | url | uploadedAt
  *
- * 교육 사진은 "EDU SIGN 교육사진" 이라는 이름의 내 드라이브 폴더 아래,
- * 세션별로 하위 폴더를 만들어 저장합니다(setupFolders() 로 미리 만들 필요 없음 — 첫 업로드 시 자동 생성).
+ * 교육 사진은 지정된 드라이브 폴더(ROOT_FOLDER_ID) 아래, 세션별로 "날짜 제목"
+ * 이름의 하위 폴더를 만들어 저장합니다 — 폴더는 첫 업로드 시 자동 생성됩니다.
  *
  * 읽기/쓰기 모두 "컬럼 순서"가 아니라 "헤더 이름"으로 매칭합니다.
  *
@@ -25,7 +25,7 @@ var SESSION_FIELDS = ["id", "date", "category", "title", "locked", "createdAt", 
 var ROSTER_FIELDS = ["id", "sessionId", "seq", "dept", "name", "signature", "signedAt"];
 var PHOTO_FIELDS = ["id", "sessionId", "fileId", "url", "uploadedAt"];
 
-var ROOT_FOLDER_NAME = "EDU SIGN 교육사진";
+var ROOT_FOLDER_ID = "1sMragUccF7GxuTTa3htR6L1e1wdT4i-x"; // 교육 사진이 쌓이는 지정 드라이브 폴더
 var SIGN_FOLDER_NAME = "EDU SIGN 서명원본";
 var SIGNATURE_INLINE_LIMIT = 8000; // 이보다 긴 서명 dataURL은 드라이브에 저장하고 참조만 남김
 
@@ -141,8 +141,7 @@ function boolOf_(v) { return v === true || String(v).toLowerCase() === "true"; }
 
 /* ---------------- 드라이브 폴더 ---------------- */
 function rootFolder_() {
-  var it = DriveApp.getFoldersByName(ROOT_FOLDER_NAME);
-  return it.hasNext() ? it.next() : DriveApp.createFolder(ROOT_FOLDER_NAME);
+  return DriveApp.getFolderById(ROOT_FOLDER_ID);
 }
 function signFolder_() {
   var it = DriveApp.getFoldersByName(SIGN_FOLDER_NAME);
