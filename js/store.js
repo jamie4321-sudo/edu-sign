@@ -135,6 +135,12 @@ window.Store = (function () {
       return Promise.resolve({ ok: true });
     },
 
+    listAllRoster: function () {
+      if (LIVE) return apiGet({ action: "allRoster" }).then(function (d) { return d.roster || []; });
+      DB = load();
+      return Promise.resolve(DB.roster.slice());
+    },
+
     listPhotos: function (sessionId) {
       if (LIVE) return apiGet({ action: "photos", id: sessionId }).then(function (d) { return d.photos || []; });
       DB = load();

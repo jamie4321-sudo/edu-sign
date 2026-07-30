@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EDU SIGN — 교육 서명 관리</title>
+  <title>SNACK & GARDEN EDU SIGN — 교육 서명 관리</title>
   <meta name="description" content="정기 교육 참석자 서명을 온라인으로 받고 원본 서식대로 출력합니다" />
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
@@ -20,7 +20,7 @@
 
   <div class="lock" id="lockScreen">
     <div class="lock__card">
-      <div class="lock__brand">EDU<em>·</em>SIGN</div>
+      <div class="lock__brand">SNACK<em>&amp;</em>GARDEN</div>
       <p class="lock__label">관리자 비밀번호 4자리를 입력하세요</p>
       <div class="lock__dots" id="lockDots">
         <span class="lock__dot"></span><span class="lock__dot"></span><span class="lock__dot"></span><span class="lock__dot"></span>
@@ -30,24 +30,36 @@
     </div>
   </div>
 
-  <div class="app">
-    <header class="topbar">
-      <div>
-        <div class="topbar__brand">EDU<em>·</em>SIGN</div>
-        <div class="topbar__sub">정기 교육 참석 서명 관리</div>
-      </div>
-      <div class="topbar__right">
-        <a class="btn btn--sm btn--ghost" id="driveNavLink" href="#" target="_blank" rel="noopener">사진 폴더 (Drive)</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="라이트/다크 테마 전환"><span class="knob"></span><span class="lbl">DARK</span></button>
-      </div>
-    </header>
-    <main id="view"></main>
+  <div class="layout">
+    <aside class="side">
+      <a class="brand" href="#/">
+        <span class="brand__mark">SNACK<em>&amp;</em>GARDEN</span>
+        <span class="brand__sub">EDU SIGN · 교육 서명 관리</span>
+      </a>
+      <nav class="nav" aria-label="주요 메뉴">
+        <p class="nav__label">MAIN</p>
+        <a class="nav__item is-active" href="#/">교육 서명 세션</a>
+        <p class="nav__label">연동</p>
+        <a class="nav__item nav__item--ext" id="driveNavLink" href="#" target="_blank" rel="noopener">사진 폴더 <span>Drive</span></a>
+      </nav>
+      <div class="side__foot"><span class="dot"></span> <span id="modeLabel">DEMO · 목업 데이터</span></div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <p class="topbar__crumb" id="viewTitle">SESSIONS</p>
+        <div class="topbar__right">
+          <button class="theme-toggle" id="themeToggle" aria-label="라이트/다크 테마 전환"><span class="knob"></span><span class="lbl">DARK</span></button>
+        </div>
+      </header>
+      <main id="view"></main>
+    </div>
   </div>
 
   <script src="./js/config.js?v=1"></script>
   <script src="./js/config.local.js?v=1"></script>
   <script src="./js/data.js?v=1"></script>
-  <script src="./js/store.js?v=1"></script>
-  <script src="./js/app.js?v=1"></script>
+  <script src="./js/store.js?v=2"></script>
+  <script src="./js/app.js?v=3"></script>
 </body>
 </html>

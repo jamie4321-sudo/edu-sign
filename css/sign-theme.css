@@ -98,3 +98,23 @@ button, select, input { font-family: inherit; }
 .sw-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--sw-ink); color: var(--sw-bg); padding: 12px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; z-index: 900; }
 
 .sw-empty { text-align: center; color: var(--sw-ink-3); padding: 60px 20px; font-size: 14px; }
+
+/* ---- 로그인(이름) 화면 하단 ---- */
+.sw-login-foot { text-align: center; margin-top: 18px; }
+.sw-login-foot button { background: none; border: none; color: var(--sw-ink-3); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: underline; }
+
+/* ---- 교육 선택 화면 ---- */
+.sw-hello { font-size: 15px; color: var(--sw-ink-2); margin: 0 0 4px; text-align: center; }
+.sw-hello b { color: var(--sw-ink); }
+.sw-session-list { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.sw-session-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--sw-card); border: 1px solid var(--sw-line); border-radius: 16px; padding: 16px 18px; cursor: pointer;
+}
+.sw-session-card:active { border-color: var(--sw-accent); }
+.sw-session-card__date { font-size: 12px; color: var(--sw-ink-3); font-weight: 700; }
+.sw-session-card__title { font-size: 16px; font-weight: 800; color: var(--sw-ink); margin-top: 2px; }
+.sw-session-card__cat { font-size: 12px; color: var(--sw-ink-2); margin-top: 2px; }
+.sw-session-card__badge { font-size: 12px; font-weight: 800; white-space: nowrap; padding: 6px 12px; border-radius: 999px; }
+.sw-session-card__badge.is-done { color: var(--sw-green); background: rgba(74,222,128,.12); }
+.sw-session-card__badge.is-todo { color: var(--sw-accent-ink); background: var(--sw-accent); }

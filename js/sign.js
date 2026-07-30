@@ -16,95 +16,144 @@
     setTimeout(function () { el.remove(); }, 2200);
   }
 
-  var MARK_SVG = '<svg viewBox="0 0 24 24" fill="none"><path d="M4 17l4-4 3 3 6-7 3 3" stroke="#1c1c1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var MARK_SVG = '<svg viewBox="0 0 24 24" fill="none"><path d="M4 17l4-4 3 3 6-7 3 3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var LOGIN_KEY = "edusign-login-name";
 
-  var qs = new URLSearchParams(location.search);
-  var sessionId = qs.get("s");
   var root = document.getElementById("sw");
-  var session = null, roster = [];
-  var LS_KEY = "edusign-last-" + sessionId;
+  var allSessions = [], allRoster = [];
 
-  if (!sessionId) {
-    root.innerHTML = emptyView("잘못된 접근입니다", "관리자에게 전달받은 서명 링크로 다시 접속해주세요.");
-  } else {
-    load();
-  }
-
-  function emptyView(title, sub) {
-    return '<div class="sw-brand">EDU<em> · </em>SIGN</div>'
+  function loadingView() {
+    root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
       + '<div class="sw-mark">' + MARK_SVG + '</div>'
-      + '<h1 class="sw-title">' + esc(title) + '</h1>'
-      + '<p class="sw-sub">' + esc(sub) + '</p>';
+      + '<p class="sw-sub" style="margin-top:0">불러오는 중…</p>';
   }
 
-  function load() {
-    Store.getSession(sessionId).then(function (d) {
-      if (!d || !d.session) { root.innerHTML = emptyView("세션을 찾을 수 없습니다", "링크를 다시 확인해주세요."); return; }
-      session = d.session;
-      roster = d.roster || [];
-      var lastId = sessionStorage.getItem(LS_KEY);
-      renderSelect(lastId && roster.some(function (r) { return r.id === lastId; }) ? lastId : "");
+  loadingView();
+  Promise.all([Store.listSessions(), Store.listAllRoster()]).then(function (res) {
+    allSessions = res[0] || [];
+    allRoster = res[1] || [];
+    var saved = "";
+    try { saved = localStorage.getItem(LOGIN_KEY) || ""; } catch (e) {}
+    if (saved && allRoster.some(function (r) { return r.name === saved; })) renderSessionSelect(saved);
+    else renderLogin();
+  }).catch(function () {
+    root.innerHTML = '<div class="sw-brand">EDU<em> · </em>SIGN</div><div class="sw-mark">' + MARK_SVG + '</div>'
+      + '<h1 class="sw-title">불러오지 못했습니다</h1><p class="sw-sub">네트워크 상태를 확인하고 새로고침해주세요.</p>';
+  });
+
+  /* ---------------- 1단계: 이름으로 로그인 ---------------- */
+  function renderLogin() {
+    var names = [];
+    var seen = {};
+    allRoster.forEach(function (r) {
+      if (!r.name || seen[r.name]) return;
+      seen[r.name] = true;
+      names.push({ name: r.name, dept: r.dept || "" });
     });
-  }
+    names.sort(function (a, b) { return a.name.localeCompare(b.name, "ko"); });
 
-  function renderSelect(selectedId) {
-    root.innerHTML = '<div class="sw-brand">EDU<em> · </em>SIGN</div>'
+    root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
       + '<div class="sw-mark">' + MARK_SVG + '</div>'
-      + '<h1 class="sw-title">' + esc(session.title || session.category || "교육 서명") + '</h1>'
-      + '<p class="sw-sub">' + esc(session.date || "") + ' · ' + esc(session.category || "") + '</p>'
+      + '<h1 class="sw-title">교육 서명</h1>'
+      + '<p class="sw-sub">이름으로 로그인해주세요</p>'
       + '<p class="sw-fld-label">이름을 선택하세요</p>'
       + '<div class="sw-select-wrap"><select class="sw-select" id="nameSelect">'
       + '<option value="">이름 선택</option>'
-      + roster.map(function (r) {
-          return '<option value="' + esc(r.id) + '"' + (r.id === selectedId ? " selected" : "") + '>' + esc(r.name) + (r.dept ? " (" + esc(r.dept) + ")" : "") + (r.signature ? " ✓ 서명완료" : "") + '</option>';
-        }).join("")
+      + names.map(function (n) { return '<option value="' + esc(n.name) + '">' + esc(n.name) + (n.dept ? " (" + esc(n.dept) + ")" : "") + '</option>'; }).join("")
       + '</select></div>'
       + '<div class="sw-spacer"></div>'
-      + '<button class="sw-btn sw-btn--primary" id="startBtn" disabled>시작하기 →</button>'
-      + '<div class="sw-chip' + (session.locked ? " is-locked" : "") + '"><span class="dot"></span>' + (session.locked ? "서명 마감" : "서명 가능") + '</div>';
+      + '<button class="sw-btn sw-btn--primary" id="loginBtn" disabled>로그인 →</button>';
 
     var select = document.getElementById("nameSelect");
-    var startBtn = document.getElementById("startBtn");
-    function sync() { startBtn.disabled = !select.value; }
-    select.addEventListener("change", sync);
-    sync();
-    startBtn.addEventListener("click", function () {
+    var loginBtn = document.getElementById("loginBtn");
+    select.addEventListener("change", function () { loginBtn.disabled = !select.value; });
+    loginBtn.addEventListener("click", function () {
       if (!select.value) return;
-      sessionStorage.setItem(LS_KEY, select.value);
-      var r = roster.find(function (x) { return x.id === select.value; });
-      renderGreet(r);
+      try { localStorage.setItem(LOGIN_KEY, select.value); } catch (e) {}
+      renderSessionSelect(select.value);
     });
   }
 
-  function renderGreet(r) {
-    var locked = session.locked;
-    root.innerHTML = '<span class="sw-back" id="backBtn">← 다른 이름으로</span>'
-      + '<div class="sw-greet"><h1>' + esc(r.name) + '님, 안녕하세요!</h1><p>' + esc(session.date || "") + ' · ' + esc(session.category || "") + '</p></div>'
+  /* ---------------- 2단계: 교육 선택 ---------------- */
+  function sessionsForName(name) {
+    return allSessions.filter(function (s) {
+      if (s.locked) return false;
+      return allRoster.some(function (r) { return r.sessionId === s.id && r.name === name; });
+    }).sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+  }
+  function rosterRowFor(sessionId, name) {
+    return allRoster.find(function (r) { return r.sessionId === sessionId && r.name === name; });
+  }
+
+  function renderSessionSelect(name) {
+    var sessions = sessionsForName(name);
+
+    root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
+      + '<p class="sw-hello"><b>' + esc(name) + '</b>님, 안녕하세요!</p>'
+      + '<h1 class="sw-title" style="font-size:20px;margin-bottom:2px">서명할 교육을 선택하세요</h1>'
+      + '<div class="sw-session-list" id="sessionList"></div>'
+      + '<div class="sw-login-foot"><button id="logoutBtn">다른 사람으로 로그인</button></div>';
+
+    var list = document.getElementById("sessionList");
+    if (!sessions.length) {
+      list.innerHTML = '<div class="sw-empty">지금 서명할 수 있는 교육이 없어요.<br>담당자에게 문의해주세요.</div>';
+    } else {
+      list.innerHTML = sessions.map(function (s) {
+        var row = rosterRowFor(s.id, name);
+        var done = !!(row && row.signature);
+        return '<div class="sw-session-card" data-id="' + esc(s.id) + '">'
+          + '<div><div class="sw-session-card__date">' + esc(s.date || "") + '</div>'
+          + '<div class="sw-session-card__title">' + esc(s.title || s.category || "교육") + '</div>'
+          + '<div class="sw-session-card__cat">' + esc(s.category || "") + '</div></div>'
+          + '<span class="sw-session-card__badge ' + (done ? "is-done" : "is-todo") + '">' + (done ? "서명완료" : "서명하기") + '</span>'
+          + '</div>';
+      }).join("");
+      list.querySelectorAll(".sw-session-card").forEach(function (card) {
+        card.addEventListener("click", function () {
+          var s = allSessions.find(function (x) { return x.id === card.dataset.id; });
+          var row = rosterRowFor(s.id, name);
+          renderGreet(s, row, name);
+        });
+      });
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+      try { localStorage.removeItem(LOGIN_KEY); } catch (e) {}
+      renderLogin();
+    });
+  }
+
+  /* ---------------- 3단계: 인사 + 서명 ---------------- */
+  function renderGreet(session, row, name) {
+    root.innerHTML = '<span class="sw-back" id="backBtn">← 다른 교육 선택</span>'
+      + '<div class="sw-greet"><h1>' + esc(row.name) + '님, 안녕하세요!</h1><p>' + esc(session.date || "") + ' · ' + esc(session.category || "") + '</p></div>'
       + '<div id="signArea"></div>';
 
-    document.getElementById("backBtn").addEventListener("click", function () { renderSelect(r.id); });
+    document.getElementById("backBtn").addEventListener("click", function () { renderSessionSelect(name); });
 
-    if (r.signature) renderDoneCard(r); else if (locked) renderLockedCard(); else renderSignCard(r);
+    if (row.signature) renderDoneCard(session, row, name);
+    else if (session.locked) renderLockedCard();
+    else renderSignCard(session, row, name);
   }
 
   function renderLockedCard() {
     document.getElementById("signArea").innerHTML = '<div class="sw-card"><h3>서명이 마감되었습니다</h3><p class="hint">이 교육 세션은 더 이상 서명을 받지 않습니다. 담당자에게 문의해주세요.</p></div>';
   }
 
-  function renderDoneCard(r) {
+  function renderDoneCard(session, row, name) {
     document.getElementById("signArea").innerHTML = '<div class="sw-card">'
-      + '<div class="sw-done-badge"><span class="ok">✓</span><div><h3>서명 완료</h3><p class="hint">' + esc(fmtDateTime(r.signedAt)) + '에 서명했어요</p></div></div>'
-      + '<div class="sw-done-img"><img src="' + r.signature + '" alt="서명" /></div>'
+      + '<div class="sw-done-badge"><span class="ok">✓</span><div><h3>서명 완료</h3><p class="hint">' + esc(fmtDateTime(row.signedAt)) + '에 서명했어요</p></div></div>'
+      + '<div class="sw-done-img"><img src="' + row.signature + '" alt="서명" /></div>'
       + '</div>'
       + (session.locked ? "" : '<button class="sw-btn sw-btn--ghost" id="resignBtn">다시 서명하기</button>');
     var resignBtn = document.getElementById("resignBtn");
     if (resignBtn) resignBtn.addEventListener("click", function () {
       if (!confirm("기존 서명을 지우고 다시 서명하시겠습니까?")) return;
-      renderSignCard(r);
+      renderSignCard(session, row, name);
     });
   }
 
-  function renderSignCard(r) {
+  function renderSignCard(session, row, name) {
     document.getElementById("signArea").innerHTML = '<div class="sw-card">'
       + '<h3>여기에 서명해주세요</h3><p class="hint">손가락으로 이름을 적어주세요</p>'
       + '<canvas class="sw-sigpad" id="sigPad"></canvas>'
@@ -166,13 +215,13 @@
       octx.fillStyle = "#fff"; octx.fillRect(0, 0, out.width, out.height);
       octx.drawImage(canvas, 0, 0, out.width, out.height);
       var dataUrl = out.toDataURL("image/png");
-      Store.signRoster(r.id, dataUrl).then(function () {
+      Store.signRoster(row.id, dataUrl).then(function () {
         toast("서명이 저장되었습니다");
-        Store.getSession(sessionId).then(function (d) {
-          roster = d.roster || [];
-          var updated = roster.find(function (x) { return x.id === r.id; });
-          renderDoneCard(updated);
-        });
+        return Store.listAllRoster();
+      }).then(function (fresh) {
+        allRoster = fresh;
+        var updated = rosterRowFor(session.id, name);
+        renderDoneCard(session, updated, name);
       });
     });
   }

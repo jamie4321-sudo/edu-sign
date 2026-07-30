@@ -185,6 +185,11 @@ function doGet(e) {
     return json_({ session: s, roster: rosterRows });
   }
 
+  if (action === "allRoster") {
+    var all = rows_("roster", ROSTER_FIELDS).map(function (r) { r.signature = resolveSignature_(r.signature); return r; });
+    return json_({ roster: all });
+  }
+
   if (action === "photos") {
     var sid = e.parameter.id;
     var photos = rows_("photos", PHOTO_FIELDS).filter(function (p) { return String(p.sessionId) === String(sid); })

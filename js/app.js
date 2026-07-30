@@ -26,17 +26,21 @@
     applyTheme(next);
   });
 
-  /* ---------------- 드라이브 사진 폴더 링크 ---------------- */
+  /* ---------------- 드라이브 사진 폴더 링크 / 모드 표시 ---------------- */
   var driveNavLink = document.getElementById("driveNavLink");
+  var modeLabel = document.getElementById("modeLabel");
+  if (modeLabel) modeLabel.textContent = Store.isLive() ? "LIVE · 구글시트 연동" : "DEMO · 목업 데이터";
   if (driveNavLink) {
     if (!Store.isLive()) {
-      driveNavLink.classList.add("btn--disabled");
+      driveNavLink.classList.add("nav__item--disabled");
       driveNavLink.title = "구글시트 연동(라이브 모드) 후 사용할 수 있습니다";
       driveNavLink.addEventListener("click", function (e) { e.preventDefault(); });
     } else {
       Store.getRootFolderUrl().then(function (url) { if (url) driveNavLink.href = url; });
     }
   }
+
+  function setCrumb(text) { var el = document.getElementById("viewTitle"); if (el) el.textContent = text; }
 
   /* ---------------- 잠금화면 ---------------- */
   (function () {
@@ -80,6 +84,7 @@
 
   /* ---------------- 목록 화면 ---------------- */
   function renderList() {
+    setCrumb("SESSIONS");
     view.innerHTML = '<div class="wrap"><div class="page-head">'
       + '<div><p class="eyebrow">EDU SIGN</p><h2>교육 서명 세션</h2><p class="sub">교육 회차를 만들고 서명 링크를 공유하세요.</p></div>'
       + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button>'
@@ -108,17 +113,20 @@
   }
 
   /* ---------------- 상세 화면 ---------------- */
-  function signUrl(sessionId) {
-    return location.origin + location.pathname.replace(/index\.html$/, "").replace(/\/$/, "") + "/sign.html?s=" + encodeURIComponent(sessionId);
+  /* sign.html은 이제 이름 로그인 → 교육 선택 → 서명 흐름의 공용 페이지라
+     세션마다 다른 링크가 필요 없음 — 크루는 이 링크 하나만 북마크해두면 됨 */
+  function signUrl() {
+    return location.origin + location.pathname.replace(/index\.html$/, "").replace(/\/$/, "") + "/sign.html";
   }
 
   function renderDetail(id) {
+    setCrumb("SESSION DETAIL");
     view.innerHTML = '<div class="wrap"><div class="empty">불러오는 중…</div></div>';
     Store.getSession(id).then(function (d) {
       if (!d || !d.session) { view.innerHTML = '<div class="wrap"><div class="empty">세션을 찾을 수 없습니다. <a href="#/">목록으로</a></div></div>'; return; }
       var s = d.session, roster = d.roster || [];
       var signed = roster.filter(function (r) { return !!r.signature; }).length;
-      var url = signUrl(s.id);
+      var url = signUrl();
 
       view.innerHTML = '<div class="wrap">'
         + '<div class="detail-head"><a class="back-link" href="#/">← 세션 목록</a></div>'
@@ -138,11 +146,12 @@
         + '<div class="stat"><div class="stat__label">미서명</div><div class="stat__value">' + (roster.length - signed) + '</div></div>'
         + '</div>'
 
-        + (s.locked ? "" : '<div class="share-box">'
-          + '<input type="text" readonly value="' + esc(url) + '" id="shareUrlInput" />'
+        + '<div class="share-box">'
+          + '<div style="flex:1;min-width:200px"><p class="hint" style="margin:0 0 6px">크루용 서명 페이지 (모든 세션 공용 — 한 번만 공유하면 계속 사용)</p>'
+          + '<input type="text" readonly value="' + esc(url) + '" id="shareUrlInput" /></div>'
           + '<button class="btn btn--sm" id="copyLinkBtn">링크 복사</button>'
           + '<img class="qr-box" width="72" height="72" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' + encodeURIComponent(url) + '" />'
-          + '</div>')
+          + '</div>'
 
         + '<div class="board"><div class="board__head">'
         + '<h3 class="board__title">참석자 명단 <span class="chip-mono">' + roster.length + '명</span></h3>'
@@ -254,18 +263,28 @@
       + '<div class="modal__head"><h3>' + (editing ? "교육 세션 수정" : "새 교육 세션") + '</h3><button class="modal__x" data-close>×</button></div>'
       + '<form>'
       + '<label class="fld"><span>교육일자 <em>*</em></span><input type="date" name="date" required value="' + (existing ? esc(existing.date) : "") + '"></label>'
-      + '<label class="fld"><span>교육구분 <em>*</em></span><select name="category" required>'
-      + CATEGORIES.map(function (c) { return '<option value="' + c + '"' + (existing && existing.category === c ? " selected" : "") + '>' + c + '</option>'; }).join("")
-      + '</select></label>'
+      + '<label class="fld"><span>교육구분 <em>*</em></span><input type="text" name="category" list="categoryOptions" required autocomplete="off" placeholder="목록에서 선택하거나 새로 입력하세요" value="' + (existing ? esc(existing.category) : "정기 교육") + '">'
+      + '<datalist id="categoryOptions">' + CATEGORIES.map(function (c) { return '<option value="' + esc(c) + '">'; }).join("") + '</datalist>'
+      + '</label>'
       + '<label class="fld"><span>세션 제목 <em>(선택)</em></span><input type="text" name="title" maxlength="60" placeholder="예) 7월 정기 안전교육" value="' + (existing ? esc(existing.title) : "") + '"></label>'
       + '<div class="modal__foot"><div class="modal__spacer"></div><button type="button" class="btn" data-close>취소</button><button type="submit" class="btn btn--primary">저장</button></div>'
       + '</form></div>';
     document.body.appendChild(wrap);
     wrap.querySelectorAll("[data-close]").forEach(function (el) { el.addEventListener("click", function () { wrap.remove(); }); });
+
+    Store.listSessions().then(function (sessions) {
+      var datalist = wrap.querySelector("#categoryOptions");
+      var known = {};
+      CATEGORIES.forEach(function (c) { known[c] = true; });
+      sessions.forEach(function (s) {
+        if (s.category && !known[s.category]) { known[s.category] = true; datalist.insertAdjacentHTML("beforeend", '<option value="' + esc(s.category) + '">'); }
+      });
+    });
+
     wrap.querySelector("form").addEventListener("submit", function (e) {
       e.preventDefault();
       var f = e.target;
-      var obj = { date: f.date.value, category: f.category.value, title: f.title.value.trim() };
+      var obj = { date: f.date.value, category: f.category.value.trim(), title: f.title.value.trim() };
       if (editing) obj.id = existing.id;
       Store.saveSession(obj).then(function (res) {
         wrap.remove();
