@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EDU SIGN — 교육 서명 관리</title>
+  <meta name="description" content="법정의무교육 참석자 서명을 온라인으로 받고 원본 서식대로 출력합니다" />
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="./css/styles.css?v=1" />
+  <script>
+    (function () {
+      try { if (localStorage.getItem("edusign-theme") === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (e) {}
+      try { if (localStorage.getItem("edusign-auth") === "ok") document.documentElement.setAttribute("data-authed", "1"); } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+  <div class="lock" id="lockScreen">
+    <div class="lock__card">
+      <div class="lock__brand">EDU<em>·</em>SIGN</div>
+      <p class="lock__label">관리자 비밀번호 4자리를 입력하세요</p>
+      <div class="lock__dots" id="lockDots">
+        <span class="lock__dot"></span><span class="lock__dot"></span><span class="lock__dot"></span><span class="lock__dot"></span>
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="lockInput" class="lock__input" autocomplete="off" aria-label="비밀번호 4자리" />
+      </div>
+      <p class="lock__error" id="lockError" hidden>비밀번호가 올바르지 않습니다</p>
+    </div>
+  </div>
+
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <div class="topbar__brand">EDU<em>·</em>SIGN</div>
+        <div class="topbar__sub">법정의무교육 참석 서명 관리</div>
+      </div>
+      <div class="topbar__right">
+        <button class="theme-toggle" id="themeToggle" aria-label="라이트/다크 테마 전환"><span class="knob"></span><span class="lbl">DARK</span></button>
+      </div>
+    </header>
+    <main id="view"></main>
+  </div>
+
+  <script src="./js/config.js?v=1"></script>
+  <script src="./js/data.js?v=1"></script>
+  <script src="./js/store.js?v=1"></script>
+  <script src="./js/app.js?v=1"></script>
+</body>
+</html>
