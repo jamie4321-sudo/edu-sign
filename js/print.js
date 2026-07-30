@@ -24,7 +24,7 @@
   function cell(r) {
     if (!r) return { seq: "", dept: "", name: "", sig: "" };
     var sig = r.signature ? '<img src="' + r.signature + '" alt="서명" />' : "";
-    return { seq: r.seq, dept: esc(r.dept || ""), name: esc(r.name || ""), sig: sig };
+    return { seq: r.__no, dept: esc(r.dept || ""), name: esc(r.name || ""), sig: sig };
   }
 
   function pairRows(left, right) {
@@ -41,6 +41,7 @@
   }
 
   function render(session, roster) {
+    roster.forEach(function (r, i) { r.__no = i + 1; }); // 삭제 후 빈 연번이 생기지 않도록 표시 순서대로 다시 매김
     var pages = chunk(roster, 40);
     if (!pages.length) pages = [[]];
     document.getElementById("sheets").innerHTML = pages.map(function (page) {

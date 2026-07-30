@@ -184,7 +184,7 @@
         + '<div class="board__scroll"><table class="board__table"><thead><tr>'
         + '<th>연번</th><th>부서</th><th>성명</th><th>서명</th><th>서명시각</th>' + (s.locked ? "" : '<th></th>')
         + '</tr></thead><tbody>'
-        + (roster.length ? roster.map(rosterRow.bind(null, s.locked)).join("")
+        + (roster.length ? roster.map(function (r, i) { return rosterRow(s.locked, r, i + 1); }).join("")
             : '<tr><td colspan="6" class="board__empty">등록된 명단이 없습니다. <b>+ 명단 등록</b>으로 참석 예정자를 추가하세요.</td></tr>')
         + '</tbody></table></div></div>'
 
@@ -260,12 +260,12 @@
     });
   }
 
-  function rosterRow(locked, r) {
+  function rosterRow(locked, r, displayNo) {
     var sig = r.signature
       ? '<img class="sig-thumb" src="' + r.signature + '" alt="서명" />'
       : '<span class="sig-empty">미서명</span>';
     return '<tr>'
-      + '<td class="seq-cell mono">' + esc(r.seq) + '</td>'
+      + '<td class="seq-cell mono">' + esc(displayNo) + '</td>'
       + '<td>' + esc(r.dept) + '</td>'
       + '<td><b>' + esc(r.name) + '</b></td>'
       + '<td>' + sig + '</td>'
