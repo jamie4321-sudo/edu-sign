@@ -363,4 +363,25 @@
   }
 
   route();
+
+  /* ---------------- 외부(SNACK&GARDEN OPS)에서 넘어온 교육 정보 자동 채움 ----------------
+     ?date=&category=&title= 쿼리로 들어오면 "새 교육 세션" 모달을 그 값으로 미리 채워서 연다.
+     PIN 잠금이 아직 안 풀렸을 수 있어 잠금 해제될 때까지 잠깐 기다린다. */
+  (function () {
+    var qs = new URLSearchParams(location.search);
+    var prefill = { date: qs.get("date") || "", category: qs.get("category") || "", title: qs.get("title") || "" };
+    if (!prefill.date && !prefill.category && !prefill.title) return;
+
+    history.replaceState(null, "", location.pathname + location.hash);
+
+    var tries = 0;
+    (function waitAuth() {
+      if (document.documentElement.getAttribute("data-authed") !== "1") {
+        if (tries++ > 200) return; // 60초 넘게 잠금 화면에 머물면 포기
+        setTimeout(waitAuth, 300);
+        return;
+      }
+      openSessionModal(prefill);
+    })();
+  })();
 })();
