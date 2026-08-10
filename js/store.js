@@ -27,15 +27,18 @@ window.Store = (function () {
 
   function uid() { return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
+  function apiKey() { return (window.CONFIG && window.CONFIG.apiKey) || ""; }
+
   function api(payload) {
     return fetch(window.CONFIG.endpoint, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(Object.assign({ key: apiKey() }, payload))
     }).then(function (r) { return r.json(); });
   }
   function apiGet(params) {
-    var qs = Object.keys(params || {}).map(function (k) { return k + "=" + encodeURIComponent(params[k]); }).join("&");
+    var all = Object.assign({ key: apiKey() }, params || {});
+    var qs = Object.keys(all).map(function (k) { return k + "=" + encodeURIComponent(all[k]); }).join("&");
     return fetch(window.CONFIG.endpoint + (qs ? "?" + qs : "")).then(function (r) { return r.json(); });
   }
 

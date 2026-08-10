@@ -17,8 +17,9 @@
  *
  * 배포: 배포 > 배포 관리 > 기존 배포 수정 > 새 버전으로 배포
  *   - 실행 계정: 나 / 액세스 권한: 모든 사용자
- * 배포 후 /exec URL 을 js/config.local.js 의 CONFIG.endpoint 에 붙여넣으세요.
- * (이 저장소는 공개 저장소라 config.js 에는 절대 실제 endpoint를 적지 않습니다 — config.local.js 사용)
+ * 배포 후 /exec URL 을 js/config.js 의 CONFIG.endpoint 에 넣고, CONFIG.apiKey 는
+ * 아래 API_KEY 와 동일하게 맞춰야 합니다. 공개 저장소라 endpoint 가 노출되므로,
+ * API_KEY 가 일치하는 요청만 처리해 무단 접근을 차단합니다.
  */
 
 var SESSION_FIELDS = ["id", "date", "category", "title", "locked", "createdAt", "driveFolderUrl"];
@@ -31,6 +32,12 @@ var SIGNATURE_INLINE_LIMIT = 8000; // 이보다 긴 서명 dataURL은 드라이�
 
 // 새로 만든 스프레드시트 ID
 var SHEET_ID = "1tqD6P2IcfuIaIDGaPz2aOWst_5XPD1mH81VNFkBzrBY";
+
+// 접근 키 — 클라이언트(config.js)의 apiKey 와 반드시 동일해야 합니다.
+// 공개 저장소라 endpoint 가 노출되므로, 이 키가 일치하는 요청만 처리해
+// URL 만 아는 무단 접근을 차단합니다. (키를 바꾸려면 여기와 config.js 를 함께 교체 후 재배포)
+var API_KEY = "sg-edusign-ydAMyHruYjli1O7kQgRgCZMcBboEC";
+function keyOK_(provided) { return String(provided || "") === API_KEY; }
 
 function ss_() { return SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet(); }
 
@@ -166,6 +173,7 @@ function decodeDataUrl_(dataUrl) {
 
 /* ---------------- GET ---------------- */
 function doGet(e) {
+  if (!keyOK_(e && e.parameter && e.parameter.key)) return json_({ error: "unauthorized" });
   var action = (e && e.parameter && e.parameter.action) || "sessions";
 
   if (action === "sessions") {
@@ -223,6 +231,7 @@ function withCounts_(sessions, roster) {
 function doPost(e) {
   var data = {};
   try { data = JSON.parse(e.postData.contents); } catch (err) { return json_({ ok: false, error: "bad json" }); }
+  if (!keyOK_(data.key)) return json_({ ok: false, error: "unauthorized" });
   var action = data.action || "add";
 
   if (data.type === "session") return handleSession_(action, data);
