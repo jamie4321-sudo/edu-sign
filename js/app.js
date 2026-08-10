@@ -10,6 +10,14 @@
     setTimeout(function () { el.remove(); }, 2200);
   }
 
+  // 명단 등록 결과 안내 — 실제 추가된 인원과 중복으로 제외된 인원을 구분해서 보여준다.
+  function rosterAddMsg_(res, requested) {
+    var added = (res && typeof res.added === "number") ? res.added : requested;
+    var skipped = (res && typeof res.skipped === "number") ? res.skipped : 0;
+    if (added === 0) return "이미 등록된 인원이라 추가되지 않았습니다";
+    return added + "명을 추가했습니다" + (skipped ? " · 이미 등록된 " + skipped + "명 제외" : "");
+  }
+
   var CATEGORIES = ["정기 교육", "산업안전보건교육", "장애인 인식개선교육", "성희롱 예방교육", "개인정보보호교육", "퇴직연금교육", "기타"];
 
   /* SNACK&GARDEN OPS의 크루 목록을 명단 등록 시 참고용으로 불러온다 (이름 · 부서만 사용) */
@@ -366,9 +374,9 @@
         return { dept: "", name: parts[0] };
       }).filter(function (r) { return r.name; });
       if (!rows.length) return;
-      Store.bulkAddRoster(sessionId, rows).then(function () {
+      Store.bulkAddRoster(sessionId, rows).then(function (res) {
         wrap.remove();
-        toast(rows.length + "명을 추가했습니다");
+        toast(rosterAddMsg_(res, rows.length));
         renderDetail(sessionId);
       });
     });
@@ -440,9 +448,9 @@
       submitBtn.addEventListener("click", function () {
         var rows = boxes.filter(function (b) { return b.checked; }).map(function (b) { return { dept: b.dataset.group, name: b.value }; });
         if (!rows.length) return;
-        Store.bulkAddRoster(sessionId, rows).then(function () {
+        Store.bulkAddRoster(sessionId, rows).then(function (res) {
           wrap.remove();
-          toast(rows.length + "명을 추가했습니다");
+          toast(rosterAddMsg_(res, rows.length));
           renderDetail(sessionId);
         });
       });

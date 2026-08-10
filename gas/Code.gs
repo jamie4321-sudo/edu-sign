@@ -145,6 +145,7 @@ function fmtDate_(v) {
 }
 
 function boolOf_(v) { return v === true || String(v).toLowerCase() === "true"; }
+function normName_(v) { return String(v == null ? "" : v).trim().toLowerCase(); }
 
 /* ---------------- 드라이브 폴더 ---------------- */
 function rootFolder_() {
@@ -286,14 +287,25 @@ function handleRoster_(action, data) {
   if (action === "bulkAdd") {
     var existing = rows_("roster", ROSTER_FIELDS).filter(function (r) { return String(r.sessionId) === String(data.sessionId); });
     var maxSeq = existing.reduce(function (m, r) { return Math.max(m, +r.seq || 0); }, 0);
-    (data.rows || []).forEach(function (row, i) {
+    // 같은 세션에 이미 있는 이름은 다시 추가하지 않는다(이름 기준 중복 제거).
+    // 들어온 배치 안의 중복도 함께 제거 → 명단이 무한히 늘어나지 않도록.
+    var seen = {};
+    existing.forEach(function (r) { seen[normName_(r.name)] = true; });
+    var added = 0, skipped = 0;
+    (data.rows || []).forEach(function (row) {
+      var key = normName_(row.name);
+      if (!key || seen[key]) { skipped++; return; }
+      seen[key] = true;
+      maxSeq += 1;
       var id = Utilities.getUuid();
+      var seq = maxSeq;
       sh.appendRow(headerRow_(sh).map(function (h) {
-        var obj = { id: id, sessionId: data.sessionId, seq: maxSeq + i + 1, dept: row.dept || "", name: row.name, signature: "", signedAt: "" };
+        var obj = { id: id, sessionId: data.sessionId, seq: seq, dept: row.dept || "", name: row.name, signature: "", signedAt: "" };
         return obj.hasOwnProperty(h) ? obj[h] : "";
       }));
+      added++;
     });
-    return json_({ ok: true });
+    return json_({ ok: true, added: added, skipped: skipped });
   }
   if (action === "update") {
     upsertRowByHeader_(sh, data.id, { id: data.id, dept: data.dept || "", name: data.name || "" });

@@ -103,13 +103,22 @@ window.Store = (function () {
     bulkAddRoster: function (sessionId, rows) {
       if (LIVE) return api({ type: "roster", action: "bulkAdd", sessionId: sessionId, rows: rows });
       DB = load();
-      var maxSeq = DB.roster.filter(function (r) { return r.sessionId === sessionId; })
-        .reduce(function (m, r) { return Math.max(m, +r.seq || 0); }, 0);
-      rows.forEach(function (row, i) {
-        DB.roster.push({ id: uid(), sessionId: sessionId, seq: maxSeq + i + 1, dept: row.dept || "", name: row.name, signature: "", signedAt: "" });
+      var existing = DB.roster.filter(function (r) { return r.sessionId === sessionId; });
+      var maxSeq = existing.reduce(function (m, r) { return Math.max(m, +r.seq || 0); }, 0);
+      // 이름 기준 중복 제거 (기존 명단 + 배치 내 중복)
+      var seen = {};
+      existing.forEach(function (r) { seen[String(r.name || "").trim().toLowerCase()] = true; });
+      var added = 0, skipped = 0;
+      (rows || []).forEach(function (row) {
+        var key = String(row.name || "").trim().toLowerCase();
+        if (!key || seen[key]) { skipped++; return; }
+        seen[key] = true;
+        maxSeq += 1;
+        DB.roster.push({ id: uid(), sessionId: sessionId, seq: maxSeq, dept: row.dept || "", name: row.name, signature: "", signedAt: "" });
+        added++;
       });
       persist(DB);
-      return Promise.resolve({ ok: true });
+      return Promise.resolve({ ok: true, added: added, skipped: skipped });
     },
 
     updateRoster: function (obj) {
