@@ -83,10 +83,13 @@
       + '<p class="sw-fld-label">이름을 선택하세요</p>'
       + '<div class="sw-select-wrap"><button type="button" class="sw-select is-placeholder" id="nameTrigger">이름 선택</button></div>'
       + '<div class="sw-spacer"></div>'
-      + '<button class="sw-btn sw-btn--primary" id="loginBtn" disabled>로그인 →</button>';
+      + '<button class="sw-btn sw-btn--primary" id="loginBtn" disabled>로그인 →</button>'
+      + '<div class="sw-login-foot"><button type="button" id="adminLoginBtn">관리자 로그인</button></div>';
 
     var trigger = document.getElementById("nameTrigger");
     var loginBtn = document.getElementById("loginBtn");
+    var adminBtn = document.getElementById("adminLoginBtn");
+    if (adminBtn) adminBtn.addEventListener("click", function () { location.href = "./index.html"; });
     var selectedName = "";
 
     trigger.addEventListener("click", function () {

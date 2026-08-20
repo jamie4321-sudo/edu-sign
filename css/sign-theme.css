@@ -125,6 +125,7 @@ button, select, input { font-family: inherit; }
 /* ---- 로그인(이름) 화면 하단 ---- */
 .sw-login-foot { text-align: center; margin-top: 18px; }
 .sw-login-foot button { background: none; border: none; color: var(--sw-ink-3); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: underline; }
+.sw-login-foot #adminLoginBtn { font-size: 11px; font-weight: 500; color: var(--sw-ink-3); opacity: .7; text-decoration-thickness: 1px; text-underline-offset: 2px; }
 
 /* ---- 교육 선택 화면 ---- */
 .sw-hello { font-size: 15px; color: var(--sw-ink-2); margin: 0 0 4px; text-align: center; }
