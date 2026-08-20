@@ -114,6 +114,9 @@ html[data-authed="1"] .layout { display: grid; }
 
 .side__foot { padding: 13px 22px; border-top: 1px solid var(--line-soft); font-family: var(--mono); font-size: 10px; letter-spacing: .5px; color: var(--ink-3); display: flex; align-items: center; gap: 8px; }
 .side__foot .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.side__foot .admin-who { margin-left: auto; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.side__foot .admin-logout { background: transparent; border: 1px solid var(--line); color: var(--ink-3); border-radius: var(--r-sm); padding: 3px 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .5px; cursor: pointer; flex-shrink: 0; }
+.side__foot .admin-logout:hover { border-color: var(--ink-3); color: var(--ink); }
 
 /* ---------------- TOPBAR ---------------- */
 .main { display: flex; flex-direction: column; min-width: 0; }

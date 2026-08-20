@@ -67,13 +67,59 @@
 
   function setCrumb(text) { var el = document.getElementById("viewTitle"); if (el) el.textContent = text; }
 
+  /* ---------------- 관리자(다중) ---------------- */
+  /* config.js 의 admins:[{name,pin}] 를 사용. 없으면 예전 단일 pin 을 "관리자"로 폴백.
+     각 관리자는 자기 PIN 으로 로그인하고, 로그인한 이름을 기억해 화면에 표시한다.
+     교육 서명 세션 삭제 등 위험 동작은 로그인한 관리자만 수행할 수 있다. */
+  var Admin = {
+    list: function () {
+      var a = (window.CONFIG && window.CONFIG.admins) || [];
+      if (a && a.length) return a.filter(function (x) { return x && x.pin; });
+      var p = window.CONFIG && window.CONFIG.pin;
+      return p ? [{ name: "관리자", pin: String(p) }] : [];
+    },
+    match: function (pin) {
+      pin = String(pin);
+      return this.list().filter(function (x) { return String(x.pin) === pin; })[0] || null;
+    },
+    current: function () { try { return localStorage.getItem("edusign-admin") || ""; } catch (e) { return ""; } },
+    isAuthed: function () { try { return localStorage.getItem("edusign-auth") === "ok"; } catch (e) { return false; } },
+    login: function (name) {
+      try { localStorage.setItem("edusign-auth", "ok"); localStorage.setItem("edusign-admin", name || ""); } catch (e) {}
+      document.documentElement.setAttribute("data-authed", "1");
+    },
+    logout: function () {
+      try { localStorage.removeItem("edusign-auth"); localStorage.removeItem("edusign-admin"); } catch (e) {}
+      location.reload();
+    }
+  };
+  window.Admin = Admin;
+
+  /* 사이드바에 로그인한 관리자 이름 + 로그아웃 표시 */
+  function paintAdminBadge() {
+    var foot = document.querySelector(".side__foot");
+    if (!foot) return;
+    var who = document.getElementById("adminWho");
+    if (!who) {
+      who = document.createElement("span");
+      who.id = "adminWho"; who.className = "admin-who";
+      var out = document.createElement("button");
+      out.id = "logoutBtn"; out.type = "button"; out.className = "admin-logout";
+      out.textContent = "로그아웃";
+      out.addEventListener("click", function () { if (confirm("로그아웃할까요?")) Admin.logout(); });
+      foot.appendChild(who); foot.appendChild(out);
+    }
+    var name = Admin.current();
+    who.textContent = name ? ("관리자 · " + name) : "관리자";
+  }
+
   /* ---------------- 잠금화면 ---------------- */
   (function () {
     var dots = document.getElementById("lockDots");
     var input = document.getElementById("lockInput");
     var error = document.getElementById("lockError");
-    if (localStorage.getItem("edusign-auth") === "ok") document.documentElement.setAttribute("data-authed", "1");
-    if (document.documentElement.getAttribute("data-authed") === "1") return;
+    if (Admin.isAuthed()) document.documentElement.setAttribute("data-authed", "1");
+    if (document.documentElement.getAttribute("data-authed") === "1") { paintAdminBadge(); return; }
 
     function render(val) {
       dots.querySelectorAll(".lock__dot").forEach(function (d, i) { d.classList.toggle("is-filled", i < val.length); });
@@ -84,9 +130,10 @@
       render(v);
       error.hidden = true;
       if (v.length === 4) {
-        if (v === (window.CONFIG.pin || "")) {
-          localStorage.setItem("edusign-auth", "ok");
-          document.documentElement.setAttribute("data-authed", "1");
+        var admin = Admin.match(v);
+        if (admin) {
+          Admin.login(admin.name || "");
+          paintAdminBadge();
         } else {
           error.hidden = false;
           dots.classList.add("is-shake");
@@ -170,6 +217,7 @@
         + '<button class="btn btn--sm" id="editSessionBtn">세션 수정</button>'
         + '<button class="btn btn--sm" id="toggleLockBtn">' + (s.locked ? "마감 해제" : "서명 마감") + '</button>'
         + '<button class="btn btn--sm btn--primary" id="printBtn">출력(PDF)</button>'
+        + (Admin.isAuthed() ? '<button class="btn btn--sm btn--danger" id="deleteSessionBtn">세션 삭제</button>' : "")
         + '</div></div>'
 
         + '<div class="stat-row">'
@@ -208,6 +256,22 @@
 
       document.getElementById("editSessionBtn").addEventListener("click", function () { openSessionModal(s); });
       document.getElementById("printBtn").addEventListener("click", function () { window.open("print.html?id=" + encodeURIComponent(s.id), "_blank"); });
+      var delSessionBtn = document.getElementById("deleteSessionBtn");
+      if (delSessionBtn) delSessionBtn.addEventListener("click", function () {
+        // 세션 삭제는 로그인한 관리자만 — 명단·서명 기록까지 함께 사라지므로 2단계로 확인한다.
+        if (!Admin.isAuthed()) { toast("관리자만 삭제할 수 있습니다"); return; }
+        var title = s.title || s.category || "이 세션";
+        if (!confirm("[" + title + "] 세션을 삭제할까요?\n참석자 명단과 서명 기록이 모두 삭제되며 되돌릴 수 없습니다.")) return;
+        if (!confirm("정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+        delSessionBtn.disabled = true;
+        Store.deleteSession(s.id).then(function () {
+          toast("세션을 삭제했습니다");
+          location.hash = "#/";
+        }).catch(function () {
+          delSessionBtn.disabled = false;
+          toast("삭제에 실패했습니다. 다시 시도해주세요.");
+        });
+      });
       document.getElementById("toggleLockBtn").addEventListener("click", function () {
         Store.setLocked(s.id, !s.locked).then(function () { toast(s.locked ? "서명을 다시 열었습니다" : "서명을 마감했습니다"); renderDetail(id); });
       });

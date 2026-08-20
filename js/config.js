@@ -14,5 +14,15 @@
 window.CONFIG = {
   endpoint: "https://script.google.com/macros/s/AKfycbwEcs-RxDHQsGi8BJOySZql1wZ7IyJgA242JacDYfWNQTtPnKA1DXy9B-8e-SYICVrE/exec",
   apiKey: "sg-edusign-ydAMyHruYjli1O7kQgRgCZMcBboEC",
-  pin: "4231" // 관리자 화면(index.html) 접속 PIN. sign.html(서명 페이지)엔 적용 안 됨
+
+  // 관리자 화면(index.html) 접속 PIN. sign.html(서명 페이지)엔 적용 안 됨.
+  // pin 은 예전 단일 관리자용 폴백입니다. 여러 명을 두려면 아래 admins 를 사용하세요.
+  pin: "4231",
+
+  // 관리자를 여러 명 설정할 수 있습니다. 각자 자기 PIN(4자리, 서로 다르게)으로 로그인하며,
+  // 로그인한 관리자 이름이 화면에 표시됩니다. 교육 서명 세션 "삭제"는 관리자만 가능합니다.
+  // ⚠️ 공개 저장소라 PIN 이 소스에 노출됩니다(캐주얼 차단용). 관리자별로 겹치지 않는 값을 쓰세요.
+  admins: [
+    { name: "제이미", pin: "4231" }
+  ]
 };
