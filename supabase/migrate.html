@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDU SIGN — 구글시트 → Supabase 마이그레이션</title>
+  <style>
+    body { font-family: -apple-system, "Pretendard", sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; color: #1a1a1a; }
+    h1 { font-size: 20px; }
+    p { line-height: 1.7; color: #444; }
+    .box { border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px 18px; margin: 14px 0; background: #fafafa; }
+    button { font-size: 15px; font-weight: 700; padding: 12px 22px; border: 0; border-radius: 10px; background: #111; color: #fff; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
+    #log { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 13px; background: #0d0d0d; color: #d6ffd6; padding: 16px; border-radius: 10px; margin-top: 16px; min-height: 120px; max-height: 460px; overflow: auto; }
+    .warn { color: #b45309; }
+    code { background: #eee; padding: 1px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>구글시트 → Supabase 데이터 이전</h1>
+  <p>현재 구글시트(GAS)에 있는 <b>세션 · 명단 · 서명 · 사진 기록</b>을 Supabase로 복사합니다.
+     여러 번 실행해도 안전합니다(같은 id는 덮어씀).</p>
+
+  <div class="box">
+    <b>실행 전 체크</b>
+    <ol>
+      <li><code>supabase/schema.sql</code> 을 Supabase SQL Editor 에서 실행했나요?</li>
+      <li><code>js/config.js</code> 의 <code>supabase.url</code> / <code>supabase.anonKey</code> 를 채웠나요?</li>
+      <li>기존 <code>endpoint</code>(구글시트)는 그대로 두세요 — 여기서 원본으로 읽습니다.</li>
+    </ol>
+    <p class="warn">※ 서명이 구글드라이브에 저장돼 있던 건(아주 긴 서명)은 드라이브 이미지 링크 형태로 옮겨집니다.
+       사진도 기존 드라이브 링크를 그대로 복사합니다(계속 보임). 새로 올리는 사진부터 Supabase Storage 에 저장됩니다.</p>
+  </div>
+
+  <button id="run">마이그레이션 시작</button>
+  <div id="log"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/config.local.js" onerror=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script>
+    var logEl = document.getElementById("log");
+    function log(msg) { logEl.textContent += msg + "\n"; logEl.scrollTop = logEl.scrollHeight; }
+
+    var C = window.CONFIG || {};
+    var endpoint = C.endpoint, key = C.apiKey || "";
+    var supaCfg = C.supabase || {};
+
+    function apiGet(params) {
+      var all = Object.assign({ key: key }, params || {});
+      var qs = Object.keys(all).map(function (k) { return k + "=" + encodeURIComponent(all[k]); }).join("&");
+      return fetch(endpoint + "?" + qs).then(function (r) { return r.json(); });
+    }
+
+    document.getElementById("run").addEventListener("click", async function () {
+      this.disabled = true;
+      try {
+        if (!endpoint) throw new Error("config 에 endpoint(구글시트)가 없습니다.");
+        if (!supaCfg.url || !supaCfg.anonKey) throw new Error("config.js 의 supabase.url / anonKey 를 먼저 채우세요.");
+        var sb = window.supabase.createClient(supaCfg.url, supaCfg.anonKey);
+
+        log("① 세션 목록 읽는 중...");
+        var d = await apiGet({ action: "sessions" });
+        var sessions = d.sessions || [];
+        log("   세션 " + sessions.length + "개 발견");
+
+        var totalRoster = 0, totalPhotos = 0;
+        for (var i = 0; i < sessions.length; i++) {
+          var s = sessions[i];
+          // 세션
+          var sRow = {
+            id: s.id, date: s.date || "", category: s.category || "", title: s.title || "",
+            locked: !!s.locked, created_at: s.createdAt || new Date().toISOString()
+          };
+          var r1 = await sb.from("sessions").upsert(sRow, { onConflict: "id" });
+          if (r1.error) throw r1.error;
+
+          // 명단 + 서명
+          var det = await apiGet({ action: "session", id: s.id });
+          var roster = (det.roster || []).map(function (r) {
+            return {
+              id: r.id, session_id: r.sessionId, seq: +r.seq || 0, dept: r.dept || "",
+              name: r.name || "", signature: r.signature || "",
+              signed_at: r.signedAt ? r.signedAt : null
+            };
+          });
+          if (roster.length) {
+            var r2 = await sb.from("roster").upsert(roster, { onConflict: "id" });
+            if (r2.error) throw r2.error;
+          }
+          totalRoster += roster.length;
+
+          // 사진(기존 드라이브 링크 그대로 복사)
+          var pd = await apiGet({ action: "photos", id: s.id });
+          var photos = (pd.photos || []).map(function (p) {
+            return { id: p.id, session_id: p.sessionId, url: p.url || "", storage_path: null, uploaded_at: p.uploadedAt || new Date().toISOString() };
+          });
+          if (photos.length) {
+            var r3 = await sb.from("photos").upsert(photos, { onConflict: "id" });
+            if (r3.error) throw r3.error;
+          }
+          totalPhotos += photos.length;
+
+          log("   [" + (i + 1) + "/" + sessions.length + "] " + (s.date || "") + " " + (s.title || s.category || s.id) + " — 명단 " + roster.length + ", 사진 " + photos.length);
+        }
+
+        log("\n✅ 완료!  세션 " + sessions.length + " · 명단 " + totalRoster + " · 사진 " + totalPhotos);
+        log("이제 사이트를 열면 Supabase 모드로 동작합니다. 데이터가 정상이면 끝!");
+      } catch (e) {
+        log("\n❌ 오류: " + (e && e.message ? e.message : e));
+        log("→ schema.sql 실행 여부, config 의 url/anonKey, RLS 정책을 확인하세요.");
+      } finally {
+        this.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

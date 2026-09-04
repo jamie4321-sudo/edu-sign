@@ -24,5 +24,20 @@ window.CONFIG = {
   // ⚠️ 공개 저장소라 PIN 이 소스에 노출됩니다(캐주얼 차단용). 관리자별로 겹치지 않는 값을 쓰세요.
   admins: [
     { name: "제이미", pin: "4231" }
-  ]
+  ],
+
+  /* =======================================================
+     Supabase (신규 DB) — 채우면 자동으로 구글시트 대신 Supabase 사용
+     ---------------------------------------------------------
+     · Supabase 대시보드 > Project Settings > API 에서 복사:
+         url     = Project URL
+         anonKey = Project API keys 의 "anon public"
+     · anon 키는 공개돼도 되는 키입니다(설계상 공개). 실제 보안은 DB의 RLS 정책이 담당합니다.
+     · 이 블록을 지우거나 url/anonKey 를 비우면 → 즉시 위 endpoint(구글시트)로 롤백됩니다.
+     ======================================================= */
+  supabase: {
+    url: "https://qdwynctnhjndkmykecbu.supabase.co",
+    anonKey: "sb_publishable_gv8l9z7imNyR0_lsUmVLxw_cFFclQ6O",
+    photoBucket: "edu-photos"
+  }
 };

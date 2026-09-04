@@ -1,7 +1,15 @@
-/* config.local.js 템플릿 — 실제 운영 endpoint는 여기에만 적으세요.
+/* config.local.js 템플릿 — 로컬 개발용 오버라이드 (깃/배포에 포함 안 됨)
    1) 이 파일을 같은 폴더에 config.local.js 로 복사 (파일명 그대로!)
-   2) endpoint 를 실제 배포한 /exec 주소로 교체
-   config.local.js 는 .gitignore 처리되어 있어 깃에 올라가지 않습니다. */
+   2) 아래 값을 실제 값으로 교체
+   → 실제 배포되는 값은 js/config.js 에 넣어야 합니다(GitHub Pages 는 커밋된 파일만 배포). */
 window.CONFIG = Object.assign(window.CONFIG || {}, {
+  // [구글시트 모드] endpoint 만 넣으면 기존 구글시트 사용
   endpoint: "https://script.google.com/macros/s/AKfyc.../exec"
+
+  // [Supabase 모드] 아래 주석을 풀고 값을 채우면 구글시트 대신 Supabase 사용
+  // ,supabase: {
+  //   url: "https://xxxx.supabase.co",
+  //   anonKey: "eyJhbGci....",
+  //   photoBucket: "edu-photos"
+  // }
 });
