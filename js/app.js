@@ -35,30 +35,6 @@
     toast("엑셀 파일을 다운로드했습니다");
   }
 
-  /* 전체 세션의 참석/서명 현황을 한 파일로 내보내기 */
-  function exportAllSessions() {
-    toast("엑셀을 준비하는 중…");
-    Promise.all([Store.listSessions(), Store.listAllRoster()]).then(function (arr) {
-      var sessions = arr[0] || [], roster = arr[1] || [];
-      var byId = {};
-      sessions.forEach(function (s) { byId[s.id] = s; });
-      var rows = roster.map(function (r) {
-        var s = byId[r.sessionId] || {};
-        return {
-          교육일: s.date || "", 교육구분: s.category || "", 교육명: s.title || s.category || "",
-          연번: +r.seq || 0, 부서: r.dept || "", 성명: r.name || "",
-          서명여부: sigStatus_(r), 서명시각: fmtDateTime(r.signedAt)
-        };
-      }).sort(function (a, b) {
-        if (a.교육일 !== b.교육일) return a.교육일 < b.교육일 ? 1 : -1; // 최신 교육 먼저
-        return a.연번 - b.연번;
-      });
-      var cols = [{ wch: 12 }, { wch: 14 }, { wch: 30 }, { wch: 6 }, { wch: 10 }, { wch: 12 }, { wch: 9 }, { wch: 18 }];
-      var today = new Date().toISOString().slice(0, 10);
-      exportXlsx_("EDU SIGN 전체 출석부_" + today + ".xlsx", "전체 출석부", rows, cols);
-    }).catch(function () { toast("엑셀 생성에 실패했습니다. 다시 시도해주세요."); });
-  }
-
   /* SNACK&GARDEN OPS의 크루 목록을 명단 등록 시 참고용으로 불러온다 (이름 · 부서만 사용) */
   var CREW_SOURCE_URL = "https://script.google.com/macros/s/AKfycbxNV7X2fDwkEB3yXnbrXfkm6y-0kChB0uLzMBUx2jKEfG61QcJXDVujQiSN8V4eOYHX/exec";
   var crewListCache = null;
@@ -221,10 +197,7 @@
     setCrumb("SESSIONS");
     view.innerHTML = '<div class="wrap"><div class="page-head">'
       + '<div><p class="eyebrow">EDU SIGN</p><h2>교육 서명 세션</h2><p class="sub">교육 회차를 만들고 서명 링크를 공유하세요.</p></div>'
-      + '<div class="row-actions" style="gap:8px">'
-        + '<button class="btn" id="exportAllBtn">⬇ 전체 엑셀</button>'
-        + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button>'
-      + '</div>'
+      + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button>'
       + '</div>'
       + '<div class="seg" id="sessionTabs" role="tablist" hidden>'
         + '<button class="seg__btn is-on" type="button" role="tab" data-tab="active">진행중 <span class="seg__n" id="cntActive">0</span></button>'
@@ -233,7 +206,6 @@
       + '<div id="sessionGrid" class="session-grid"><div class="empty">불러오는 중…</div></div></div>';
 
     document.getElementById("newSessionBtn").addEventListener("click", function () { openSessionModal(); });
-    document.getElementById("exportAllBtn").addEventListener("click", exportAllSessions);
 
     Store.listSessions().then(function (sessions) {
       var grid = document.getElementById("sessionGrid");
