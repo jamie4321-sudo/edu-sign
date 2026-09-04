@@ -54,9 +54,16 @@
   /* ---------------- 드라이브 사진 폴더 링크 / 모드 표시 ---------------- */
   var driveNavLink = document.getElementById("driveNavLink");
   var modeLabel = document.getElementById("modeLabel");
-  if (modeLabel) modeLabel.textContent = Store.isLive() ? "LIVE · 구글시트 연동" : "DEMO · 목업 데이터";
+  var backendName = Store.backend ? Store.backend() : (Store.isLive() ? "gas" : "demo");
+  if (modeLabel) modeLabel.textContent = backendName === "supabase" ? "LIVE · Supabase"
+    : backendName === "gas" ? "LIVE · 구글시트 연동" : "DEMO · 목업 데이터";
   if (driveNavLink) {
-    if (!Store.isLive()) {
+    if (backendName === "supabase") {
+      // Supabase 모드: 사진은 세션별로 앱 안에 저장 — 별도 드라이브 폴더 없음
+      driveNavLink.classList.add("nav__item--disabled");
+      driveNavLink.title = "Supabase 모드에서는 사진이 각 세션 상세에 저장됩니다";
+      driveNavLink.addEventListener("click", function (e) { e.preventDefault(); });
+    } else if (backendName !== "gas") {
       driveNavLink.classList.add("nav__item--disabled");
       driveNavLink.title = "구글시트 연동(라이브 모드) 후 사용할 수 있습니다";
       driveNavLink.addEventListener("click", function (e) { e.preventDefault(); });
@@ -155,39 +162,71 @@
   window.addEventListener("hashchange", route);
 
   /* ---------------- 목록 화면 ---------------- */
+  function listTab() { try { return localStorage.getItem("edusign-list-tab") || "active"; } catch (e) { return "active"; } }
+  function setListTab(t) { try { localStorage.setItem("edusign-list-tab", t); } catch (e) {} }
+
+  function sessionCardHtml(s) {
+    var pct = s.total ? Math.round((s.signed / s.total) * 100) : 0;
+    var badge = s.locked ? '<span class="badge badge--done">마감</span>' : '<span class="badge badge--live">진행중</span>';
+    return '<a class="session-card' + (s.locked ? " session-card--archived" : "") + '" href="#/s/' + esc(s.id) + '">'
+      + '<div class="session-card__top"><span class="session-card__date mono">' + esc(s.date || "") + '</span>' + badge + '</div>'
+      + '<div><div class="session-card__title">' + esc(s.title || s.category || "제목 없음") + '</div>'
+      + '<div class="session-card__cat">' + esc(s.category || "") + '</div></div>'
+      + '<div class="session-card__progress"><div class="progress-bar"><div class="progress-bar__fill" style="width:' + pct + '%"></div></div>'
+      + '<span class="session-card__count mono">' + s.signed + '/' + s.total + '명</span></div>'
+      + (s.driveFolderUrl ? '<span class="session-card__drive" data-drive="' + esc(s.driveFolderUrl) + '">드라이브 링크</span>' : "")
+      + '</a>';
+  }
+
   function renderList() {
     setCrumb("SESSIONS");
     view.innerHTML = '<div class="wrap"><div class="page-head">'
       + '<div><p class="eyebrow">EDU SIGN</p><h2>교육 서명 세션</h2><p class="sub">교육 회차를 만들고 서명 링크를 공유하세요.</p></div>'
       + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button>'
-      + '</div><div id="sessionGrid" class="session-grid"><div class="empty">불러오는 중…</div></div></div>';
+      + '</div>'
+      + '<div class="seg" id="sessionTabs" role="tablist" hidden>'
+        + '<button class="seg__btn is-on" type="button" role="tab" data-tab="active">진행중 <span class="seg__n" id="cntActive">0</span></button>'
+        + '<button class="seg__btn" type="button" role="tab" data-tab="archive">아카이브 <span class="seg__n" id="cntArchive">0</span></button>'
+      + '</div>'
+      + '<div id="sessionGrid" class="session-grid"><div class="empty">불러오는 중…</div></div></div>';
 
     document.getElementById("newSessionBtn").addEventListener("click", function () { openSessionModal(); });
 
     Store.listSessions().then(function (sessions) {
       var grid = document.getElementById("sessionGrid");
-      if (!sessions.length) {
-        grid.innerHTML = '<div class="empty" style="grid-column:1/-1">아직 등록된 교육 세션이 없습니다.<br><b>+ 새 교육 세션</b>으로 첫 세션을 만들어보세요.</div>';
-        return;
-      }
-      grid.innerHTML = sessions.map(function (s) {
-        var pct = s.total ? Math.round((s.signed / s.total) * 100) : 0;
-        var badge = s.locked ? '<span class="badge badge--done">마감</span>' : '<span class="badge badge--live">진행중</span>';
-        return '<a class="session-card" href="#/s/' + esc(s.id) + '">'
-          + '<div class="session-card__top"><span class="session-card__date mono">' + esc(s.date || "") + '</span>' + badge + '</div>'
-          + '<div><div class="session-card__title">' + esc(s.title || s.category || "제목 없음") + '</div>'
-          + '<div class="session-card__cat">' + esc(s.category || "") + '</div></div>'
-          + '<div class="session-card__progress"><div class="progress-bar"><div class="progress-bar__fill" style="width:' + pct + '%"></div></div>'
-          + '<span class="session-card__count mono">' + s.signed + '/' + s.total + '명</span></div>'
-          + (s.driveFolderUrl ? '<span class="session-card__drive" data-drive="' + esc(s.driveFolderUrl) + '">드라이브 링크</span>' : "")
-          + '</a>';
-      }).join("");
-      grid.querySelectorAll(".session-card__drive").forEach(function (el) {
-        el.addEventListener("click", function (e) {
-          e.preventDefault(); e.stopPropagation();
-          window.open(el.dataset.drive, "_blank", "noopener");
+      var tabs = document.getElementById("sessionTabs");
+      var active = sessions.filter(function (s) { return !s.locked; });
+      var archived = sessions.filter(function (s) { return !!s.locked; });
+      document.getElementById("cntActive").textContent = active.length;
+      document.getElementById("cntArchive").textContent = archived.length;
+      tabs.hidden = false;
+
+      function paint(which) {
+        setListTab(which);
+        tabs.querySelectorAll(".seg__btn").forEach(function (b) { b.classList.toggle("is-on", b.dataset.tab === which); });
+        var list = which === "archive" ? archived : active;
+        if (!list.length) {
+          var msg = which === "archive"
+            ? '마감된 교육이 없습니다.<br>세션 상세에서 <b>서명 마감</b>을 누르면 여기(아카이브)로 이동합니다.'
+            : (sessions.length
+                ? '진행 중인 교육이 없습니다.<br><b>아카이브</b> 탭에서 마감된 교육을 확인할 수 있어요.'
+                : '아직 등록된 교육 세션이 없습니다.<br><b>+ 새 교육 세션</b>으로 첫 세션을 만들어보세요.');
+          grid.innerHTML = '<div class="empty" style="grid-column:1/-1">' + msg + '</div>';
+          return;
+        }
+        grid.innerHTML = list.map(sessionCardHtml).join("");
+        grid.querySelectorAll(".session-card__drive").forEach(function (el) {
+          el.addEventListener("click", function (e) {
+            e.preventDefault(); e.stopPropagation();
+            window.open(el.dataset.drive, "_blank", "noopener");
+          });
         });
+      }
+
+      tabs.querySelectorAll(".seg__btn").forEach(function (b) {
+        b.addEventListener("click", function () { paint(b.dataset.tab); });
       });
+      paint(listTab());
     });
   }
 

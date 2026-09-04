@@ -152,6 +152,16 @@ html[data-authed="1"] .layout { display: grid; }
 .page-head h2 { margin: 0; font-size: 22px; letter-spacing: -.3px; }
 .sub { color: var(--ink-2); font-size: 13px; margin: 6px 0 0; }
 
+/* ---------------- SEGMENTED TABS (진행중 / 아카이브) ---------------- */
+.seg { display: inline-flex; gap: 4px; padding: 4px; margin: 0 0 18px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; }
+.seg__btn { font-family: inherit; font-size: 13px; font-weight: 600; color: var(--ink-2); background: transparent; border: 0; padding: 7px 15px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background .12s, color .12s; }
+.seg__btn:hover { color: var(--ink); }
+.seg__btn.is-on { background: var(--card-bg); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+.seg__n { font-family: var(--mono); font-size: 11px; line-height: 1; color: var(--ink-3); background: var(--line-soft); padding: 3px 7px; border-radius: 999px; }
+.seg__btn.is-on .seg__n { color: var(--accent-text); }
+.session-card--archived { opacity: .82; }
+.session-card--archived:hover { opacity: 1; }
+
 /* ---------------- SESSION CARDS ---------------- */
 .session-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
 .session-card { background: var(--card-bg); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; cursor: pointer; transition: border-color .12s, transform .1s; display: flex; flex-direction: column; gap: 12px; }
