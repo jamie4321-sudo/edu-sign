@@ -20,6 +20,45 @@
 
   var CATEGORIES = ["정기 교육", "산업안전보건교육", "장애인 인식개선교육", "성희롱 예방교육", "개인정보보호교육", "퇴직연금교육", "기타"];
 
+  /* ---------------- 엑셀(.xlsx) 내보내기 ----------------
+     SheetJS 로 실제 엑셀 파일 생성 — 한글이 깨지지 않고 더블클릭으로 바로 열립니다. */
+  function sigStatus_(r) { return (r && r.signature && String(r.signature).trim()) ? "서명완료" : "미서명"; }
+  function safeFileName_(s) { return String(s || "").replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, " ").trim(); }
+  function exportXlsx_(filename, sheetName, rows, colWidths) {
+    if (!window.XLSX) { toast("엑셀 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요."); return; }
+    if (!rows.length) { toast("내보낼 명단이 없습니다."); return; }
+    var ws = XLSX.utils.json_to_sheet(rows);
+    if (colWidths) ws["!cols"] = colWidths;
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName || "Sheet1");
+    XLSX.writeFile(wb, filename);
+    toast("엑셀 파일을 다운로드했습니다");
+  }
+
+  /* 전체 세션의 참석/서명 현황을 한 파일로 내보내기 */
+  function exportAllSessions() {
+    toast("엑셀을 준비하는 중…");
+    Promise.all([Store.listSessions(), Store.listAllRoster()]).then(function (arr) {
+      var sessions = arr[0] || [], roster = arr[1] || [];
+      var byId = {};
+      sessions.forEach(function (s) { byId[s.id] = s; });
+      var rows = roster.map(function (r) {
+        var s = byId[r.sessionId] || {};
+        return {
+          교육일: s.date || "", 교육구분: s.category || "", 교육명: s.title || s.category || "",
+          연번: +r.seq || 0, 부서: r.dept || "", 성명: r.name || "",
+          서명여부: sigStatus_(r), 서명시각: fmtDateTime(r.signedAt)
+        };
+      }).sort(function (a, b) {
+        if (a.교육일 !== b.교육일) return a.교육일 < b.교육일 ? 1 : -1; // 최신 교육 먼저
+        return a.연번 - b.연번;
+      });
+      var cols = [{ wch: 12 }, { wch: 14 }, { wch: 30 }, { wch: 6 }, { wch: 10 }, { wch: 12 }, { wch: 9 }, { wch: 18 }];
+      var today = new Date().toISOString().slice(0, 10);
+      exportXlsx_("EDU SIGN 전체 출석부_" + today + ".xlsx", "전체 출석부", rows, cols);
+    }).catch(function () { toast("엑셀 생성에 실패했습니다. 다시 시도해주세요."); });
+  }
+
   /* SNACK&GARDEN OPS의 크루 목록을 명단 등록 시 참고용으로 불러온다 (이름 · 부서만 사용) */
   var CREW_SOURCE_URL = "https://script.google.com/macros/s/AKfycbxNV7X2fDwkEB3yXnbrXfkm6y-0kChB0uLzMBUx2jKEfG61QcJXDVujQiSN8V4eOYHX/exec";
   var crewListCache = null;
@@ -182,7 +221,10 @@
     setCrumb("SESSIONS");
     view.innerHTML = '<div class="wrap"><div class="page-head">'
       + '<div><p class="eyebrow">EDU SIGN</p><h2>교육 서명 세션</h2><p class="sub">교육 회차를 만들고 서명 링크를 공유하세요.</p></div>'
-      + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button>'
+      + '<div class="row-actions" style="gap:8px">'
+        + '<button class="btn" id="exportAllBtn">⬇ 전체 엑셀</button>'
+        + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button>'
+      + '</div>'
       + '</div>'
       + '<div class="seg" id="sessionTabs" role="tablist" hidden>'
         + '<button class="seg__btn is-on" type="button" role="tab" data-tab="active">진행중 <span class="seg__n" id="cntActive">0</span></button>'
@@ -191,6 +233,7 @@
       + '<div id="sessionGrid" class="session-grid"><div class="empty">불러오는 중…</div></div></div>';
 
     document.getElementById("newSessionBtn").addEventListener("click", function () { openSessionModal(); });
+    document.getElementById("exportAllBtn").addEventListener("click", exportAllSessions);
 
     Store.listSessions().then(function (sessions) {
       var grid = document.getElementById("sessionGrid");
@@ -255,6 +298,7 @@
         + '<div class="row-actions" style="gap:8px">'
         + '<button class="btn btn--sm" id="editSessionBtn">세션 수정</button>'
         + '<button class="btn btn--sm" id="toggleLockBtn">' + (s.locked ? "마감 해제" : "서명 마감") + '</button>'
+        + '<button class="btn btn--sm" id="excelBtn">⬇ 엑셀</button>'
         + '<button class="btn btn--sm btn--primary" id="printBtn">출력(PDF)</button>'
         + (Admin.isAuthed() ? '<button class="btn btn--sm btn--danger" id="deleteSessionBtn">세션 삭제</button>' : "")
         + '</div></div>'
@@ -295,6 +339,14 @@
 
       document.getElementById("editSessionBtn").addEventListener("click", function () { openSessionModal(s); });
       document.getElementById("printBtn").addEventListener("click", function () { window.open("print.html?id=" + encodeURIComponent(s.id), "_blank"); });
+      document.getElementById("excelBtn").addEventListener("click", function () {
+        var rows = roster.map(function (r, i) {
+          return { 연번: i + 1, 부서: r.dept || "", 성명: r.name || "", 서명여부: sigStatus_(r), 서명시각: fmtDateTime(r.signedAt) };
+        });
+        var cols = [{ wch: 6 }, { wch: 10 }, { wch: 12 }, { wch: 9 }, { wch: 18 }];
+        var fname = safeFileName_((s.date || "") + "_" + (s.title || s.category || "교육") + "_출석부") + ".xlsx";
+        exportXlsx_(fname, "출석부", rows, cols);
+      });
       var delSessionBtn = document.getElementById("deleteSessionBtn");
       if (delSessionBtn) delSessionBtn.addEventListener("click", function () {
         // 세션 삭제는 로그인한 관리자만 — 명단·서명 기록까지 함께 사라지므로 2단계로 확인한다.
