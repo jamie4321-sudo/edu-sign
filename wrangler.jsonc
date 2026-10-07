@@ -1,0 +1,12 @@
+// Cloudflare Workers 정적 배포 설정 — GitHub master 에 push 하면 Cloudflare 가 자동 배포
+// 주소: https://edu-sign.jamie-4321.workers.dev  (서명 페이지: /sign)
+{
+  "name": "edu-sign",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "assets": {
+    "directory": ".",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  }
+}
