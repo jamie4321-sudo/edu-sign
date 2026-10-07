@@ -1,0 +1,44 @@
+# Supabase 무료 플랜은 7일간 요청이 없으면 프로젝트를 일시정지합니다.
+# 매일 한 번 DB 를 가볍게 조회해서 깨어 있게 유지합니다.
+# (URL·anon 키는 js/config.js 에 이미 공개돼 있는 값과 동일)
+name: Supabase keepalive
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # 매일 09:00 KST
+  workflow_dispatch:       # Actions 탭에서 수동 실행 가능
+
+permissions:
+  contents: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        env:
+          SB_URL: https://qdwynctnhjndkmykecbu.supabase.co
+          SB_KEY: sb_publishable_gv8l9z7imNyR0_lsUmVLxw_cFFclQ6O
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" \
+              "$SB_URL/rest/v1/sessions?select=id&limit=1" -H "apikey: $SB_KEY")
+            echo "attempt $i → HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 20
+          done
+          echo "::error::Supabase 응답 실패 — 대시보드에서 SIGN 프로젝트가 paused 인지 확인하세요"
+          exit 1
+
+      # GitHub 는 60일간 커밋이 없는 저장소의 예약 작업을 자동 중지합니다.
+      # 마지막 커밋이 50일을 넘으면 빈 커밋을 남겨 예약이 끊기지 않게 합니다.
+      - uses: actions/checkout@v4
+      - name: Keep schedule alive
+        run: |
+          last=$(git log -1 --format=%ct)
+          if [ $(( $(date +%s) - last )) -gt $(( 50 * 86400 )) ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+            git commit --allow-empty -m "chore: keepalive (예약 작업 유지)"
+            git push
+          fi
