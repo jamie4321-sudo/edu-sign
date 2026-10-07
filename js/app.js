@@ -40,7 +40,7 @@
   var crewListCache = null;
   function fetchCrewList() {
     if (crewListCache) return crewListCache;
-    crewListCache = fetch(CREW_SOURCE_URL + "?action=crew")
+    crewListCache = fetch(CREW_SOURCE_URL + "?action=crewnames")
       .then(function (r) { return r.json(); })
       .then(function (list) {
         return (list || [])
