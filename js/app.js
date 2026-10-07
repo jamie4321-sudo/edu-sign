@@ -249,6 +249,7 @@
   /* sign.html은 이제 이름 로그인 → 교육 선택 → 서명 흐름의 공용 페이지라
      세션마다 다른 링크가 필요 없음 — 크루는 이 링크 하나만 북마크해두면 됨 */
   function signUrl() {
+    if (window.CONFIG && CONFIG.signUrl) return CONFIG.signUrl; // 공유용 고정 주소(Cloudflare)
     return location.origin + location.pathname.replace(/index\.html$/, "").replace(/\/$/, "") + "/sign.html";
   }
 
