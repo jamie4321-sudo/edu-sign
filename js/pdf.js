@@ -180,14 +180,24 @@
   }
   // 드라이브(지정 폴더 · 파트별 하위 폴더)에 PDF 넣기 — GAS(gas/Code.gs handlePdf_) 경유, 같은 자료의 예전 PDF 는 바꿔치기
   var PART_FOLDER = { garden: "가든 교육", snack: "스낵큐레이션 교육", support: "총무지원 교육" };
+  // 앱스스크립트는 배포 직후 · 오래 쉬었다 깨어날 때 가끔 엉뚱한 응답을 준다 → 한 번 더 시도
   function toDrive(m, r) {
+    return toDriveOnce(m, r).catch(function (e) {
+      console.warn("드라이브 저장 1차 실패, 다시 시도", e);
+      return new Promise(function (res) { setTimeout(res, 2500); }).then(function () { return toDriveOnce(m, r); });
+    });
+  }
+  function toDriveOnce(m, r) {
     var ep = window.CONFIG && CONFIG.endpoint;
     if (!ep) return Promise.reject(new Error("드라이브 연동 주소 없음"));
     return new Promise(function (res, rej) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.onerror = rej; fr.readAsDataURL(r.blob); })
       .then(function (dataUrl) {
         return fetch(ep, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({ key: CONFIG.apiKey || "", type: "pdf", action: "save", materialId: m.id, name: r.name, folder: PART_FOLDER[m.part] || "", dataUrl: dataUrl.replace(/^data:[^;]*;/, "data:application/pdf;") }) });
-      }).then(function (x) { return x.json(); }).then(function (j) { if (!j || !j.ok) throw new Error((j && j.error) || "드라이브 저장 실패"); return j; });
+      }).then(function (x) { return x.text(); }).then(function (t) {
+        var j = null; try { j = JSON.parse(t); } catch (e) { throw new Error("앱스스크립트 응답이 올바르지 않아요"); }
+        if (!j || !j.ok) throw new Error((j && j.error) || "드라이브 저장 실패"); return j;
+      });
   }
   // 게시 · 저장할 때 뒤에서 조용히 드라이브 PDF 를 새로 (실패해도 저장은 그대로)
   function autoDrive(m) {
