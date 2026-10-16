@@ -97,7 +97,8 @@
             + '<span class="lib-card__b">' + (m.topic ? '<span class="lib-card__t">' + esc(m.topic) + '</span>' : "")
             + '<b>' + esc(m.title || "제목 없음") + '</b>'
             + (m.summary ? '<span class="lib-card__s">' + esc(m.summary) + '</span>' : "")
-            + '<span class="lib-card__m">' + n + '단계 · 사진 ' + photoCount(m) + '장' + (m.needsSign ? '<em class="lib-sign">' + IC.pen + '서명</em>' : "") + '</span></span></button>';
+            + '<span class="lib-card__m">' + n + '단계 · 사진 ' + photoCount(m) + '장' + (m.needsSign ? '<em class="lib-sign">' + IC.pen + '서명</em>' : "") + '</span>'
+            + (o.doneIds && o.doneIds[m.id] ? '<span class="lib-done">✓ 다 봤어요</span>' : "") + '</span></button>';
         }).join("") + '</div>'
         : '<div class="prep">' + IC.book + '<b>' + (items.length ? "이 주제에는 아직 자료가 없어요" : "아직 교육 자료가 없어요") + '</b>'
           + '<p>' + (o.admin ? "<b>+ 교육 자료 만들기</b>로 사진과 설명을 단계별로 올려 주세요." : "자료가 올라오면 여기에서 볼 수 있어요.") + '</p></div>');
@@ -111,8 +112,17 @@
 
   /* ---------------- 넓은 화면 보기 ---------------- */
   var RD = null;
+  // 크루(이름 로그인)가 자료를 열거나 다 봤을 때 기록 — 실패해도 보기는 그대로
+  function record(m, opts, done) {
+    if (!opts || !opts.crew) return Promise.resolve(false);
+    return Store.markView(m.id, opts.crew, opts.dept || "", done).then(function () {
+      if (done) { opts.doneIds = opts.doneIds || {}; opts.doneIds[m.id] = 1; if (LIST.opts === opts || (LIST.opts && LIST.opts.crew === opts.crew)) { (LIST.opts.doneIds = LIST.opts.doneIds || {})[m.id] = 1; if (LIST.el && document.body.contains(LIST.el)) paintList(); } }
+      return true;
+    }).catch(function (e) { console.warn("열람 기록 실패", e); return false; });
+  }
   function openReader(m, opts) {
     opts = opts || {};
+    record(m, opts, false);
     var el = document.getElementById("rd");
     if (!el) { el = document.createElement("div"); el.id = "rd"; el.className = "rd"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); document.body.appendChild(el); }
     var mode; try { mode = localStorage.getItem("edu-rd-mode") || "one"; } catch (e) { mode = "one"; }
@@ -175,7 +185,10 @@
     r.el.querySelectorAll("[data-say]").forEach(function (b) { b.onclick = function () { speak(steps[+b.dataset.say], b); }; });
     if ($("rdPrev")) $("rdPrev").onclick = function () { go(-1); };
     if ($("rdNext")) $("rdNext").onclick = function () { go(1); };
-    if ($("rdDone")) $("rdDone").onclick = function () { if (m.needsSign) askSign(); else closeReader(); };
+    if ($("rdDone")) $("rdDone").onclick = function () {
+      record(m, r.opts, true).then(function (ok) { if (ok && !m.needsSign) toast((r.opts.crew ? r.opts.crew + "님, " : "") + "다 봤어요 ✓ 기록했어요"); });
+      if (m.needsSign) askSign(); else closeReader();
+    };
     r.el.querySelectorAll("[data-close-rd]").forEach(function (a) { a.addEventListener("click", function () { closeReader(); }); });
     if ($("rdEx")) $("rdEx").onclick = function () { window.EduExport.open(r.m, r.el); };
     if ($("rdEdit")) $("rdEdit").onclick = function () { var mm = r.m, o = r.opts; closeReader(); openEditor(mm, o); };

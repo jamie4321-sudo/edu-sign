@@ -242,6 +242,32 @@ window.Store = (function () {
     },
 
     /* ---------- 전체 명단 ---------- */
+    /* ---------- 교육 자료 열람 · '다 봤어요' 기록 (material_views) ---------- */
+    markView: function (materialId, name, dept, done) {
+      if (!materialId || !name) return Promise.resolve();
+      if (SUPA) return sb().rpc("edu_material_view", { p_material: materialId, p_name: name, p_dept: dept || null, p_done: !!done }).then(must);
+      DB = load(); DB.views = DB.views || [];
+      var id = materialId + ":" + name, now = new Date().toISOString(), v = DB.views.filter(function (x) { return x.id === id; })[0];
+      if (!v) DB.views.push({ id: id, materialId: materialId, name: name, dept: dept || "", firstAt: now, lastAt: now, views: done ? 0 : 1, doneAt: done ? now : "" });
+      else { v.lastAt = now; if (!done) v.views++; if (done && !v.doneAt) v.doneAt = now; }
+      persist(DB); return Promise.resolve();
+    },
+    listViews: function (filter) {
+      var f = filter || {};
+      if (SUPA) {
+        var q = sb().from("material_views").select("*");
+        if (f.name) q = q.eq("name", f.name);
+        return q.then(must).then(function (rows) { return (rows || []).map(function (r) {
+          return { id: r.id, materialId: r.material_id, name: r.name, dept: r.dept || "", firstAt: r.first_at, lastAt: r.last_at, views: r.views, doneAt: r.done_at || "" }; }); });
+      }
+      DB = load(); return Promise.resolve((DB.views || []).filter(function (v) { return !f.name || v.name === f.name; }));
+    },
+
+    // 크루 이름 로그인용: 이름 · 부서만 (서명 이미지는 받지 않아 가볍다)
+    listCrewNames: function () {
+      if (SUPA) return sb().from("roster").select("name,dept").then(must).then(function (rows) { return rows || []; });
+      return this.listAllRoster();
+    },
     listAllRoster: function () {
       if (SUPA) return sb().from("roster").select("*").then(must).then(function (rows) { return (rows || []).map(mapRoster); });
       if (LIVE) return apiGet({ action: "allRoster" }).then(function (d) { return d.roster || []; });
