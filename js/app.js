@@ -54,14 +54,16 @@
 
   /* ---------------- 테마 ---------------- */
   var themeBtn = document.getElementById("themeToggle");
+  var darkMq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function curTheme() { return document.documentElement.getAttribute("data-theme") || (darkMq && darkMq.matches ? "dark" : "light"); }
   function applyTheme(t) {
-    if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
     else document.documentElement.removeAttribute("data-theme");
-    themeBtn.querySelector(".lbl").textContent = t === "light" ? "LIGHT" : "DARK";
+    themeBtn.querySelector(".lbl").textContent = curTheme() === "dark" ? "DARK" : "LIGHT";
   }
-  applyTheme(localStorage.getItem("edusign-theme") || "dark");
+  try { applyTheme(localStorage.getItem("edusign-theme") || ""); } catch (e) { applyTheme(""); }
   themeBtn.addEventListener("click", function () {
-    var next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+    var next = curTheme() === "dark" ? "light" : "dark";
     localStorage.setItem("edusign-theme", next);
     applyTheme(next);
   });
@@ -169,10 +171,141 @@
 
   /* ---------------- 라우팅 ---------------- */
   var view = document.getElementById("view");
+  // #/                     에듀 홈 (팀 3개 파트)
+  // #/garden               가든 교육 홈
+  // #/garden/sign          교육 서명 관리 (예전 #/ 목록)
+  // #/garden/sign/<id>     서명 세션 상세 (예전 #/s/<id> 는 여기로 옮김)
+  // #/garden/library · #/garden/progress · #/snack · #/support  준비 중
+  var SIGN = "#/garden/sign";
   function route() {
     var hash = location.hash.replace(/^#\/?/, "");
-    var m = hash.match(/^s\/(.+)$/);
-    if (m) renderDetail(m[1]); else renderList();
+    var old = hash.match(/^s\/(.+)$/);
+    if (old) { location.replace(SIGN + "/" + old[1]); return; }
+    var m = hash.match(/^garden\/sign\/(.+)$/);
+    window.scrollTo(0, 0);
+    if (m) { setNav("garden/sign"); renderDetail(decodeURIComponent(m[1])); }
+    else if (hash === "garden/sign") { setNav("garden/sign"); renderList(); }
+    else if (hash === "garden") { setNav("garden"); renderGardenHome(); }
+    else if (hash === "garden/library") { setNav("garden/library"); renderPrep("library"); }
+    else if (hash === "garden/progress") { setNav("garden/progress"); renderPrep("progress"); }
+    else if (hash === "snack") { setNav("snack"); renderPrep("snack"); }
+    else if (hash === "support") { setNav("support"); renderPrep("support"); }
+    else { setNav("home"); renderHome(); }
+  }
+  function setNav(key) {
+    document.querySelectorAll(".nav [data-nav]").forEach(function (a) {
+      if (a.dataset.nav === key) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+  }
+
+  /* ---------------- 에듀 홈 · 가든 교육 홈 · 준비 중 ---------------- */
+  function svg(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>'; }
+  var IC = {
+    leaf: svg('<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-4 6-7 10-9"/>'),
+    cup: svg('<path d="M5 8h12v5a6 6 0 0 1-12 0z"/><path d="M17 9h2a2 2 0 0 1 0 4h-2"/><path d="M8 3v2M12 3v2"/>'),
+    box: svg('<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>'),
+    sign: svg('<path d="M4 19h16"/><path d="M6 15c2-5 4-8 5-8s0 6 2 6 2-3 3-3 1 2 2 2"/>'),
+    book: svg('<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M9 7h6"/>'),
+    chk: svg('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/>'),
+    arrow: svg('<path d="M5 12h14M13 6l6 6-6 6"/>')
+  };
+  // 가든 교육 자료실에 들어갈 주제 (2단계에서 실제 자료로 채움)
+  var GARDEN_TOPICS = ["장비 · 도구 관리", "식물 관리 기본", "병해충 · 이슈 대응", "안전 · 보건", "현장 매너 · 보안", "기록 앱 사용법"];
+  var PARTS = [
+    { key: "garden", name: "가든 교육", desc: "장비 관리 · 식물 관리 · 안전 교육과 교육 서명", ic: IC.leaf, on: true },
+    { key: "snack", name: "스낵큐레이션 교육", desc: "스낵바 운영 · 진열 · 위생 교육", ic: IC.cup },
+    { key: "support", name: "총무지원 교육", desc: "총무지원 업무 · 사무 지원 교육", ic: IC.box }
+  ];
+  function curMonth() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2); }
+  function signStats(sessions) {
+    var active = sessions.filter(function (x) { return !x.locked; });
+    var month = sessions.filter(function (x) { return String(x.date || "").slice(0, 7) === curMonth(); });
+    var tot = 0, sig = 0; active.forEach(function (x) { tot += x.total || 0; sig += x.signed || 0; });
+    return { active: active, month: month, total: tot, signed: sig, waiting: tot - sig, pct: tot ? Math.round(sig / tot * 100) : 0 };
+  }
+  function paintNavCount(st) { var el = document.getElementById("navSignCount"); if (el) el.textContent = st.active.length ? st.active.length : ""; }
+  function gardenSubnav(cur) {
+    var items = [["garden", "가든 교육 홈"], ["garden/sign", "교육 서명 관리"], ["garden/library", "교육 자료실"], ["garden/progress", "이수 현황"]];
+    return '<nav class="subnav" aria-label="가든 교육 메뉴">' + items.map(function (x) {
+      return '<a href="#/' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : "") + '>' + x[1] + '</a>';
+    }).join("") + '</nav>';
+  }
+
+  function renderHome() {
+    setCrumb("EDU · 교육 홈");
+    view.innerHTML = '<div class="wrap"><div class="page-head"><div><h2>교육 홈</h2>'
+      + '<p class="sub">스낵큐레이션 · 가든 · 총무지원, 우리 팀 교육을 한곳에서 관리해요.</p></div></div>'
+      + '<div class="part-grid">' + PARTS.map(function (p) {
+          var tag = p.on ? "a" : "div";
+          return '<' + tag + ' class="part-card ' + (p.on ? "is-on" : "is-soon") + '"' + (p.on ? ' href="#/' + p.key + '"' : "") + '>'
+            + '<div class="part-card__top"><span class="part-card__ic">' + p.ic + '</span>'
+            + (p.on ? '<span class="pill pill--live">운영 중</span>' : '<span class="pill">준비 중</span>') + '</div>'
+            + '<div><h3>' + p.name + '</h3><p>' + p.desc + '</p></div>'
+            + '<div class="part-card__f" id="part-' + p.key + '">' + (p.on ? '<span>불러오는 중…</span>' + IC.arrow : '<span>교육 자료를 준비하고 있어요</span>') + '</div>'
+            + '</' + tag + '>';
+        }).join("") + '</div>'
+      + '<div class="sec-h"><h3>진행 중인 교육 서명</h3><a href="' + SIGN + '">교육 서명 관리 →</a></div>'
+      + '<div id="homeSessions" class="session-grid"><div class="empty">불러오는 중…</div></div></div>';
+    Store.listSessions().then(function (sessions) {
+      var st = signStats(sessions); paintNavCount(st);
+      var f = document.getElementById("part-garden");
+      if (f) f.innerHTML = '<span>서명 진행 <b>' + st.active.length + '건</b> · 미서명 <b>' + st.waiting + '명</b></span>' + IC.arrow;
+      var g = document.getElementById("homeSessions"); if (!g) return;
+      g.innerHTML = st.active.length ? st.active.map(sessionCardHtml).join("")
+        : '<div class="empty" style="grid-column:1/-1">진행 중인 교육 서명이 없어요.<br><a href="' + SIGN + '"><b>교육 서명 관리</b></a>에서 새 교육을 만들 수 있어요.</div>';
+    });
+  }
+
+  function renderGardenHome() {
+    setCrumb("EDU · 가든 교육");
+    view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">EDU · GARDEN</p><h2>가든 교육</h2>'
+      + '<p class="sub">링키지랩 가드너가 알아야 할 장비 관리 · 식물 관리 · 안전 교육과 교육 서명을 관리해요.</p></div>'
+      + '<a class="btn btn--primary" href="' + SIGN + '">교육 서명 관리</a></div>'
+      + gardenSubnav("garden")
+      + '<dl class="summary" id="gSummary">'
+        + '<div><dt>서명 진행 중</dt><dd>–</dd></div><div><dt>이번 달 교육</dt><dd>–</dd></div>'
+        + '<div><dt>미서명 인원</dt><dd>–</dd></div><div><dt>서명률</dt><dd>–</dd></div></dl>'
+      + '<div class="sec-h"><h3>바로가기</h3></div>'
+      + '<div class="quick-grid">'
+        + '<a class="quick" href="' + SIGN + '"><div class="quick__h">' + IC.sign + '<b>교육 서명 관리</b><span class="pill pill--live">운영 중</span></div>'
+          + '<p>교육 회차를 만들고 크루 서명을 받아 원본 서식대로 출력해요.</p></a>'
+        + '<a class="quick" href="#/garden/library"><div class="quick__h">' + IC.book + '<b>교육 자료실</b><span class="pill">준비 중</span></div>'
+          + '<div class="chips">' + GARDEN_TOPICS.map(function (t) { return '<span>' + t + '</span>'; }).join("") + '</div></a>'
+        + '<a class="quick" href="#/garden/progress"><div class="quick__h">' + IC.chk + '<b>이수 현황</b><span class="pill">준비 중</span></div>'
+          + '<p>크루별로 어떤 교육을 마쳤는지 한눈에 봐요.</p></a>'
+      + '</div>'
+      + '<div class="sec-h"><h3>진행 중인 교육 서명</h3><a href="' + SIGN + '">전체 보기 →</a></div>'
+      + '<div id="gSessions" class="session-grid"><div class="empty">불러오는 중…</div></div></div>';
+    Store.listSessions().then(function (sessions) {
+      var st = signStats(sessions); paintNavCount(st);
+      var sm = document.getElementById("gSummary"); if (!sm) return;
+      sm.innerHTML = '<div><dt>서명 진행 중</dt><dd>' + st.active.length + '<small>건</small></dd></div>'
+        + '<div><dt>이번 달 교육</dt><dd>' + st.month.length + '<small>건</small></dd></div>'
+        + '<div><dt>미서명 인원</dt><dd>' + st.waiting + '<small>명</small></dd></div>'
+        + '<div><dt>서명률</dt><dd>' + (st.total ? st.pct + '<small>%</small>' : '–') + '</dd></div>';
+      var g = document.getElementById("gSessions");
+      g.innerHTML = st.active.length ? st.active.map(sessionCardHtml).join("")
+        : '<div class="empty" style="grid-column:1/-1">진행 중인 교육 서명이 없어요.</div>';
+    });
+  }
+
+  var PREP = {
+    library: { crumb: "EDU · 가든 교육 · 자료실", eyebrow: "EDU · GARDEN", title: "교육 자료실", sub: "가든 교육 자료를 주제별로 모아 볼 수 있어요.", ic: IC.book, sn: "garden/library",
+      msg: "장비 관리 방법처럼 현장에서 바로 보는 단계별 교육 자료를 이곳에 올릴 예정이에요.", chips: GARDEN_TOPICS },
+    progress: { crumb: "EDU · 가든 교육 · 이수 현황", eyebrow: "EDU · GARDEN", title: "이수 현황", sub: "크루별 교육 이수 상태를 한눈에 봐요.", ic: IC.chk, sn: "garden/progress",
+      msg: "교육 자료실과 교육 서명이 연결되면 크루 × 교육 표로 이수 여부를 보여 드려요.", chips: [] },
+    snack: { crumb: "EDU · 스낵큐레이션 교육", eyebrow: "EDU · SNACK", title: "스낵큐레이션 교육", sub: "스낵바 운영 · 진열 · 위생 교육", ic: IC.cup,
+      msg: "가든 교육 구성을 먼저 완성한 뒤 같은 방식으로 열어요.", chips: [] },
+    support: { crumb: "EDU · 총무지원 교육", eyebrow: "EDU · SUPPORT", title: "총무지원 교육", sub: "총무지원 업무 · 사무 지원 교육", ic: IC.box,
+      msg: "가든 교육 구성을 먼저 완성한 뒤 같은 방식으로 열어요.", chips: [] }
+  };
+  function renderPrep(key) {
+    var p = PREP[key]; setCrumb(p.crumb);
+    view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">' + p.eyebrow + '</p><h2>' + p.title + '</h2><p class="sub">' + p.sub + '</p></div></div>'
+      + (p.sn ? gardenSubnav(p.sn) : "")
+      + '<div class="prep">' + p.ic + '<b>준비 중이에요</b><p>' + p.msg + '</p>'
+      + (p.chips.length ? '<div class="chips">' + p.chips.map(function (t) { return '<span>' + t + '</span>'; }).join("") + '</div>' : "")
+      + '</div></div>';
   }
   window.addEventListener("hashchange", route);
 
@@ -183,7 +316,7 @@
   function sessionCardHtml(s) {
     var pct = s.total ? Math.round((s.signed / s.total) * 100) : 0;
     var badge = s.locked ? '<span class="badge badge--done">마감</span>' : '<span class="badge badge--live">진행중</span>';
-    return '<a class="session-card' + (s.locked ? " session-card--archived" : "") + '" href="#/s/' + esc(s.id) + '">'
+    return '<a class="session-card' + (s.locked ? " session-card--archived" : "") + '" href="' + SIGN + '/' + encodeURIComponent(s.id) + '">'
       + '<div class="session-card__top"><span class="session-card__date mono">' + esc(s.date || "") + '</span>' + badge + '</div>'
       + '<div><div class="session-card__title">' + esc(s.title || s.category || "제목 없음") + '</div>'
       + '<div class="session-card__cat">' + esc(s.category || "") + '</div></div>'
@@ -194,11 +327,12 @@
   }
 
   function renderList() {
-    setCrumb("SESSIONS");
+    setCrumb("EDU · 가든 교육 · 교육 서명 관리");
     view.innerHTML = '<div class="wrap"><div class="page-head">'
-      + '<div><p class="eyebrow">EDU SIGN</p><h2>교육 서명 세션</h2><p class="sub">교육 회차를 만들고 서명 링크를 공유하세요.</p></div>'
+      + '<div><p class="eyebrow">EDU · GARDEN</p><h2>교육 서명 관리</h2><p class="sub">교육 회차를 만들고 서명 링크를 공유하세요.</p></div>'
       + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button>'
       + '</div>'
+      + gardenSubnav("garden/sign")
       + '<div class="seg" id="sessionTabs" role="tablist" hidden>'
         + '<button class="seg__btn is-on" type="button" role="tab" data-tab="active">진행중 <span class="seg__n" id="cntActive">0</span></button>'
         + '<button class="seg__btn" type="button" role="tab" data-tab="archive">아카이브 <span class="seg__n" id="cntArchive">0</span></button>'
@@ -212,6 +346,7 @@
       var tabs = document.getElementById("sessionTabs");
       var active = sessions.filter(function (s) { return !s.locked; });
       var archived = sessions.filter(function (s) { return !!s.locked; });
+      paintNavCount(signStats(sessions));
       document.getElementById("cntActive").textContent = active.length;
       document.getElementById("cntArchive").textContent = archived.length;
       tabs.hidden = false;
@@ -254,16 +389,16 @@
   }
 
   function renderDetail(id) {
-    setCrumb("SESSION DETAIL");
+    setCrumb("EDU · 가든 교육 · 교육 서명 관리");
     view.innerHTML = '<div class="wrap"><div class="empty">불러오는 중…</div></div>';
     Store.getSession(id).then(function (d) {
-      if (!d || !d.session) { view.innerHTML = '<div class="wrap"><div class="empty">세션을 찾을 수 없습니다. <a href="#/">목록으로</a></div></div>'; return; }
+      if (!d || !d.session) { view.innerHTML = '<div class="wrap"><div class="empty">세션을 찾을 수 없습니다. <a href="' + SIGN + '">목록으로</a></div></div>'; return; }
       var s = d.session, roster = d.roster || [];
       var signed = roster.filter(function (r) { return !!r.signature; }).length;
       var url = signUrl();
 
       view.innerHTML = '<div class="wrap">'
-        + '<div class="detail-head"><a class="back-link" href="#/">← 세션 목록</a></div>'
+        + '<div class="detail-head"><a class="back-link" href="' + SIGN + '">← 교육 서명 관리</a></div>'
         + '<div class="page-head">'
         + '<div><p class="eyebrow">' + esc(s.date || "") + ' · ' + (s.locked ? "마감" : "진행중") + '</p>'
         + '<h2>' + esc(s.title || s.category || "제목 없음") + '</h2>'
@@ -330,7 +465,7 @@
         delSessionBtn.disabled = true;
         Store.deleteSession(s.id).then(function () {
           toast("세션을 삭제했습니다");
-          location.hash = "#/";
+          location.hash = SIGN;
         }).catch(function () {
           delSessionBtn.disabled = false;
           toast("삭제에 실패했습니다. 다시 시도해주세요.");
@@ -449,7 +584,7 @@
       Store.saveSession(obj).then(function (res) {
         wrap.remove();
         toast(editing ? "세션을 수정했습니다" : "새 세션을 만들었습니다");
-        location.hash = "#/s/" + (editing ? existing.id : res.id);
+        location.hash = SIGN + "/" + encodeURIComponent(editing ? existing.id : res.id);
         if (editing) route();
       });
     });

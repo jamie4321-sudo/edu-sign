@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SNACK & GARDEN EDU SIGN — 교육 서명 관리</title>
-  <meta name="description" content="정기 교육 참석자 서명을 온라인으로 받고 원본 서식대로 출력합니다" />
+  <title>SNACK & GARDEN EDU — 교육</title>
+  <meta name="description" content="스낵큐레이션 · 가든 · 총무지원 팀 교육 — 교육 자료와 교육 서명 관리" />
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-  <link rel="stylesheet" href="./css/styles.css?v=5" />
+  <link rel="preload" href="./fonts/KakaoBigSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="./fonts/KakaoBigSans-ExtraBold.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="./css/styles.css?v=6" />
   <script>
     (function () {
-      try { if (localStorage.getItem("edusign-theme") === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (e) {}
+      try { var t = localStorage.getItem("edusign-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
       try { if (localStorage.getItem("edusign-auth") === "ok") document.documentElement.setAttribute("data-authed", "1"); } catch (e) {}
     })();
   </script>
@@ -20,7 +22,7 @@
 
   <div class="lock" id="lockScreen">
     <div class="lock__card">
-      <div class="lock__brand">SNACK<em>&amp;</em>GARDEN</div>
+      <div class="lock__brand">SNACK<em>&amp;</em>GARDEN EDU</div>
       <p class="lock__label">관리자 비밀번호 4자리를 입력하세요</p>
       <div class="lock__dots" id="lockDots">
         <span class="lock__dot"></span><span class="lock__dot"></span><span class="lock__dot"></span><span class="lock__dot"></span>
@@ -33,23 +35,30 @@
   <div class="layout">
     <aside class="side">
       <a class="brand" href="#/">
-        <span class="brand__mark">SNACK<em>&amp;</em>GARDEN</span>
-        <span class="brand__sub">EDU SIGN · 교육 서명 관리</span>
+        <b>SNACK<em>&amp;</em>GARDEN EDU</b>
+        <span>LINKAGELAB · 교육</span>
       </a>
       <nav class="nav" aria-label="주요 메뉴">
-        <p class="nav__label">MAIN</p>
-        <a class="nav__item is-active" href="#/">교육 서명 세션</a>
-        <p class="nav__label">연동</p>
-        <a class="nav__item nav__item--ext" id="driveNavLink" href="#" target="_blank" rel="noopener">사진 폴더 <span>Drive</span></a>
+        <a href="#/" data-nav="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span class="lg">에듀 홈</span><span class="sm">홈</span></a>
+        <h6>가든 교육</h6>
+        <a href="#/garden" data-nav="garden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-4 6-7 10-9"/></svg><span class="lg">가든 교육 홈</span><span class="sm">가든</span></a>
+        <a href="#/garden/sign" data-nav="garden/sign"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 15c2-5 4-8 5-8s0 6 2 6 2-3 3-3 1 2 2 2"/></svg><span class="lg">교육 서명 관리</span><span class="sm">서명</span><i class="count" id="navSignCount"></i></a>
+        <a href="#/garden/library" data-nav="garden/library"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M9 7h6"/></svg><span class="lg">교육 자료실</span><span class="sm">자료실</span><i class="soon">준비 중</i></a>
+        <a href="#/garden/progress" data-nav="garden/progress" class="m-hide"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg><span class="lg">이수 현황</span><span class="sm">이수</span><i class="soon">준비 중</i></a>
+        <h6>다른 파트</h6>
+        <a href="#/snack" data-nav="snack" class="m-hide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h12v5a6 6 0 0 1-12 0z"/><path d="M17 9h2a2 2 0 0 1 0 4h-2"/><path d="M8 3v2M12 3v2"/></svg><span class="lg">스낵큐레이션 교육</span><i class="soon">준비 중</i></a>
+        <a href="#/support" data-nav="support" class="m-hide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg><span class="lg">총무지원 교육</span><i class="soon">준비 중</i></a>
+        <h6 class="m-hide">연동</h6>
+        <a class="m-hide nav__ext" id="driveNavLink" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5H5V6h5"/></svg><span class="lg">사진 폴더</span><i class="count">Drive</i></a>
       </nav>
       <div class="side__foot"><span class="dot"></span> <span id="modeLabel">DEMO · 목업 데이터</span></div>
     </aside>
 
     <div class="main">
       <header class="topbar">
-        <p class="topbar__crumb" id="viewTitle">SESSIONS</p>
+        <a class="m-brand" href="#/"><b>SNACK<em>&amp;</em>GARDEN</b> EDU</a><p class="topbar__crumb" id="viewTitle">EDU</p>
         <div class="topbar__right">
-          <button class="theme-toggle" id="themeToggle" aria-label="라이트/다크 테마 전환"><span class="knob"></span><span class="lbl">DARK</span></button>
+          <button class="theme-toggle" id="themeToggle" aria-label="라이트/다크 테마 전환"><span class="knob"></span><span class="lbl">LIGHT</span></button>
         </div>
       </header>
       <main id="view"></main>
@@ -62,6 +71,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="./js/store.js?v=5"></script>
-  <script src="./js/app.js?v=14"></script>
+  <script src="./js/app.js?v=16"></script>
 </body>
 </html>
