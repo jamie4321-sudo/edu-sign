@@ -39,18 +39,44 @@
 
   /* SNACK&GARDEN OPS의 크루 목록을 명단 등록 시 참고용으로 불러온다 (이름 · 부서만 사용) */
   var CREW_SOURCE_URL = "https://script.google.com/macros/s/AKfycbxNV7X2fDwkEB3yXnbrXfkm6y-0kChB0uLzMBUx2jKEfG61QcJXDVujQiSN8V4eOYHX/exec";
-  var crewListCache = null;
+  // 크루 명단: Supabase 복사본(edu_crews)을 먼저 바로 읽고, OPS 구글 시트는 뒤에서 확인해 복사본을 맞춘다
+  //  (OPS 앱스스크립트는 가끔 수십 초씩 멈춰서 화면이 기다리지 않게)
+  var crewListCache = null, crewSync = null;
+  function tidyCrews(list) {
+    return (list || []).filter(function (c) { return c.status === "재직"; })
+      .map(function (c) { return { name: c.name, group: c.group || "", role: c.role || "" }; })
+      .sort(function (a, b) { return (a.group || "").localeCompare(b.group || "", "ko") || a.name.localeCompare(b.name, "ko"); });
+  }
+  function fetchOpsCrews(waitMs) {
+    return Promise.race([
+      fetch(CREW_SOURCE_URL + "?action=crewnames").then(function (r) { return r.json(); }),
+      new Promise(function (_, rej) { setTimeout(function () { rej(new Error("OPS 응답 없음")); }, waitMs || 30000); })
+    ]);
+  }
+  // OPS → Supabase 맞추기 (한 화면 열림에 한 번). 바뀌었으면 true
+  function syncCrewsFromOps(force) {
+    if (crewSync && !force) return crewSync;
+    var before = crewListCache;
+    crewSync = fetchOpsCrews(30000).then(function (list) {
+      return Store.syncCrews(list).catch(function (e) { console.warn("크루 명단 복사 실패", e); }).then(function () {
+        var fresh = tidyCrews(list);
+        return Promise.resolve(before).then(function (old) {
+          crewListCache = Promise.resolve(fresh);
+          return JSON.stringify(old || []) !== JSON.stringify(fresh);
+        });
+      });
+    }).catch(function (e) { console.warn("OPS 크루 명단 확인 실패", e); crewSync = null; return false; });
+    return crewSync;
+  }
   function fetchCrewList() {
     if (crewListCache) return crewListCache;
-    crewListCache = fetch(CREW_SOURCE_URL + "?action=crewnames")
-      .then(function (r) { return r.json(); })
-      .then(function (list) {
-        return (list || [])
-          .filter(function (c) { return c.status === "재직"; })
-          .map(function (c) { return { name: c.name, group: c.group || "", role: c.role || "" }; })
-          .sort(function (a, b) { return (a.group || "").localeCompare(b.group || "", "ko") || a.name.localeCompare(b.name, "ko"); });
-      })
-      .catch(function () { crewListCache = null; return []; });
+    crewListCache = Store.listCrews().then(function (rows) {
+      if (rows && rows.length) { syncCrewsFromOps(); return tidyCrews(rows); }
+      return syncCrewsFromOps(true).then(function () { return crewListCache; });   // 복사본이 비었으면 OPS 를 기다린다
+    }).catch(function () {
+      // 복사본 표가 아직 없으면 예전처럼 OPS 에서 바로
+      return fetchOpsCrews(30000).then(tidyCrews).catch(function () { crewListCache = null; return []; });
+    });
     return crewListCache;
   }
 
@@ -236,7 +262,15 @@
   /* ---------------- 이수 현황 (js/progress.js) ---------------- */
   function renderProgress() {
     setCrumb("EDU · 가든 교육 · 이수 현황");
+    syncCrewsFromOps().then(function (changed) { if (changed && location.hash === "#/garden/progress") renderProgress(); });
     EduProgress.render(view, { part: "garden", crewList: fetchCrewList,
+      onRefresh: function (btn) {
+        btn.disabled = true; btn.textContent = "OPS 명단 확인 중…";
+        syncCrewsFromOps(true).then(function (changed) {
+          toast(changed ? "크루 명단을 새로 맞췄어요" : crewSync ? "크루 명단이 이미 최신이에요" : "OPS 명단이 응답하지 않아요. 잠시 후 다시 눌러 주세요.");
+          if (location.hash === "#/garden/progress") renderProgress();
+        });
+      },
       head: '<div class="page-head"><div><p class="eyebrow">EDU · GARDEN</p><h2>이수 현황</h2>'
         + '<p class="sub">서명 받는 교육은 서명으로, 그 밖의 교육은 크루가 끝까지 보고 누른 ‘다 봤어요’로 이수를 확인해요.</p></div></div>'
         + gardenSubnav("garden/progress") });

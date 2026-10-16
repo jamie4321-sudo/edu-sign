@@ -263,6 +263,27 @@ window.Store = (function () {
       DB = load(); return Promise.resolve((DB.views || []).filter(function (v) { return !f.name || v.name === f.name; }));
     },
 
+    /* ---------- 크루 명단 복사본 (edu_crews ← OPS 구글 시트) ---------- */
+    listCrews: function () {
+      if (!SUPA) return Promise.resolve(null);
+      return sb().from("edu_crews").select("name,grp,role,status").then(must).then(function (rows) {
+        return (rows || []).map(function (r) { return { name: r.name, group: r.grp || "", role: r.role || "", status: r.status || "" }; });
+      });
+    },
+    // OPS 에서 받은 전체 명단으로 맞춤: 있는 사람은 덮어쓰고, OPS 에서 사라진 사람은 '명단 없음'으로
+    syncCrews: function (list) {
+      if (!SUPA || !list || !list.length) return Promise.resolve(false);
+      var now = new Date().toISOString(), names = {};
+      var rows = list.filter(function (c) { return c && c.name; }).map(function (c) { names[c.name] = 1; return { name: c.name, grp: c.group || "", role: c.role || "", status: c.status || "", synced_at: now }; });
+      return sb().from("edu_crews").upsert(rows, { onConflict: "name" }).then(must)
+        .then(function () { return sb().from("edu_crews").select("name,status"); }).then(must)
+        .then(function (all) {
+          var gone = (all || []).filter(function (r) { return !names[r.name] && r.status !== "명단 없음"; }).map(function (r) { return r.name; });
+          if (!gone.length) return true;
+          return sb().from("edu_crews").update({ status: "명단 없음", synced_at: now }).in("name", gone).then(must).then(function () { return true; });
+        });
+    },
+
     // 이수 현황용: 서명 세션 명단을 서명 이미지 없이 (이름 · 부서 · 서명 시각만)
     listRosterLite: function (sessionIds) {
       var ids = (sessionIds || []).filter(Boolean);

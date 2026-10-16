@@ -90,7 +90,8 @@
         + '<div class="pg-bar"><div class="seg pg-seg" role="tablist">'
           + '<button class="seg__btn' + (ST.tab === "mat" ? " is-on" : "") + '" type="button" data-pt="mat">교육별</button>'
           + '<button class="seg__btn' + (ST.tab === "crew" ? " is-on" : "") + '" type="button" data-pt="crew">크루별</button></div>'
-          + '<span class="pg-sp"></span><button class="btn btn--sm" type="button" id="pgXlsx">⬇ 엑셀</button></div>'
+          + '<span class="pg-sp"></span>' + (opts.onRefresh ? '<button class="btn btn--sm" type="button" id="pgSync">크루 명단 새로고침</button>' : "")
+          + '<button class="btn btn--sm" type="button" id="pgXlsx">⬇ 엑셀</button></div>'
         + '<div id="pgView"></div>';
       var paint = function () {
         body.querySelectorAll("[data-pt]").forEach(function (b) { b.classList.toggle("is-on", b.dataset.pt === ST.tab); });
@@ -103,6 +104,7 @@
       };
       body.querySelectorAll("[data-pt]").forEach(function (b) { b.onclick = function () { ST.tab = b.dataset.pt; paint(); }; });
       document.getElementById("pgXlsx").onclick = function () { xlsx(d); };
+      var sy = document.getElementById("pgSync"); if (sy) sy.onclick = function () { opts.onRefresh(sy); };
       paint();
     }).catch(function (e) {
       console.warn(e); body.innerHTML = '<div class="prep"><b>이수 현황을 불러오지 못했어요</b><p>인터넷 연결을 확인하고 새로고침해 주세요.</p></div>';
