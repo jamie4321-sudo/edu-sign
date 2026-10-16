@@ -20,6 +20,33 @@
 
   var CATEGORIES = ["정기 교육", "산업안전보건교육", "장애인 인식개선교육", "성희롱 예방교육", "개인정보보호교육", "퇴직연금교육", "기타"];
 
+  /* ---------------- 사진 줄이기 ----------------
+     교육 사진은 긴 쪽 1600px · JPEG 82% 로 줄여서 올린다 (폰 원본 3~8MB → 약 0.3MB).
+     Supabase 무료 저장 공간(1GB, 게임즈 가든과 같이 씀)을 오래 쓰기 위함.
+     이미 작은 사진은 그대로, 브라우저가 못 여는 형식(일부 HEIC 등)은 원본 그대로 올린다. */
+  var PHOTO_MAX = 1600, PHOTO_Q = 0.82;
+  function readAsDataUrl_(file) {
+    return new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = rej; r.readAsDataURL(file); });
+  }
+  function shrinkPhoto(file) {
+    var original = function () { return readAsDataUrl_(file).then(function (d) { return { dataUrl: d, name: file.name, size: file.size }; }); };
+    return new Promise(function (res) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, PHOTO_MAX / Math.max(w, h));
+        if (k === 1 && file.size < 500 * 1024) { URL.revokeObjectURL(url); res(original()); return; }
+        var c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+        var g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        var d = c.toDataURL("image/jpeg", PHOTO_Q), size = Math.round((d.length - d.indexOf(",") - 1) * 3 / 4);
+        if (size >= file.size) { res(original()); return; }
+        res({ dataUrl: d, name: String(file.name || "photo").replace(/\.[^.]+$/, "") + ".jpg", size: size });
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); res(original()); };
+      img.src = url;
+    });
+  }
+
   /* ---------------- 엑셀(.xlsx) 내보내기 ----------------
      SheetJS 로 실제 엑셀 파일 생성 — 한글이 깨지지 않고 더블클릭으로 바로 열립니다. */
   function sigStatus_(r) { return (r && r.signature && String(r.signature).trim()) ? "서명완료" : "미서명"; }
@@ -499,13 +526,24 @@
       document.getElementById("photoInput").addEventListener("change", function (e) {
         var files = Array.prototype.slice.call(e.target.files || []);
         if (!files.length) return;
-        Promise.all(files.map(function (file) {
-          return new Promise(function (resolve) {
-            var reader = new FileReader();
-            reader.onload = function () { resolve(Store.uploadPhoto(s.id, reader.result, file.name)); };
-            reader.readAsDataURL(file);
+        // 한 장씩 줄여서 올린다(폰 메모리 · 저장 용량 아끼기)
+        var grid = document.getElementById("photoGrid"), done = 0, saved = 0;
+        e.target.value = "";
+        files.reduce(function (p, file) {
+          return p.then(function () {
+            if (grid) grid.textContent = "사진 올리는 중… " + (done + 1) + "/" + files.length;
+            return shrinkPhoto(file).then(function (ph) {
+              saved += Math.max(0, file.size - ph.size);
+              return Store.uploadPhoto(s.id, ph.dataUrl, ph.name);
+            }).then(function () { done++; });
           });
-        })).then(function () { toast("사진을 업로드했습니다"); renderPhotoGrid(s.id); });
+        }, Promise.resolve()).then(function () {
+          toast("사진 " + done + "장을 올렸습니다" + (saved > 1048576 ? " · 용량 " + Math.round(saved / 1048576) + "MB 절약" : ""));
+          renderPhotoGrid(s.id);
+        }).catch(function (err) {
+          console.warn(err); toast("사진을 올리지 못했습니다 (" + done + "/" + files.length + "장 완료). 인터넷 연결을 확인해 주세요.");
+          renderPhotoGrid(s.id);
+        });
       });
       renderPhotoGrid(s.id);
     });
