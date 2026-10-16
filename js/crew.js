@@ -11,8 +11,16 @@
   function get() { try { return localStorage.getItem(KEY) || ""; } catch (e) { return ""; } }
   function set(v) { try { if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) {} }
 
-  // 명단에서 이름만 (서명 이미지는 받지 않음)
+  // 이름 목록 = OPS 재직 명단(Supabase edu_crews). 표가 없거나 비었으면 교육 서명 명단으로
   function names() {
+    return Store.listCrews().then(function (rows) {
+      var on = (rows || []).filter(function (c) { return c.status === "재직"; });
+      if (!on.length) throw new Error("재직 명단 없음");
+      return on.map(function (c) { return { name: c.name, dept: c.group || "" }; })
+        .sort(function (a, b) { return a.name.localeCompare(b.name, "ko"); });
+    }).catch(function () { return rosterNames(); });
+  }
+  function rosterNames() {
     return Store.listCrewNames().then(function (rows) {
       var seen = {}, out = [];
       rows.forEach(function (r) { if (r.name && !seen[r.name]) { seen[r.name] = 1; out.push({ name: r.name, dept: r.dept || "" }); } });
@@ -53,7 +61,7 @@
         + '<h1>' + esc(title) + '</h1><p class="cl-sub">내 이름으로 들어와요</p>'
         + '<button type="button" class="cl-pick is-empty" id="clPick">이름 고르기</button>'
         + '<button type="button" class="cl-go" id="clGo" disabled>들어가기</button>'
-        + '<p class="cl-note">교육 서명과 같은 이름이에요. 한 번 들어오면 이 폰이 기억해요.</p></div></div>';
+        + '<p class="cl-note">한 번 들어오면 이 폰이 기억해요. 내 이름이 없으면 매니저에게 알려 주세요.</p></div></div>';
       var pick = document.getElementById("clPick"), go = document.getElementById("clGo");
       pick.onclick = function () { pickSheet(list, sel, function (n) { sel = n; pick.textContent = n; pick.classList.remove("is-empty"); go.disabled = false; go.focus(); }); };
       go.onclick = function () { if (!sel) return; set(sel); onIn(sel, deptOf(sel)); };
