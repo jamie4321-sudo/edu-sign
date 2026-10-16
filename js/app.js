@@ -101,6 +101,8 @@
     logout: function () { Auth.logout(); }
   };
   window.Admin = Admin;
+  // 자료를 저장하면 가든 교육 홈의 숫자(임시보관함 등)도 새로
+  document.addEventListener("edu-materials-changed", function () { if (/^#\/garden\/?$/.test(location.hash)) renderGardenHome(); });
   document.addEventListener("edu-auth", function () { if (document.documentElement.getAttribute("data-authed") === "1") route(); });
 
   /* ---------------- 라우팅 ---------------- */
@@ -183,6 +185,7 @@
       + partLegendHtml()
       + '<div id="homeSessions" class="session-grid"><div class="empty">불러오는 중…</div></div></div>';
     Store.listMaterials("garden").then(function (ms) {
+      ms = ms.filter(function (x) { return !EduLib.isDraft(x); });
       var f = document.getElementById("part-garden");
       if (f) f.innerHTML = '<span>교육 자료 <b>' + ms.length + '건</b>' + (ms.some(function (x) { return x.needsSign; }) ? ' · 서명 받는 자료 <b>' + ms.filter(function (x) { return x.needsSign; }).length + '건</b>' : "") + '</span>' + IC.arrow;
     }).catch(function () { var f = document.getElementById("part-garden"); if (f) f.innerHTML = '<span>교육 자료실 열기</span>' + IC.arrow; });
@@ -198,11 +201,11 @@
     setCrumb("EDU · 가든 교육");
     view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">EDU · GARDEN</p><h2>가든 교육</h2>'
       + '<p class="sub">링키지랩 가드너가 알아야 할 장비 관리 · 식물 관리 · 안전 교육 자료를 모아요.</p></div>'
-      + '<button class="btn btn--primary" id="gNewMat">+ 교육 자료 만들기</button></div>'
+      + '<div class="head-acts"><button class="btn btn--draftbox" id="gDraftBox">임시보관함 <span class="draft-n" data-draft-n>–</span></button><button class="btn btn--primary" id="gNewMat">+ 교육 자료 만들기</button></div></div>'
       + gardenSubnav("garden")
       + '<dl class="summary" id="gSummary">'
         + '<div><dt>교육 자료</dt><dd>–</dd></div><div><dt>서명 받는 자료</dt><dd>–</dd></div>'
-        + '<div><dt>주제</dt><dd>–</dd></div><div><dt>사진</dt><dd>–</dd></div></dl>'
+        + '<div><dt>임시보관함</dt><dd>–</dd></div><div><dt>사진</dt><dd>–</dd></div></dl>'
       + '<div class="sec-h"><h3>바로가기</h3></div>'
       + '<div class="quick-grid">'
         + '<a class="quick" href="#/garden/library"><div class="quick__h">' + IC.book + '<b>교육 자료실</b><span class="pill pill--live">운영 중</span></div>'
@@ -215,14 +218,16 @@
       + '<div class="sec-h"><h3>최근 교육 자료</h3><a href="#/garden/library">전체 보기 →</a></div>'
       + '<div id="gMats"></div></div>';
     var opts = { admin: Auth.can("material:garden"), part: "garden", by: Admin.current(), limit: 6, noTopics: true };
-    if (!opts.admin) document.getElementById("gNewMat").hidden = true;
+    if (!opts.admin) document.getElementById("gNewMat").hidden = document.getElementById("gDraftBox").hidden = true;
+    document.getElementById("gDraftBox").onclick = function () { EduLib.showDrafts(); location.hash = "#/garden/library"; };
     document.getElementById("gNewMat").onclick = function () { EduLib.openEditor(null, opts); };
     EduLib.mountList(document.getElementById("gMats"), opts).then(function (ms) {
       var sm = document.getElementById("gSummary"); if (!sm) return;
+      var drafts = ms.filter(EduLib.isDraft).length; ms = ms.filter(function (x) { return !EduLib.isDraft(x); });
       var photos = 0, topics = {}; ms.forEach(function (x) { photos += (x.steps || []).filter(function (s) { return s.u; }).length; if (x.topic) topics[x.topic] = 1; });
       sm.innerHTML = '<div><dt>교육 자료</dt><dd>' + ms.length + '<small>건</small></dd></div>'
         + '<div><dt>서명 받는 자료</dt><dd>' + ms.filter(function (x) { return x.needsSign; }).length + '<small>건</small></dd></div>'
-        + '<div><dt>주제</dt><dd>' + Object.keys(topics).length + '<small>개</small></dd></div>'
+        + '<div><dt>임시보관함</dt><dd>' + drafts + '<small>건</small></dd></div>'
         + '<div><dt>사진</dt><dd>' + photos + '<small>장</small></dd></div>';
     });
     Store.listSessions().then(function (s) { paintNavCount(signStats(s)); }).catch(function () {});
@@ -235,7 +240,7 @@
     var url = libraryUrl();
     view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">EDU · GARDEN</p><h2>교육 자료실</h2>'
       + '<p class="sub">장비 관리 방법처럼 현장에서 보는 교육 자료를 단계별 사진과 설명으로 올려요.</p></div>'
-      + '<button class="btn btn--primary" id="newMaterialBtn">+ 교육 자료 만들기</button></div>'
+      + '<div class="head-acts"><button class="btn btn--draftbox" id="draftBoxBtn">임시보관함 <span class="draft-n" data-draft-n>–</span></button><button class="btn btn--primary" id="newMaterialBtn">+ 교육 자료 만들기</button></div></div>'
       + gardenSubnav("garden/library")
       + '<div class="share-box"><div style="flex:1;min-width:200px"><p class="hint" style="margin:0 0 6px">크루용 자료 보기 페이지 (로그인 없이 보기만 · 한 번 공유하면 계속 사용)</p>'
       + '<input type="text" readonly value="' + esc(url) + '" id="libUrlInput" /></div>'
@@ -243,7 +248,8 @@
       + '<img class="qr-box" width="72" height="72" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' + encodeURIComponent(url) + '" /></div>'
       + '<div id="libList"></div></div>';
     var opts = { admin: Auth.can("material:garden"), part: "garden", by: Admin.current() };
-    if (!opts.admin) document.getElementById("newMaterialBtn").hidden = true;
+    if (!opts.admin) document.getElementById("newMaterialBtn").hidden = document.getElementById("draftBoxBtn").hidden = true;
+    document.getElementById("draftBoxBtn").onclick = function () { EduLib.showDrafts(); var l = document.getElementById("libList"); if (l) l.scrollIntoView({ behavior: "smooth", block: "start" }); };
     document.getElementById("newMaterialBtn").onclick = function () { EduLib.openEditor(null, opts); };
     document.getElementById("copyLibBtn").onclick = function () {
       var input = document.getElementById("libUrlInput");

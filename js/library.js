@@ -38,7 +38,9 @@
   function cover(m) { var s = (m.steps || []).filter(function (x) { return x.u; })[0]; return s ? s.u : ""; }
 
   /* ---------------- 목록 ---------------- */
-  var LIST = { el: null, opts: null, items: [], topic: "" };
+  var LIST = { el: null, opts: null, items: [], topic: "", tab: "pub" };
+  var isDraft = function (m) { return m.status === "draft"; };
+  function fmtWhen(iso) { if (!iso) return ""; var d = new Date(iso); return (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
   function mountList(el, opts) {
     LIST.el = el; LIST.opts = opts || {}; LIST.topic = LIST.topic || "";
     el.innerHTML = '<div class="empty">불러오는 중…</div>';
@@ -54,13 +56,37 @@
     });
   }
   function paintList() {
-    var el = LIST.el, o = LIST.opts, items = LIST.items;
+    var el = LIST.el, o = LIST.opts, all = LIST.items;
+    var drafts = all.filter(isDraft), pubs = all.filter(function (m) { return !isDraft(m); });
+    var showTabs = o.admin && !o.noTopics;
+    if (!showTabs || !drafts.length && LIST.tab === "draft") LIST.tab = showTabs && LIST.tab === "draft" ? "draft" : "pub";
+    var inDraft = showTabs && LIST.tab === "draft";
+    document.querySelectorAll("[data-draft-n]").forEach(function (n) { n.textContent = drafts.length; n.classList.toggle("is-zero", !drafts.length); });
+    var items = inDraft ? drafts : pubs;
     var topics = TOPICS.concat(items.map(function (m) { return m.topic; }).filter(function (t) { return t && TOPICS.indexOf(t) < 0; }))
       .filter(function (t, i, a) { return a.indexOf(t) === i; });
     var shown = items.filter(function (m) { return o.noTopics || !LIST.topic || m.topic === LIST.topic; });
     if (o.limit) shown = shown.slice(0, o.limit);
     var count = function (t) { return items.filter(function (m) { return m.topic === t; }).length; };
-    el.innerHTML = (o.noTopics ? "" : '<div class="lib-topics" role="tablist" aria-label="주제">'
+    var tabs = showTabs ? '<div class="lib-tabs" role="tablist" aria-label="게시 상태">'
+        + '<button type="button" data-tab="pub" aria-pressed="' + !inDraft + '">게시됨 <span>' + pubs.length + '</span></button>'
+        + '<button type="button" data-tab="draft" aria-pressed="' + inDraft + '">임시보관함 <span>' + drafts.length + '</span></button></div>' : "";
+    if (inDraft) {
+      el.innerHTML = tabs + (drafts.length ? '<p class="lib-dnote">임시 보관한 자료는 크루에게 보이지 않아요. 눌러서 이어 쓰고 <b>게시하기</b>를 누르면 크루 교육 자료에 올라가요.</p><div class="lib-grid">' + drafts.map(function (m) {
+          var c = cover(m), n = (m.steps || []).length;
+          return '<button type="button" class="lib-card lib-card--draft" data-edit="' + esc(m.id) + '">'
+            + '<span class="lib-card__ph">' + (c ? '<img src="' + esc(c) + '" alt="" loading="lazy" decoding="async">' : IC.book) + '<em class="lib-draft">임시 보관</em></span>'
+            + '<span class="lib-card__b">' + (m.topic ? '<span class="lib-card__t">' + esc(m.topic) + '</span>' : "")
+            + '<b>' + esc(m.title || "제목 없음") + '</b>'
+            + '<span class="lib-card__m">' + n + '단계 · 사진 ' + photoCount(m) + '장</span>'
+            + '<span class="lib-card__m">' + (m.updatedBy || m.createdBy ? esc(m.updatedBy || m.createdBy) + " · " : "") + fmtWhen(m.updatedAt || m.createdAt) + ' 저장</span></span></button>';
+        }).join("") + '</div>'
+        : '<div class="prep">' + IC.book + '<b>임시보관함이 비어 있어요</b><p>자료를 만들다가 <b>임시 보관</b>을 누르면 여기에 모여요. 다른 매니저도 보고 이어서 쓸 수 있어요.</p></div>');
+      el.querySelectorAll("[data-tab]").forEach(function (b) { b.onclick = function () { LIST.tab = b.dataset.tab; paintList(); }; });
+      el.querySelectorAll("[data-edit]").forEach(function (b) { b.onclick = function () { var m = drafts.filter(function (x) { return x.id === b.dataset.edit; })[0]; if (m) openEditor(m, o); }; });
+      return;
+    }
+    el.innerHTML = tabs + (o.noTopics ? "" : '<div class="lib-topics" role="tablist" aria-label="주제">'
         + '<button type="button" data-topic="" aria-pressed="' + (!LIST.topic) + '">전체 <span>' + items.length + '</span></button>'
         + topics.map(function (t) { return '<button type="button" data-topic="' + esc(t) + '" aria-pressed="' + (LIST.topic === t) + '">' + esc(t) + ' <span>' + count(t) + '</span></button>'; }).join("")
       + '</div>')
@@ -75,12 +101,13 @@
         }).join("") + '</div>'
         : '<div class="prep">' + IC.book + '<b>' + (items.length ? "이 주제에는 아직 자료가 없어요" : "아직 교육 자료가 없어요") + '</b>'
           + '<p>' + (o.admin ? "<b>+ 교육 자료 만들기</b>로 사진과 설명을 단계별로 올려 주세요." : "자료가 올라오면 여기에서 볼 수 있어요.") + '</p></div>');
+    el.querySelectorAll("[data-tab]").forEach(function (b) { b.onclick = function () { LIST.tab = b.dataset.tab; paintList(); }; });
     el.querySelectorAll("[data-topic]").forEach(function (b) { b.onclick = function () { LIST.topic = b.dataset.topic; paintList(); }; });
     el.querySelectorAll("[data-open]").forEach(function (b) {
       b.onclick = function () { var m = items.filter(function (x) { return x.id === b.dataset.open; })[0]; if (m) openReader(m, o); };
     });
   }
-  function refreshList() { if (LIST.el && document.body.contains(LIST.el)) mountList(LIST.el, LIST.opts); }
+  function refreshList() { if (LIST.el && document.body.contains(LIST.el)) mountList(LIST.el, LIST.opts); document.dispatchEvent(new CustomEvent("edu-materials-changed")); }
 
   /* ---------------- 넓은 화면 보기 ---------------- */
   var RD = null;
@@ -216,13 +243,13 @@
   function openEditor(m, opts) {
     opts = opts || {};
     var isNew = !m;
-    m = m || { id: Store.newMaterialId(), part: opts.part || "garden", topic: LIST.topic || TOPICS[0], title: "", summary: "", steps: [] };
+    m = m || { id: Store.newMaterialId(), status: "draft", part: opts.part || "garden", topic: LIST.topic || TOPICS[0], title: "", summary: "", steps: [] };
     var steps = (m.steps || []).map(function (s) { return { u: s.u || "", p: s.p || "", text: s.text || "", warn: s.warn || "" }; });
     if (!steps.length) steps.push({ u: "", p: "", text: "", warn: "" });
     ED = { m: m, isNew: isNew, opts: opts, steps: steps, orig: (m.steps || []).map(function (s) { return s.p; }).filter(Boolean), busy: false,
       topic: m.topic || "", title: m.title || "", summary: m.summary || "",
       // 서명: null = 아직 안 고름(새 자료는 꼭 고르게), true/false
-      sign: isNew ? null : !!m.needsSign, signHow: m.signSessionId ? "keep" : "new", signDate: today(), signPick: "", sessions: null };
+      sign: isNew || (isDraft(m) && !m.needsSign) ? null : !!m.needsSign, signHow: m.signSessionId ? "keep" : "new", signDate: today(), signPick: "", sessions: null };
     Store.listSessions().then(function (ss) { if (ED) { ED.sessions = ss.filter(function (x) { return !x.locked; }); if (ED.sign) paintEditor(); } }).catch(function () { if (ED) ED.sessions = []; });
     var el = document.getElementById("ed");
     if (!el) { el = document.createElement("div"); el.id = "ed"; el.className = "ed"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); document.body.appendChild(el); }
@@ -243,9 +270,11 @@
   function paintEditor() {
     var e = ED, n = e.steps.length, photos = e.steps.filter(function (s) { return s.u || s.nu; }).length;
     var allTopics = TOPICS.slice(); if (e.topic && allTopics.indexOf(e.topic) < 0) allTopics.push(e.topic);
-    e.el.innerHTML = '<header class="ed-h"><b>' + (e.isNew ? "교육 자료 만들기" : "교육 자료 수정") + '</b>'
-        + '<div class="ed-h__a"><button type="button" class="btn" id="edCancel" ' + (e.busy ? "disabled" : "") + '>취소</button>'
-        + '<button type="button" class="btn btn--primary" id="edSave" ' + (e.busy ? "disabled" : "") + '>' + (e.busy ? esc(e.busyText || "저장하는 중…") : "저장") + '</button></div></header>'
+    var pub = !e.isNew && !isDraft(e.m), dis = e.busy ? "disabled" : "";
+    e.el.innerHTML = '<header class="ed-h"><b>' + (e.isNew ? "교육 자료 만들기" : pub ? "교육 자료 수정" : "임시 보관 자료 · 이어서 쓰기") + '</b>'
+        + '<div class="ed-h__a"><button type="button" class="btn" id="edCancel" ' + dis + '>취소</button>'
+        + (pub ? '<button type="button" class="btn" id="edDraft" ' + dis + '>게시 내리기</button>' : '<button type="button" class="btn" id="edDraft" ' + dis + '>임시 보관</button>')
+        + '<button type="button" class="btn btn--primary" id="edSave" ' + dis + '>' + (e.busy ? esc(e.busyText || "저장하는 중…") : pub ? "저장" : "게시하기") + '</button></div></header>'
       + '<div class="ed-body"><div class="ed-in">'
         + '<div class="ed-meta">'
           + '<label class="fld"><span>주제</span><input id="edTopic" list="edTopics" value="' + esc(e.topic) + '" placeholder="예: 장비 · 도구 관리" maxlength="30"></label>'
@@ -276,7 +305,11 @@
     e.el.querySelectorAll("[data-sign]").forEach(function (b) { b.onclick = function () { readFields(); e.sign = b.dataset.sign === "1"; paintEditor(); }; });
     e.el.querySelectorAll("[data-how]").forEach(function (b) { b.onchange = function () { readFields(); e.signHow = b.value; paintEditor(); }; });
     q("#edCancel").onclick = function () { if (e.busy) return; if (!confirm("저장하지 않고 닫을까요?")) return; closeEditor(); };
-    q("#edSave").onclick = save;
+    q("#edSave").onclick = function () { save("publish"); };
+    q("#edDraft").onclick = function () {
+      if (pub && !confirm("게시를 내리면 크루에게 안 보이고 임시보관함으로 가요. 내릴까요?")) return;
+      save("draft");
+    };
     if (q("#edAdd")) q("#edAdd").onclick = function () { readFields(); e.steps.push({ u: "", p: "", text: "", warn: "" }); paintEditor(); var l = e.el.querySelectorAll(".ed-text"); l[l.length - 1].focus(); };
     e.el.querySelectorAll("[data-rm]").forEach(function (b) { b.onclick = function () { readFields(); var i = +b.dataset.rm, st = e.steps[i];
       if ((st.text || st.u || st.nu) && !confirm((i + 1) + "단계를 지울까요?")) return; e.steps.splice(i, 1); paintEditor(); }; });
@@ -311,15 +344,17 @@
         + '</div>' : "")
       + '</div>';
   }
-  function save() {
+  function save(mode) {
     var e = ED; if (!e || e.busy) return; readFields();
-    if (!e.title) { toast("제목을 써 주세요"); e.el.querySelector("#edTitle").focus(); return; }
+    var draft = mode === "draft";
     var steps = e.steps.filter(function (s) { return s.u || s.nu || s.text.trim() || s.warn.trim(); });
-    if (!steps.length) { toast("단계를 하나 이상 채워 주세요"); return; }
     if (e.steps.some(function (s) { return s.reading; })) { toast("사진을 줄이는 중이에요. 잠시 후 저장해 주세요."); return; }
-    if (e.sign === null) { toast("서명을 받는지 먼저 골라 주세요"); e.el.querySelector(".ed-sign").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (e.sign && e.signHow === "pick" && !e.signPick) { toast("연결할 서명 세션을 골라 주세요"); return; }
-    if (e.sign && e.signHow === "new" && !e.signDate) { toast("교육일을 골라 주세요"); return; }
+    if (draft && !e.title && !e.summary && !steps.length) { toast("조금이라도 써야 임시 보관할 수 있어요"); return; }
+    if (!draft && !e.title) { toast("제목을 써 주세요"); e.el.querySelector("#edTitle").focus(); return; }
+    if (!draft && !steps.length) { toast("단계를 하나 이상 채워 주세요"); return; }
+    if (!draft && e.sign === null) { toast("서명을 받는지 먼저 골라 주세요"); e.el.querySelector(".ed-sign").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    if (!draft && e.sign && e.signHow === "pick" && !e.signPick) { toast("연결할 서명 세션을 골라 주세요"); return; }
+    if (!draft && e.sign && e.signHow === "new" && !e.signDate) { toast("교육일을 골라 주세요"); return; }
     e.busy = true; var total = steps.filter(function (s) { return s.nu; }).length, k = 0;
     e.busyText = total ? "사진 올리는 중… 0/" + total : "저장하는 중…"; paintEditor();
     var setBusy = function (t) { e.busyText = t; var b = e.el.querySelector("#edSave"); if (b) b.textContent = t; };
@@ -331,6 +366,7 @@
     }, Promise.resolve()).then(function () {
       // 서명: 새 세션이면 먼저 만들고 id 를 기억(다시 저장해도 두 번 만들지 않게)
       if (!e.sign) return "";
+      if (draft) return e.signHow === "keep" ? e.m.signSessionId : e.signHow === "pick" ? e.signPick : "";   // 새 서명 세션은 게시할 때 만든다
       if (e.signHow === "keep") return e.m.signSessionId;
       if (e.signHow === "pick") return e.signPick;
       if (e.madeSession) return e.madeSession;
@@ -340,20 +376,24 @@
       setBusy("저장하는 중…");
       var out = Object.assign({}, e.m, { topic: e.topic, title: e.title, summary: e.summary, needsSign: !!e.sign, signSessionId: e.sign ? (sid || "") : "",
         steps: steps.map(function (s) { return { u: s.u || "", p: s.p || "", text: s.text.trim(), warn: s.warn.trim() }; }),
-        createdBy: e.m.createdBy || (e.opts.by || "") });
+        createdBy: e.m.createdBy || (e.opts.by || ""), updatedBy: e.opts.by || "", status: draft ? "draft" : "published" });
       return Store.saveMaterial(out).then(function () {
         var keep = out.steps.map(function (s) { return s.p; });
         return Store.removeMaterialPhotos(e.orig.filter(function (p) { return keep.indexOf(p) < 0; })).then(function () { return out; });
       });
     }).then(function (out) {
-      var o = e.opts; closeEditor(); toast((e.isNew ? "교육 자료를 만들었어요" : "교육 자료를 고쳤어요") + (e.madeSession ? " · 서명 세션도 만들었어요" : ""));
-      LIST.topic = ""; refreshList(); openReader(out, o);
+      var o = e.opts, wasPub = !e.isNew && !isDraft(e.m); closeEditor();
+      if (draft) { toast(wasPub ? "게시를 내리고 임시보관함으로 옮겼어요" : "임시보관함에 넣었어요 · 크루에게는 아직 안 보여요"); LIST.tab = "draft"; refreshList(); return; }
+      toast((wasPub ? "교육 자료를 고쳤어요" : "게시했어요 · 크루 교육 자료에 보여요") + (e.madeSession ? " · 서명 세션도 만들었어요" : ""));
+      LIST.topic = ""; LIST.tab = "pub"; refreshList(); openReader(out, o);
     }).catch(function (err) {
       console.warn(err); e.busy = false; paintEditor();
-      toast(/materials/.test(String(err && err.message)) ? "자료실 저장 공간이 아직 없어요 (supabase/materials.sql 실행 필요)" : "저장하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
+      toast(err && err.needSql ? "임시보관을 쓰려면 Supabase 에서 supabase/drafts.sql 을 한 번 실행해야 해요"
+        : /materials/.test(String(err && err.message)) ? "자료실 저장 공간이 아직 없어요 (supabase/materials.sql 실행 필요)" : "저장하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
     });
   }
   addEventListener("beforeunload", function (ev) { if (ED && ED.busy) { ev.preventDefault(); ev.returnValue = ""; } });
 
-  window.EduLib = { TOPICS: TOPICS, MAX_STEPS: MAX_STEPS, mountList: mountList, refreshList: refreshList, openReader: openReader, openEditor: openEditor };
+  function showDrafts() { LIST.tab = "draft"; if (LIST.el && document.body.contains(LIST.el) && LIST.items && !LIST.opts.noTopics) paintList(); }
+  window.EduLib = { isDraft: isDraft, showDrafts: showDrafts, TOPICS: TOPICS, MAX_STEPS: MAX_STEPS, mountList: mountList, refreshList: refreshList, openReader: openReader, openEditor: openEditor };
 })();

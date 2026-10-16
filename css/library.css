@@ -240,3 +240,14 @@ a.rd-nav { text-decoration: none; }
   .ex-act .btn { flex: 1 1 100%; justify-content: center; padding: 13px; font-size: 15px; }
   .ex-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 }
+
+/* ---------- 임시보관 ---------- */
+.lib-tabs { display: inline-flex; gap: 4px; padding: 4px; margin: 0 0 14px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; }
+.lib-tabs button { border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 13px; font-weight: 700; padding: 7px 15px; border-radius: 999px; cursor: pointer; }
+.lib-tabs button span { color: var(--ink-3); font-weight: 400; margin-left: 3px; font-variant-numeric: tabular-nums; }
+.lib-tabs button[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.lib-dnote { margin: -4px 0 14px; font-size: 13px; color: var(--ink-2); }
+.lib-card--draft .lib-card__ph { position: relative; }
+.lib-card--draft .lib-card__ph img { opacity: .7; }
+.lib-draft { position: absolute; left: 10px; top: 10px; font-style: normal; font-size: 12px; font-weight: 800; background: var(--ink); color: var(--bg); padding: 4px 10px; border-radius: 999px; }
+@media (max-width: 860px) { .ed-h__a .btn { padding: 8px 11px; font-size: 12.5px; } }

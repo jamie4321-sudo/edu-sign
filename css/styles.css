@@ -443,3 +443,10 @@ html:not([data-can-sign]) label:has(#photoInput) { display: none !important; }
 .modal .lock__error { margin: 0; }
 @media (max-width: 1100px) { .role-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 860px) { .role-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* 임시보관함 버튼 (형광 주황) — 교육 자료 만들기 옆 */
+.head-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.btn--draftbox { background: #ff8a00; border-color: #ff8a00; color: #1a0f00; }
+.btn--draftbox:hover { border-color: #ff8a00; filter: brightness(1.05); }
+.btn--draftbox .draft-n { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #1a0f00; color: #ff8a00; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.btn--draftbox .draft-n.is-zero { background: rgba(26,15,0,.18); color: #1a0f00; }

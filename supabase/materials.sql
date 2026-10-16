@@ -21,6 +21,9 @@ create index if not exists materials_part_idx on public.materials(part);
 -- 먼저 만든 테이블에도 서명 칸을 추가 (이미 있으면 그대로)
 alter table public.materials add column if not exists needs_sign boolean not null default false;
 alter table public.materials add column if not exists sign_session_id text;
+-- 임시보관: draft(임시보관함 · 매니저만) / published(크루에게 보임). 예전 자료는 published
+alter table public.materials add column if not exists status text not null default 'published';
+alter table public.materials add column if not exists updated_by text;
 
 -- 교육 서명과 같은 운영 모델: 링크를 아는 사람은 볼 수 있고, 만들기·수정은 관리자 화면(PIN)에서만
 alter table public.materials enable row level security;

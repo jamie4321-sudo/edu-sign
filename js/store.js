@@ -75,7 +75,8 @@ window.Store = (function () {
   }
   function mapMaterial(r) {
     return { id: r.id, part: r.part || "garden", topic: r.topic || "", title: r.title || "", summary: r.summary || "",
-      steps: Array.isArray(r.steps) ? r.steps : [], needsSign: !!r.needs_sign, signSessionId: r.sign_session_id || "", createdBy: r.created_by || "", createdAt: r.created_at || "", updatedAt: r.updated_at || "" };
+      steps: Array.isArray(r.steps) ? r.steps : [], needsSign: !!r.needs_sign, signSessionId: r.sign_session_id || "",
+      status: r.status === "draft" ? "draft" : "published", updatedBy: r.updated_by || "", createdBy: r.created_by || "", createdAt: r.created_at || "", updatedAt: r.updated_at || "" };
   }
   function mapPhoto(r) {
     return { id: r.id, sessionId: r.session_id, url: r.url || "", uploadedAt: r.uploaded_at || "" };
@@ -284,8 +285,15 @@ window.Store = (function () {
       var now = new Date().toISOString();
       if (SUPA) {
         var row = { id: m.id, part: m.part || "garden", topic: m.topic || "", title: m.title || "", summary: m.summary || "",
-          steps: m.steps || [], needs_sign: !!m.needsSign, sign_session_id: m.signSessionId || null, created_by: m.createdBy || "", updated_at: now };
-        return sb().from("materials").upsert(row, { onConflict: "id" }).then(must).then(function () { return m.id; });
+          steps: m.steps || [], needs_sign: !!m.needsSign, sign_session_id: m.signSessionId || null, created_by: m.createdBy || "", updated_at: now,
+          status: m.status === "draft" ? "draft" : "published", updated_by: m.updatedBy || "" };
+        var up = function (r) { return sb().from("materials").upsert(r, { onConflict: "id" }).then(must); };
+        // 임시보관 칸(status · updated_by)이 아직 없으면: 게시는 예전처럼 저장, 임시보관은 SQL 안내
+        return up(row).catch(function (err) {
+          if (!/status|updated_by/.test(String(err && err.message))) throw err;
+          if (row.status === "draft") { var x = new Error("NEED_DRAFT_SQL"); x.needSql = true; throw x; }
+          delete row.status; delete row.updated_by; return up(row);
+        }).then(function () { return m.id; });
       }
       DB = load();
       var i = DB.materials.findIndex(function (x) { return x.id === m.id; });
