@@ -68,4 +68,4 @@ gas/Code.gs          Google Apps Script 백엔드 (시트 + 드라이브 사진)
 ## 배포
 GitHub Pages 또는 Vercel 어디든 가능합니다(공개 저장소라 Pages도 무료로 됩니다). 단, 위 "공개 저장소 주의" 사항 때문에 `config.local.js`가 저장소에 없으므로, 정적 배포본에는 별도로 그 파일을 올려야 라이브 모드가 동작합니다.
 
-현재 GitHub Pages로 배포되어 있습니다: https://jamie4321-sudo.github.io/edu-sign/
+배포 주소는 Cloudflare Pages 로 옮기는 중입니다 (공유 링크는 접속한 주소 기준으로 자동 생성).

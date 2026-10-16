@@ -12,9 +12,9 @@
      이 파일과 Code.gs 를 함께 교체하고 GAS 를 새 버전으로 재배포하세요.
    ========================================================= */
 window.CONFIG = {
-  // 관리자 화면 "서명 링크 복사"에 쓰는 공유용 고정 주소. 비우면 현재 접속 주소 기준으로 만듦
-  // ⚠️ workers.dev 는 회사 네트워크에서 차단됨 → 공유 링크는 GitHub Pages 주소 사용
-  signUrl: "https://jamie4321-sudo.github.io/edu-sign/sign.html",
+  // 관리자 화면 "서명 링크 복사"에 쓰는 공유용 고정 주소. 비우면 지금 접속한 주소 기준으로 만듦
+  // (배포 주소가 바뀌어도 그대로 따라가도록 비워 둠 — 깃허브 아이디가 들어간 주소를 박지 않기)
+  signUrl: "",
 
   endpoint: "https://script.google.com/macros/s/AKfycbwEcs-RxDHQsGi8BJOySZql1wZ7IyJgA242JacDYfWNQTtPnKA1DXy9B-8e-SYICVrE/exec",
   apiKey: "sg-edusign-ydAMyHruYjli1O7kQgRgCZMcBboEC",
