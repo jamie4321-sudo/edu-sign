@@ -263,6 +263,16 @@ window.Store = (function () {
       DB = load(); return Promise.resolve((DB.views || []).filter(function (v) { return !f.name || v.name === f.name; }));
     },
 
+    // 이수 현황용: 서명 세션 명단을 서명 이미지 없이 (이름 · 부서 · 서명 시각만)
+    listRosterLite: function (sessionIds) {
+      var ids = (sessionIds || []).filter(Boolean);
+      if (!ids.length) return Promise.resolve([]);
+      if (SUPA) return sb().from("roster").select("session_id,name,dept,signed_at").in("session_id", ids).then(must)
+        .then(function (rows) { return (rows || []).map(function (r) { return { sessionId: r.session_id, name: r.name || "", dept: r.dept || "", signedAt: r.signed_at || "" }; }); });
+      return this.listAllRoster().then(function (rows) { return rows.filter(function (r) { return ids.indexOf(r.sessionId) > -1; })
+        .map(function (r) { return { sessionId: r.sessionId, name: r.name, dept: r.dept, signedAt: r.signature ? (r.signedAt || "서명") : "" }; }); });
+    },
+
     // 크루 이름 로그인용: 이름 · 부서만 (서명 이미지는 받지 않아 가볍다)
     listCrewNames: function () {
       if (SUPA) return sb().from("roster").select("name,dept").then(must).then(function (rows) { return rows || []; });

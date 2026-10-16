@@ -123,7 +123,7 @@
     else if (hash === "sign") { setNav("sign"); renderList(); }
     else if (hash === "garden") { setNav("garden"); renderGardenHome(); }
     else if (hash === "garden/library") { setNav("garden/library"); renderLibrary(); }
-    else if (hash === "garden/progress") { setNav("garden/progress"); renderPrep("progress"); }
+    else if (hash === "garden/progress") { setNav("garden/progress"); renderProgress(); }
     else if (hash === "admin") { setNav("admin"); EduAuth.renderAccounts(view, setCrumb); }
     else if (hash === "snack") { setNav("snack"); renderPrep("snack"); }
     else if (hash === "support") { setNav("support"); renderPrep("support"); }
@@ -212,7 +212,7 @@
           + '<div class="chips">' + GARDEN_TOPICS.map(function (t) { return '<span>' + t + '</span>'; }).join("") + '</div></a>'
         + '<a class="quick" href="' + SIGN + '"><div class="quick__h">' + IC.sign + '<b>교육 서명 관리</b><span class="pill">파트 공통</span></div>'
           + '<p>서명이 필요한 교육은 자료를 만들 때 서명 세션과 연결돼요.</p></a>'
-        + '<a class="quick" href="#/garden/progress"><div class="quick__h">' + IC.chk + '<b>이수 현황</b><span class="pill">준비 중</span></div>'
+        + '<a class="quick" href="#/garden/progress"><div class="quick__h">' + IC.chk + '<b>이수 현황</b><span class="pill pill--live">운영 중</span></div>'
           + '<p>크루별로 어떤 교육을 마쳤는지 한눈에 봐요.</p></a>'
       + '</div>'
       + '<div class="sec-h"><h3>최근 교육 자료</h3><a href="#/garden/library">전체 보기 →</a></div>'
@@ -231,6 +231,15 @@
         + '<div><dt>사진</dt><dd>' + photos + '<small>장</small></dd></div>';
     });
     Store.listSessions().then(function (s) { paintNavCount(signStats(s)); }).catch(function () {});
+  }
+
+  /* ---------------- 이수 현황 (js/progress.js) ---------------- */
+  function renderProgress() {
+    setCrumb("EDU · 가든 교육 · 이수 현황");
+    EduProgress.render(view, { part: "garden", crewList: fetchCrewList,
+      head: '<div class="page-head"><div><p class="eyebrow">EDU · GARDEN</p><h2>이수 현황</h2>'
+        + '<p class="sub">서명 받는 교육은 서명으로, 그 밖의 교육은 크루가 끝까지 보고 누른 ‘다 봤어요’로 이수를 확인해요.</p></div></div>'
+        + gardenSubnav("garden/progress") });
   }
 
   /* ---------------- 가든 교육 자료실 (js/library.js) ---------------- */
