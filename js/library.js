@@ -100,7 +100,7 @@
     var last = RD.last; RD = null; if (last && last.focus) last.focus();
   }
   function stepHtml(st, i, n) {
-    return '<div class="rd-ph">' + (st.u ? '<img src="' + esc(st.u) + '" alt="' + (i + 1) + '단계 사진">' : '<span class="rd-noph">' + IC.book + '</span>') + '</div>'
+    return '<div class="rd-ph">' + (st.u ? '<button type="button" class="rd-zoombtn" data-zoom="' + esc(st.u) + '" aria-label="' + (i + 1) + '단계 사진 크게 보기"><img src="' + esc(st.u) + '" alt="' + (i + 1) + '단계 사진"><span class="rd-zoomhint">눌러서 크게 보기</span></button>' : '<span class="rd-noph">' + IC.book + '</span>') + '</div>'
       + '<div class="rd-tx"><p class="rd-no"><b>' + (i + 1) + '</b> / ' + n + ' 단계</p>'
       + (st.text ? '<p class="rd-text">' + esc(st.text) + '</p>' : "")
       + (st.warn ? '<div class="rd-warn">' + IC.warn + '<div><b>주의</b><p>' + esc(st.warn) + '</p></div></div>' : "")
@@ -143,6 +143,7 @@
     $("rdX").onclick = closeReader;
     r.el.querySelectorAll("[data-mode]").forEach(function (b) { b.onclick = function () { r.mode = b.dataset.mode; try { localStorage.setItem("edu-rd-mode", r.mode); } catch (e) {} paintReader(); }; });
     r.el.querySelectorAll("[data-go]").forEach(function (b) { b.onclick = function () { go(+b.dataset.go - r.i); }; });
+    r.el.querySelectorAll("[data-zoom]").forEach(function (b) { b.onclick = function () { zoomPhoto(b.dataset.zoom); }; });
     r.el.querySelectorAll("[data-say]").forEach(function (b) { b.onclick = function () { speak(steps[+b.dataset.say], b); }; });
     if ($("rdPrev")) $("rdPrev").onclick = function () { go(-1); };
     if ($("rdNext")) $("rdNext").onclick = function () { go(1); };
@@ -159,6 +160,15 @@
     if (ph) { ph.ontouchstart = function (e) { sx = e.touches[0].clientX; }; ph.ontouchend = function (e) { if (sx == null) return; var dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); }; }
     var f = r.el.querySelector(r.mode === "one" && $("rdNext") ? "#rdNext" : "#rdX"); if (f) f.focus({ preventScroll: true });
     var one = r.el.querySelector(".rd-one"); if (one) one.scrollTop = 0;
+  }
+  // 사진 크게 보기: 화면 가득, 세로로 긴 사진은 위아래로 밀어서 보고 두 손가락으로 확대
+  function zoomPhoto(src) {
+    if (!RD) return;
+    var z = document.createElement("div"); z.className = "rd-zoom"; z.id = "rdZoom"; z.setAttribute("role", "dialog"); z.setAttribute("aria-label", "사진 크게 보기");
+    z.innerHTML = '<img src="' + esc(src) + '" alt=""><button type="button" class="rd-x rd-zoom__x" aria-label="닫기">' + IC.x + '<span>닫기</span></button>';
+    RD.el.appendChild(z);
+    z.onclick = function (e) { if (e.target === z || e.target.closest(".rd-zoom__x")) z.remove(); };
+    z.querySelector(".rd-zoom__x").focus();
   }
   // 서명이 필요한 교육: "다 봤어요" → 서명하시겠어요?
   function askSign() {
@@ -181,7 +191,7 @@
   function go(d) { if (!RD) return; var n = (RD.m.steps || []).length, j = RD.i + d; if (j < 0 || j >= n) return; RD.i = j; paintReader(); }
   document.addEventListener("keydown", function (e) {
     if (!RD) return;
-    if (e.key === "Escape") { var a = document.getElementById("rdAsk"); if (a) a.remove(); else closeReader(); }
+    if (e.key === "Escape") { var a = document.getElementById("rdZoom") || document.getElementById("rdAsk"); if (a) a.remove(); else closeReader(); }
     else if (RD.mode === "one" && e.key === "ArrowRight") go(1);
     else if (RD.mode === "one" && e.key === "ArrowLeft") go(-1);
   });

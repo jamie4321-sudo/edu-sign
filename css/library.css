@@ -207,3 +207,13 @@ a.rd-nav { text-decoration: none; }
 @keyframes rd-ask-in { from { opacity: 0; } }
 @keyframes rd-ask-up { from { opacity: 0; transform: translateY(12px) scale(.98); } }
 @media (prefers-reduced-motion: reduce) { .rd-ask, .rd-ask__card { animation: none; } }
+
+/* 사진: 세로로 긴 사진도 잘리지 않게 칸 안에 맞추고, 누르면 크게 */
+.rd-ph { position: relative; }
+.rd-zoombtn { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; position: relative; }
+.rd-one .rd-zoombtn img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.rd-all .rd-zoombtn img { width: 100%; height: auto; max-height: 72vh; object-fit: contain; }
+.rd-zoomhint { position: absolute; right: 10px; bottom: 10px; font-size: 11.5px; font-weight: 700; color: #fff; background: rgba(0,0,0,.55); padding: 4px 9px; border-radius: 999px; pointer-events: none; }
+.rd-zoom { position: absolute; inset: 0; z-index: 6; background: #000; overflow: auto; display: flex; align-items: flex-start; justify-content: center; -webkit-overflow-scrolling: touch; }
+.rd-zoom img { width: 100%; max-width: 1400px; height: auto; margin: auto; display: block; }
+.rd-zoom__x { position: fixed; top: 12px; right: 12px; z-index: 1; background: #fff; color: #111; }
