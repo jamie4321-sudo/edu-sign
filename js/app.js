@@ -93,83 +93,15 @@
 
   function setCrumb(text) { var el = document.getElementById("viewTitle"); if (el) el.textContent = text; }
 
-  /* ---------------- 관리자(다중) ---------------- */
-  /* config.js 의 admins:[{name,pin}] 를 사용. 없으면 예전 단일 pin 을 "관리자"로 폴백.
-     각 관리자는 자기 PIN 으로 로그인하고, 로그인한 이름을 기억해 화면에 표시한다.
-     교육 서명 세션 삭제 등 위험 동작은 로그인한 관리자만 수행할 수 있다. */
+  /* ---------------- 로그인 · 권한 (js/auth.js) ----------------
+     예전 코드가 쓰던 Admin.current() / isAuthed() 는 Auth 로 이어 준다 */
   var Admin = {
-    list: function () {
-      var a = (window.CONFIG && window.CONFIG.admins) || [];
-      if (a && a.length) return a.filter(function (x) { return x && x.pin; });
-      var p = window.CONFIG && window.CONFIG.pin;
-      return p ? [{ name: "관리자", pin: String(p) }] : [];
-    },
-    match: function (pin) {
-      pin = String(pin);
-      return this.list().filter(function (x) { return String(x.pin) === pin; })[0] || null;
-    },
-    current: function () { try { return localStorage.getItem("edusign-admin") || ""; } catch (e) { return ""; } },
-    isAuthed: function () { try { return localStorage.getItem("edusign-auth") === "ok"; } catch (e) { return false; } },
-    login: function (name) {
-      try { localStorage.setItem("edusign-auth", "ok"); localStorage.setItem("edusign-admin", name || ""); } catch (e) {}
-      document.documentElement.setAttribute("data-authed", "1");
-    },
-    logout: function () {
-      try { localStorage.removeItem("edusign-auth"); localStorage.removeItem("edusign-admin"); } catch (e) {}
-      location.reload();
-    }
+    current: function () { return (Auth.user && (Auth.user.name || Auth.user.id)) || ""; },
+    isAuthed: function () { return Auth.can("delete"); },
+    logout: function () { Auth.logout(); }
   };
   window.Admin = Admin;
-
-  /* 사이드바에 로그인한 관리자 이름 + 로그아웃 표시 */
-  function paintAdminBadge() {
-    var foot = document.querySelector(".side__foot");
-    if (!foot) return;
-    var who = document.getElementById("adminWho");
-    if (!who) {
-      who = document.createElement("span");
-      who.id = "adminWho"; who.className = "admin-who";
-      var out = document.createElement("button");
-      out.id = "logoutBtn"; out.type = "button"; out.className = "admin-logout";
-      out.textContent = "로그아웃";
-      out.addEventListener("click", function () { if (confirm("로그아웃할까요?")) Admin.logout(); });
-      foot.appendChild(who); foot.appendChild(out);
-    }
-    var name = Admin.current();
-    who.textContent = name ? ("관리자 · " + name) : "관리자";
-  }
-
-  /* ---------------- 잠금화면 ---------------- */
-  (function () {
-    var dots = document.getElementById("lockDots");
-    var input = document.getElementById("lockInput");
-    var error = document.getElementById("lockError");
-    if (Admin.isAuthed()) document.documentElement.setAttribute("data-authed", "1");
-    if (document.documentElement.getAttribute("data-authed") === "1") { paintAdminBadge(); return; }
-
-    function render(val) {
-      dots.querySelectorAll(".lock__dot").forEach(function (d, i) { d.classList.toggle("is-filled", i < val.length); });
-    }
-    input.addEventListener("input", function () {
-      var v = input.value.replace(/\D/g, "").slice(0, 4);
-      input.value = v;
-      render(v);
-      error.hidden = true;
-      if (v.length === 4) {
-        var admin = Admin.match(v);
-        if (admin) {
-          Admin.login(admin.name || "");
-          paintAdminBadge();
-        } else {
-          error.hidden = false;
-          dots.classList.add("is-shake");
-          setTimeout(function () { dots.classList.remove("is-shake"); input.value = ""; render(""); }, 400);
-        }
-      }
-    });
-    setTimeout(function () { input.focus(); }, 50);
-    dots.addEventListener("click", function () { input.focus(); });
-  })();
+  document.addEventListener("edu-auth", function () { if (document.documentElement.getAttribute("data-authed") === "1") route(); });
 
   /* ---------------- 라우팅 ---------------- */
   var view = document.getElementById("view");
@@ -190,6 +122,7 @@
     else if (hash === "garden") { setNav("garden"); renderGardenHome(); }
     else if (hash === "garden/library") { setNav("garden/library"); renderLibrary(); }
     else if (hash === "garden/progress") { setNav("garden/progress"); renderPrep("progress"); }
+    else if (hash === "admin") { setNav("admin"); EduAuth.renderAccounts(view, setCrumb); }
     else if (hash === "snack") { setNav("snack"); renderPrep("snack"); }
     else if (hash === "support") { setNav("support"); renderPrep("support"); }
     else { setNav("home"); renderHome(); }
@@ -281,7 +214,8 @@
       + '</div>'
       + '<div class="sec-h"><h3>최근 교육 자료</h3><a href="#/garden/library">전체 보기 →</a></div>'
       + '<div id="gMats"></div></div>';
-    var opts = { admin: true, part: "garden", by: Admin.current(), limit: 6, noTopics: true };
+    var opts = { admin: Auth.can("material:garden"), part: "garden", by: Admin.current(), limit: 6, noTopics: true };
+    if (!opts.admin) document.getElementById("gNewMat").hidden = true;
     document.getElementById("gNewMat").onclick = function () { EduLib.openEditor(null, opts); };
     EduLib.mountList(document.getElementById("gMats"), opts).then(function (ms) {
       var sm = document.getElementById("gSummary"); if (!sm) return;
@@ -308,7 +242,8 @@
       + '<button class="btn btn--sm" id="copyLibBtn">링크 복사</button>'
       + '<img class="qr-box" width="72" height="72" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' + encodeURIComponent(url) + '" /></div>'
       + '<div id="libList"></div></div>';
-    var opts = { admin: true, part: "garden", by: Admin.current() };
+    var opts = { admin: Auth.can("material:garden"), part: "garden", by: Admin.current() };
+    if (!opts.admin) document.getElementById("newMaterialBtn").hidden = true;
     document.getElementById("newMaterialBtn").onclick = function () { EduLib.openEditor(null, opts); };
     document.getElementById("copyLibBtn").onclick = function () {
       var input = document.getElementById("libUrlInput");
@@ -813,7 +748,7 @@
     });
   }
 
-  route();
+  EduAuth.init();
 
   /* ---------------- 외부(SNACK&GARDEN OPS)에서 넘어온 교육 정보 자동 채움 ----------------
      ?date=&category=&title= 쿼리로 들어오면 "새 교육 세션" 모달을 그 값으로 미리 채워서 연다.

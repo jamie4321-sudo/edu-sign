@@ -400,3 +400,46 @@ a.quick:hover { border-color: var(--line); transform: translateY(-2px); box-shad
 .plegend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: -6px 0 14px; font-size: 12px; color: var(--ink-3); }
 .plegend span { display: inline-flex; align-items: center; gap: 6px; }
 .plegend .pdot { box-shadow: 0 0 5px currentColor; }
+
+/* ---------------- 로그인 · 계정 · 권한 ---------------- */
+.lock__card { width: min(360px, 90vw); }
+.login { display: flex; flex-direction: column; gap: 14px; text-align: left; }
+.login .fld input { height: 48px; font-size: 16px; }
+.login .lock__error { margin: 0; text-align: center; }
+.who { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; width: 100%; margin-top: 6px; }
+.who__n { flex-basis: 100%; color: var(--ink-2); font-size: 11.5px; letter-spacing: 0; }
+.who__n b { color: var(--ink); font-weight: 700; }
+
+/* 권한별 숨김: 총괄만 관리자 설정, 서명 권한 없으면 서명 편집 버튼 숨김 */
+html:not([data-can-accounts]) .admin-only { display: none !important; }
+html:not([data-can-sign]) #newSessionBtn,
+html:not([data-can-sign]) #editSessionBtn,
+html:not([data-can-sign]) #toggleLockBtn,
+html:not([data-can-sign]) #addRosterBtn,
+html:not([data-can-sign]) [data-edit-roster],
+html:not([data-can-sign]) [data-del-roster],
+html:not([data-can-sign]) [data-del-photo],
+html:not([data-can-sign]) label:has(#photoInput) { display: none !important; }
+
+.role-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.role-card { background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--r-lg); padding: 16px 18px; }
+.role-card b { font-size: 15px; font-weight: 800; }
+.role-card p { margin: 4px 0 0; font-size: 12.5px; color: var(--ink-2); }
+.role-pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--panel-2); color: var(--ink-2); }
+.role-pill--master { background: var(--ink); color: var(--bg); }
+.role-pill--admin { background: var(--accent); color: var(--accent-ink); }
+.acct-table tr.is-off td { opacity: .5; }
+.role-pick { display: flex; flex-direction: column; gap: 6px; }
+.role-opt { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); cursor: pointer; }
+.role-opt:has(input:checked) { border-color: var(--ink); background: var(--panel-2); }
+.role-opt:has(input:disabled) { opacity: .45; cursor: not-allowed; }
+.role-opt input { margin-top: 3px; accent-color: var(--accent-text); }
+.role-opt span { display: flex; flex-direction: column; }
+.role-opt b { font-size: 14px; color: var(--ink); }
+.role-opt small { font-size: 12px; color: var(--ink-3); }
+.part-pick { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; color: var(--ink); }
+.part-pick label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.part-pick input { width: 16px; height: 16px; accent-color: var(--accent-text); }
+.modal .lock__error { margin: 0; }
+@media (max-width: 1100px) { .role-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 860px) { .role-grid { grid-template-columns: minmax(0, 1fr); } }
