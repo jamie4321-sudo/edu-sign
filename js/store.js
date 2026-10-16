@@ -13,18 +13,20 @@
      photos:   id | sessionId | url | uploadedAt
    ========================================================= */
 window.Store = (function () {
-  var SUPA = !!(window.CONFIG && window.CONFIG.supabase && window.CONFIG.supabase.url && window.CONFIG.supabase.anonKey);
-  var LIVE = !SUPA && !!(window.CONFIG && window.CONFIG.endpoint);
+  // ?demo=1 → 실제 DB 를 건드리지 않는 로컬 데모 (화면 확인용)
+  var DEMO = /[?&]demo=1(&|$)/.test(location.search);
+  var SUPA = !DEMO && !!(window.CONFIG && window.CONFIG.supabase && window.CONFIG.supabase.url && window.CONFIG.supabase.anonKey);
+  var LIVE = !DEMO && !SUPA && !!(window.CONFIG && window.CONFIG.endpoint);
   var LS_KEY = "edusign-demo-v1";
   var PHOTO_BUCKET = (window.CONFIG && window.CONFIG.supabase && window.CONFIG.supabase.photoBucket) || "edu-photos";
 
   /* ---------------- 데모(localStorage) ---------------- */
   function seed() {
-    return { sessions: (window.SESSIONS || []).slice(), roster: (window.ROSTER || []).slice(), photos: (window.PHOTOS || []).slice() };
+    return { sessions: (window.SESSIONS || []).slice(), roster: (window.ROSTER || []).slice(), photos: (window.PHOTOS || []).slice(), materials: [] };
   }
   function persist(db) { try { localStorage.setItem(LS_KEY, JSON.stringify(db)); } catch (e) {} }
   function load() {
-    try { var raw = localStorage.getItem(LS_KEY); if (raw) { var db = JSON.parse(raw); db.photos = db.photos || []; return db; } } catch (e) {}
+    try { var raw = localStorage.getItem(LS_KEY); if (raw) { var db = JSON.parse(raw); db.photos = db.photos || []; db.materials = db.materials || []; return db; } } catch (e) {}
     var s = seed(); persist(s); return s;
   }
   var DB = (SUPA || LIVE) ? null : load();
@@ -70,6 +72,10 @@ window.Store = (function () {
   function mapRoster(r) {
     return { id: r.id, sessionId: r.session_id, seq: r.seq, dept: r.dept || "",
       name: r.name || "", signature: r.signature || "", signedAt: r.signed_at || "" };
+  }
+  function mapMaterial(r) {
+    return { id: r.id, part: r.part || "garden", topic: r.topic || "", title: r.title || "", summary: r.summary || "",
+      steps: Array.isArray(r.steps) ? r.steps : [], needsSign: !!r.needs_sign, signSessionId: r.sign_session_id || "", createdBy: r.created_by || "", createdAt: r.created_at || "", updatedAt: r.updated_at || "" };
   }
   function mapPhoto(r) {
     return { id: r.id, sessionId: r.session_id, url: r.url || "", uploadedAt: r.uploaded_at || "" };
@@ -247,6 +253,70 @@ window.Store = (function () {
       if (LIVE) return apiGet({ action: "photos", id: sessionId }).then(function (d) { return d.photos || []; });
       DB = load();
       return Promise.resolve(DB.photos.filter(function (p) { return p.sessionId === sessionId; }).sort(function (a, b) { return a.uploadedAt < b.uploadedAt ? 1 : -1; }));
+    },
+
+    /* ---------- 세션별 참석 부서 (명단의 부서만 가볍게) → { 세션 id: ["가든","스낵",…] } ---------- */
+    listSessionDepts: function () {
+      var group = function (rows, key) { var out = {}; (rows || []).forEach(function (r) { var k = r[key]; out[k] = out[k] || []; if (r.dept && out[k].indexOf(r.dept) < 0) out[k].push(r.dept); }); return out; };
+      if (SUPA) return sb().from("roster").select("session_id,dept").then(must).then(function (rows) { return group(rows, "session_id"); });
+      if (LIVE) return Promise.resolve({});
+      DB = load(); return Promise.resolve(group(DB.roster, "sessionId"));
+    },
+
+    /* ---------- 교육 자료실 (materials) ----------
+       steps: [{ u: 사진 URL, p: Storage 경로, text: 설명, warn: 주의 }] */
+    listMaterials: function (part) {
+      if (SUPA) {
+        return sb().from("materials").select("*").eq("part", part || "garden").order("created_at", { ascending: false })
+          .then(must).then(function (rows) { return (rows || []).map(mapMaterial); });
+      }
+      DB = load();
+      return Promise.resolve(DB.materials.filter(function (m) { return m.part === (part || "garden"); })
+        .sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; }));
+    },
+    getMaterial: function (id) {
+      if (SUPA) return sb().from("materials").select("*").eq("id", id).maybeSingle().then(must).then(function (r) { return r ? mapMaterial(r) : null; });
+      DB = load();
+      return Promise.resolve(DB.materials.find(function (m) { return m.id === id; }) || null);
+    },
+    newMaterialId: function () { return uid(); },
+    saveMaterial: function (m) {
+      var now = new Date().toISOString();
+      if (SUPA) {
+        var row = { id: m.id, part: m.part || "garden", topic: m.topic || "", title: m.title || "", summary: m.summary || "",
+          steps: m.steps || [], needs_sign: !!m.needsSign, sign_session_id: m.signSessionId || null, created_by: m.createdBy || "", updated_at: now };
+        return sb().from("materials").upsert(row, { onConflict: "id" }).then(must).then(function () { return m.id; });
+      }
+      DB = load();
+      var i = DB.materials.findIndex(function (x) { return x.id === m.id; });
+      var rec = Object.assign({}, m, { updatedAt: now, createdAt: i < 0 ? now : DB.materials[i].createdAt });
+      if (i < 0) DB.materials.push(rec); else DB.materials[i] = rec;
+      persist(DB); return Promise.resolve(m.id);
+    },
+    deleteMaterial: function (m) {
+      if (SUPA) {
+        var paths = (m.steps || []).map(function (st) { return st.p; }).filter(Boolean);
+        return sb().from("materials").delete().eq("id", m.id).then(must).then(function () {
+          if (paths.length) return sb().storage.from(PHOTO_BUCKET).remove(paths).then(function () {}, function () {});
+        });
+      }
+      DB = load(); DB.materials = DB.materials.filter(function (x) { return x.id !== m.id; }); persist(DB); return Promise.resolve();
+    },
+    // 사진 한 장 올리기 → { u, p }. 데모 모드는 사진을 브라우저에만 둔다
+    uploadMaterialPhoto: function (materialId, dataUrl, filename) {
+      if (SUPA) {
+        var blob = dataUrlToBlob(dataUrl);
+        var path = "materials/" + materialId + "/" + Date.now() + "_" + Math.random().toString(36).slice(2, 8) + ".jpg";
+        return sb().storage.from(PHOTO_BUCKET).upload(path, blob, { contentType: blob.type || "image/jpeg", upsert: false }).then(must).then(function () {
+          return { u: sb().storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl, p: path };
+        });
+      }
+      return Promise.resolve({ u: dataUrl, p: "" });
+    },
+    removeMaterialPhotos: function (paths) {
+      paths = (paths || []).filter(Boolean);
+      if (!SUPA || !paths.length) return Promise.resolve();
+      return sb().storage.from(PHOTO_BUCKET).remove(paths).then(function () {}, function () {});
     },
 
     /* ---------- 사진 업로드 (Storage) ---------- */

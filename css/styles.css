@@ -384,3 +384,19 @@ a.quick:hover { border-color: var(--line); transform: translateY(-2px); box-shad
 @media (prefers-reduced-motion: reduce) {
   .session-card, .part-card, .quick, .part-card__f svg { transition: none; }
 }
+
+/* ---------------- 파트 색 (형광) — 교육 서명 카드의 아주 작은 동그라미 ---------------- */
+:root { --p-snack: #ff2fb0; --p-garden: #9be000; --p-support: #00c8ff; --p-common: #ff8a00; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --p-snack: #ff4fc1; --p-garden: #c6ff2e; --p-support: #2ee6ff; --p-common: #ffa31a; } }
+:root[data-theme="dark"] { --p-snack: #ff4fc1; --p-garden: #c6ff2e; --p-support: #2ee6ff; --p-common: #ffa31a; }
+.session-card__tags { display: inline-flex; align-items: center; gap: 8px; }
+.pdots { display: inline-flex; align-items: center; gap: 3px; }
+.pdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; box-shadow: 0 0 0 1.5px var(--card-bg), 0 0 6px currentColor; }
+.pdots .pdot + .pdot { margin-left: -1px; }
+.pdot--snack { background: var(--p-snack); color: var(--p-snack); }
+.pdot--garden { background: var(--p-garden); color: var(--p-garden); }
+.pdot--support { background: var(--p-support); color: var(--p-support); }
+.pdot--common { background: var(--p-common); color: var(--p-common); }
+.plegend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: -6px 0 14px; font-size: 12px; color: var(--ink-3); }
+.plegend span { display: inline-flex; align-items: center; gap: 6px; }
+.plegend .pdot { box-shadow: 0 0 5px currentColor; }
