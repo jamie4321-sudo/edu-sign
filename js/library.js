@@ -151,6 +151,7 @@
       + '<div class="rd-h__a">'
         + '<div class="rd-mode" role="group" aria-label="보기 방식"><button type="button" data-mode="one" aria-pressed="' + (r.mode === "one") + '">' + IC.one + '<span>한 장씩</span></button>'
         + '<button type="button" data-mode="all" aria-pressed="' + (r.mode === "all") + '">' + IC.all + '<span>전체 보기</span></button></div>'
+        + (r.opts.admin && window.EduPdf ? '<button type="button" class="rd-btn" id="rdPdf">PDF로 저장</button>' : "")
         + (r.opts.admin ? '<button type="button" class="rd-btn" id="rdEdit">수정</button><button type="button" class="rd-btn rd-btn--del" id="rdDel">삭제</button>' : "")
         + '<button type="button" class="rd-x" id="rdX" aria-label="닫기">' + IC.x + '<span>닫기</span></button></div></header>';
     var signBox = m.needsSign ? '<div class="rd-sign">' + IC.pen + '<div><b>이 교육은 서명이 필요해요</b><p>' + (r.opts.admin ? "끝까지 본 크루가 교육 서명 페이지에서 서명해요." : "끝까지 보고 서명해 주세요.") + '</p></div>'
@@ -189,6 +190,7 @@
       if (m.needsSign) askSign(); else closeReader();
     };
     r.el.querySelectorAll("[data-close-rd]").forEach(function (a) { a.addEventListener("click", function () { closeReader(); }); });
+    if ($("rdPdf")) $("rdPdf").onclick = function () { window.EduPdf.save(r.m, this); };
     if ($("rdEdit")) $("rdEdit").onclick = function () { var mm = r.m, o = r.opts; closeReader(); openEditor(mm, o); };
     if ($("rdDel")) $("rdDel").onclick = function () {
       if (!confirm("'" + (m.title || "이 자료") + "' 자료를 삭제할까요? 사진도 함께 지워져요.")) return;
@@ -396,6 +398,7 @@
       var o = e.opts, wasPub = !e.isNew && !isDraft(e.m); closeEditor();
       if (draft) { toast(wasPub ? "게시를 내리고 임시보관함으로 옮겼어요" : "임시보관함에 넣었어요 · 크루에게는 아직 안 보여요"); LIST.tab = "draft"; refreshList(); return; }
       toast((wasPub ? "교육 자료를 고쳤어요" : "게시했어요 · 크루 교육 자료에 보여요") + (e.madeSession ? " · 서명 세션도 만들었어요" : ""));
+      if (window.EduPdf) window.EduPdf.autoDrive(out);
       LIST.topic = ""; LIST.tab = "pub"; refreshList(); openReader(out, o);
     }).catch(function (err) {
       console.warn(err); e.busy = false; paintEditor();

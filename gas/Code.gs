@@ -27,6 +27,7 @@ var ROSTER_FIELDS = ["id", "sessionId", "seq", "dept", "name", "signature", "sig
 var PHOTO_FIELDS = ["id", "sessionId", "fileId", "url", "uploadedAt"];
 
 var ROOT_FOLDER_ID = "1sMragUccF7GxuTTa3htR6L1e1wdT4i-x"; // 교육 사진이 쌓이는 지정 드라이브 폴더
+var PDF_FOLDER_ID = "1HRfsg1iQVrlkZY9dvpnfZRWHqFZRV4w4";  // 교육 자료 PDF 가 쌓이는 드라이브 폴더 (파트별 하위 폴더 자동 생성)
 var SIGN_FOLDER_NAME = "EDU SIGN 서명원본";
 var SIGNATURE_INLINE_LIMIT = 8000; // 이보다 긴 서명 dataURL은 드라이브에 저장하고 참조만 남김
 
@@ -238,6 +239,7 @@ function doPost(e) {
   if (data.type === "session") return handleSession_(action, data);
   if (data.type === "roster") return handleRoster_(action, data);
   if (data.type === "photo") return handlePhoto_(action, data);
+  if (data.type === "pdf") return handlePdf_(action, data);
   return json_({ ok: false, error: "unknown type" });
 }
 
@@ -362,6 +364,26 @@ function handlePhoto_(action, data) {
     return json_({ ok: true });
   }
   return json_({ ok: false, error: "unknown action" });
+}
+
+/* ---------------- 교육 자료 PDF → 드라이브 ----------------
+   같은 자료(materialId)의 예전 PDF 는 휴지통으로 보내고 새 PDF 하나만 남긴다 (제목이 바뀌어도 같은 자료로 인식) */
+function handlePdf_(action, data) {
+  if (action !== "save") return json_({ ok: false, error: "unknown action" });
+  var m = String(data.dataUrl || "").match(/^data:application\/pdf;base64,(.*)$/);
+  if (!m) return json_({ ok: false, error: "invalid pdf" });
+  var root = DriveApp.getFolderById(PDF_FOLDER_ID);
+  var sub = String(data.folder || "").trim(), folder = root;
+  if (sub) { var it = root.getFoldersByName(sub); folder = it.hasNext() ? it.next() : root.createFolder(sub); }
+  var tag = "edu-material:" + String(data.materialId || "");
+  if (data.materialId) {
+    var files = folder.getFiles();
+    while (files.hasNext()) { var f = files.next(); if (f.getDescription() === tag) f.setTrashed(true); }
+  }
+  var name = String(data.name || "교육자료.pdf").replace(/[\\\/:*?"<>|]/g, "_");
+  var file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(m[1]), "application/pdf", name));
+  file.setDescription(tag);
+  return json_({ ok: true, url: file.getUrl(), folderUrl: folder.getUrl(), name: name });
 }
 
 function json_(obj) {
