@@ -525,17 +525,46 @@
     });
   }
 
+  /* 교육 사진 크게 보기: 좌우로 넘기기(버튼 · 화살표 키 · 밀기) · Esc/바깥 눌러 닫기 */
+  function photoLightbox(photos, start) {
+    var i = start || 0, n = photos.length;
+    var el = document.createElement("div"); el.className = "plb"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "교육 사진 크게 보기");
+    var draw = function () {
+      el.innerHTML = '<img src="' + esc(photos[i].url) + '" alt="교육 사진 ' + (i + 1) + '">'
+        + '<div class="plb-cap"><span>' + (i + 1) + ' / ' + n + '</span><a href="' + esc(photos[i].url) + '" target="_blank" rel="noopener">원본 열기</a></div>'
+        + (n > 1 ? '<button type="button" class="plb-nav plb-prev" aria-label="이전 사진">‹</button><button type="button" class="plb-nav plb-next" aria-label="다음 사진">›</button>' : "")
+        + '<button type="button" class="plb-x" aria-label="닫기">×</button>';
+      el.querySelector(".plb-x").onclick = close;
+      var pv = el.querySelector(".plb-prev"), nx = el.querySelector(".plb-next");
+      if (pv) pv.onclick = function (e) { e.stopPropagation(); go(-1); };
+      if (nx) nx.onclick = function (e) { e.stopPropagation(); go(1); };
+      el.querySelector("img").onclick = function (e) { e.stopPropagation(); };
+      el.querySelector(".plb-cap").onclick = function (e) { e.stopPropagation(); };
+    };
+    var go = function (d) { i = (i + d + n) % n; draw(); };
+    var key = function (e) { if (e.key === "Escape") close(); else if (e.key === "ArrowRight") go(1); else if (e.key === "ArrowLeft") go(-1); };
+    function close() { document.removeEventListener("keydown", key); el.remove(); document.body.style.overflow = ""; }
+    var sx = null;
+    el.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    el.addEventListener("touchend", function (e) { if (sx == null) return; var dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 50 && n > 1) go(dx < 0 ? 1 : -1); });
+    el.onclick = close;
+    document.addEventListener("keydown", key);
+    document.body.appendChild(el); document.body.style.overflow = "hidden"; draw();
+    el.querySelector(".plb-x").focus();
+  }
+
   function renderPhotoGrid(sessionId) {
     var grid = document.getElementById("photoGrid");
     if (!grid) return;
     Store.listPhotos(sessionId).then(function (photos) {
       if (!photos.length) { grid.innerHTML = '<span class="hint">아직 업로드된 사진이 없습니다.</span>'; return; }
-      grid.innerHTML = photos.map(function (p) {
-        return '<div style="position:relative">'
-          + '<img src="' + esc(p.url) + '" alt="교육 사진" style="width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--line)" />'
-          + '<button class="icon-btn" data-del-photo="' + esc(p.id) + '" style="position:absolute;top:4px;right:4px;background:var(--panel)">×</button>'
+      grid.innerHTML = photos.map(function (p, i) {
+        return '<div class="ph-th">'
+          + '<button type="button" class="ph-th__img" data-zoom="' + i + '" aria-label="교육 사진 ' + (i + 1) + ' 크게 보기"><img src="' + esc(p.url) + '" alt="교육 사진 ' + (i + 1) + '" loading="lazy" decoding="async" /></button>'
+          + '<button class="icon-btn" data-del-photo="' + esc(p.id) + '" aria-label="사진 삭제" style="position:absolute;top:4px;right:4px;background:var(--panel)">×</button>'
           + '</div>';
       }).join("");
+      grid.querySelectorAll("[data-zoom]").forEach(function (b) { b.addEventListener("click", function () { photoLightbox(photos, +b.dataset.zoom); }); });
       grid.querySelectorAll("[data-del-photo]").forEach(function (btn) {
         btn.addEventListener("click", function () {
           if (!confirm("이 사진을 삭제할까요?")) return;
