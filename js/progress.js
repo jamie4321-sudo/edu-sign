@@ -15,11 +15,22 @@
 
   var ST = { tab: "mat", q: "" };
 
+  // OPS 크루 명단(구글 시트 · 앱스스크립트)은 가끔 수십 초씩 멈춘다 → 4초만 기다리고,
+  // 못 받으면 이 기기에 기억해 둔 마지막 명단을 쓴다. 받으면 다음을 위해 기억해 둔다.
+  var CREW_KEY = "edu-crew-cache";
+  function crewFast(crewList) {
+    var cached = []; try { cached = JSON.parse(localStorage.getItem(CREW_KEY) || "[]"); } catch (e) {}
+    var live = crewList().then(function (l) { if (l && l.length) { try { localStorage.setItem(CREW_KEY, JSON.stringify(l)); } catch (e) {} } return l || []; });
+    return Promise.race([live, new Promise(function (res) { setTimeout(function () { res(null); }, 4000); })])
+      .then(function (l) { if (l && l.length) return l; ST.crewStale = true; return cached; })
+      .catch(function () { ST.crewStale = true; return cached; });
+  }
+
   // 데이터 모으기 → { mats, crews, cell(name, matId) }
   function load(part, crewList) {
     return Promise.all([
       Store.listMaterials(part),
-      crewList().catch(function () { return []; }),
+      crewFast(crewList),
       Store.listViews().catch(function (e) { return null; })     // null = 기록 표 아직 없음
     ]).then(function (a) {
       var mats = (a[0] || []).filter(function (m) { return m.status !== "draft"; });
@@ -68,7 +79,9 @@
       var cells = 0, done = 0, todo = 0;
       d.mats.forEach(function (m) { Object.keys(m._t).forEach(function (n) { cells++; if (m._t[n].st === "done") done++; else todo++; }); });
       var pct = cells ? Math.round(done / cells * 100) : 0;
-      var note = d.views === null ? '<div class="pg-note"><b>‘다 봤어요’ 기록 표가 아직 없어요.</b> Supabase SQL Editor 에서 <b>supabase/views.sql</b> 을 한 번 실행하면, 그때부터 크루가 누른 ‘다 봤어요’가 여기에 쌓여요. 서명 받는 교육은 지금도 서명 기록으로 보여요.</div>' : "";
+      var stale = ST.crewStale ? '<div class="pg-note">OPS 크루 명단(구글 시트)이 지금 늦게 응답해서 ' + (d.ops.length ? "이 기기에 기억해 둔 명단으로" : "서명 명단만으로") + ' 보여 드려요. 잠시 후 새로고침하면 최신 명단으로 바뀌어요.</div>' : "";
+      ST.crewStale = false;
+      var note = stale + (d.views === null ? '<div class="pg-note"><b>‘다 봤어요’ 기록 표가 아직 없어요.</b> Supabase SQL Editor 에서 <b>supabase/views.sql</b> 을 한 번 실행하면, 그때부터 크루가 누른 ‘다 봤어요’가 여기에 쌓여요. 서명 받는 교육은 지금도 서명 기록으로 보여요.</div>' : "");
       body.innerHTML = note
         + '<dl class="summary"><div><dt>대상 크루</dt><dd>' + d.crews.length + '<small>명</small></dd></div>'
         + '<div><dt>게시된 교육</dt><dd>' + d.mats.length + '<small>건</small></dd></div>'
