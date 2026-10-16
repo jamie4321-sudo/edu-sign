@@ -217,3 +217,26 @@ a.rd-nav { text-decoration: none; }
 .rd-zoom { position: absolute; inset: 0; z-index: 6; background: #000; overflow: auto; display: flex; align-items: flex-start; justify-content: center; -webkit-overflow-scrolling: touch; }
 .rd-zoom img { width: 100%; max-width: 1400px; height: auto; margin: auto; display: block; }
 .rd-zoom__x { position: fixed; top: 12px; right: 12px; z-index: 1; background: #fff; color: #111; }
+
+/* ---------- 카톡 카드로 내보내기 (관리자) ---------- */
+.rd-btn--ex { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.ex { position: absolute; inset: 0; z-index: 8; background: var(--bg); display: flex; flex-direction: column; }
+.ex-h { display: flex; align-items: center; gap: 12px; padding: 14px 22px; border-bottom: 1px solid var(--line-soft); background: var(--panel); }
+.ex-h > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ex-h b { font-size: 18px; font-weight: 800; }
+.ex-h span { font-size: 13px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ex-body { flex: 1; overflow-y: auto; padding: 20px 22px 40px; max-width: 1200px; width: 100%; margin: 0 auto; }
+.ex-wait { text-align: center; color: var(--ink-3); font-size: 15px; padding: 60px 0; }
+.ex-act { display: flex; flex-wrap: wrap; gap: 8px; }
+.ex-tip { margin: 10px 0 18px; font-size: 13px; color: var(--ink-2); }
+.ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.ex-card { display: flex; flex-direction: column; gap: 6px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; font: inherit; color: var(--ink-2); font-size: 12.5px; }
+.ex-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 12px; border: 1px solid var(--line-soft); display: block; }
+.ex-card:hover img { border-color: var(--ink-3); }
+@media (max-width: 860px) {
+  .rd-btn--ex { order: -1; }
+  .ex-h { padding: 10px 12px; }
+  .ex-body { padding: 14px 12px 32px; }
+  .ex-act .btn { flex: 1 1 100%; justify-content: center; padding: 13px; font-size: 15px; }
+  .ex-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+}

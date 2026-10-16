@@ -114,6 +114,7 @@
       + '<div class="rd-h__a">'
         + '<div class="rd-mode" role="group" aria-label="보기 방식"><button type="button" data-mode="one" aria-pressed="' + (r.mode === "one") + '">' + IC.one + '<span>한 장씩</span></button>'
         + '<button type="button" data-mode="all" aria-pressed="' + (r.mode === "all") + '">' + IC.all + '<span>전체 보기</span></button></div>'
+        + (r.opts.admin && window.EduExport ? '<button type="button" class="rd-btn rd-btn--ex" id="rdEx">카톡 카드로 내보내기</button>' : "")
         + (r.opts.admin ? '<button type="button" class="rd-btn" id="rdEdit">수정</button><button type="button" class="rd-btn rd-btn--del" id="rdDel">삭제</button>' : "")
         + '<button type="button" class="rd-x" id="rdX" aria-label="닫기">' + IC.x + '<span>닫기</span></button></div></header>';
     var signBox = m.needsSign ? '<div class="rd-sign">' + IC.pen + '<div><b>이 교육은 서명이 필요해요</b><p>' + (r.opts.admin ? "끝까지 본 크루가 교육 서명 페이지에서 서명해요." : "끝까지 보고 서명해 주세요.") + '</p></div>'
@@ -149,6 +150,7 @@
     if ($("rdNext")) $("rdNext").onclick = function () { go(1); };
     if ($("rdDone")) $("rdDone").onclick = function () { if (m.needsSign) askSign(); else closeReader(); };
     r.el.querySelectorAll("[data-close-rd]").forEach(function (a) { a.addEventListener("click", function () { closeReader(); }); });
+    if ($("rdEx")) $("rdEx").onclick = function () { window.EduExport.open(r.m, r.el); };
     if ($("rdEdit")) $("rdEdit").onclick = function () { var mm = r.m, o = r.opts; closeReader(); openEditor(mm, o); };
     if ($("rdDel")) $("rdDel").onclick = function () {
       if (!confirm("'" + (m.title || "이 자료") + "' 자료를 삭제할까요? 사진도 함께 지워져요.")) return;
@@ -191,7 +193,7 @@
   function go(d) { if (!RD) return; var n = (RD.m.steps || []).length, j = RD.i + d; if (j < 0 || j >= n) return; RD.i = j; paintReader(); }
   document.addEventListener("keydown", function (e) {
     if (!RD) return;
-    if (e.key === "Escape") { var a = document.getElementById("rdZoom") || document.getElementById("rdAsk"); if (a) a.remove(); else closeReader(); }
+    if (e.key === "Escape") { var a = document.querySelector("#rd .ex") || document.getElementById("rdZoom") || document.getElementById("rdAsk"); if (a) a.remove(); else closeReader(); }
     else if (RD.mode === "one" && e.key === "ArrowRight") go(1);
     else if (RD.mode === "one" && e.key === "ArrowLeft") go(-1);
   });
