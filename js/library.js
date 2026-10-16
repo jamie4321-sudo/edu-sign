@@ -124,7 +124,8 @@
     else if (r.mode === "all") {
       body = '<div class="rd-all">' + (m.summary ? '<p class="rd-sum">' + esc(m.summary) + '</p>' : "")
         + steps.map(function (st, k) { return '<section class="rd-step rd-step--all">' + stepHtml(st, k, n) + '</section>'; }).join("")
-        + (signBox ? '<div class="rd-signwrap">' + signBox + '</div>' : "") + '</div>';
+        + (signBox ? '<div class="rd-signwrap">' + signBox + '</div>' : "")
+        + '<div class="rd-endwrap"><button type="button" class="rd-nav rd-nav--next" id="rdDone"><span>다 봤어요</span></button></div></div>';
     } else {
       body = '<div class="rd-one">' + (i === 0 && m.summary ? '<p class="rd-sum">' + esc(m.summary) + '</p>' : "")
         + '<section class="rd-step" aria-live="polite">' + stepHtml(steps[i], i, n) + '</section>'
@@ -132,8 +133,7 @@
         + '<footer class="rd-f"><button type="button" class="rd-nav" id="rdPrev" ' + (i === 0 ? "disabled" : "") + '>' + IC.prev + '<span>이전</span></button>'
         + '<div class="rd-dots">' + steps.map(function (_, k) { return '<button type="button" data-go="' + k + '" aria-label="' + (k + 1) + '단계" aria-current="' + (k === i ? "step" : "false") + '"></button>'; }).join("") + '</div>'
         + (i < n - 1 ? '<button type="button" class="rd-nav rd-nav--next" id="rdNext"><span>다음</span>' + IC.next + '</button>'
-                     : (m.needsSign && !r.opts.admin ? '<a class="rd-nav rd-nav--next" href="' + esc(signUrl()) + '"><span>서명하러 가기</span></a>'
-                                                       : '<button type="button" class="rd-nav rd-nav--next" id="rdDone"><span>다 봤어요</span></button>'))
+                     : '<button type="button" class="rd-nav rd-nav--next" id="rdDone"><span>다 봤어요</span></button>')
         + '</footer>';
     }
     r.el.className = "rd rd--" + r.mode;
@@ -146,7 +146,7 @@
     r.el.querySelectorAll("[data-say]").forEach(function (b) { b.onclick = function () { speak(steps[+b.dataset.say], b); }; });
     if ($("rdPrev")) $("rdPrev").onclick = function () { go(-1); };
     if ($("rdNext")) $("rdNext").onclick = function () { go(1); };
-    if ($("rdDone")) $("rdDone").onclick = closeReader;
+    if ($("rdDone")) $("rdDone").onclick = function () { if (m.needsSign) askSign(); else closeReader(); };
     r.el.querySelectorAll("[data-close-rd]").forEach(function (a) { a.addEventListener("click", function () { closeReader(); }); });
     if ($("rdEdit")) $("rdEdit").onclick = function () { var mm = r.m, o = r.opts; closeReader(); openEditor(mm, o); };
     if ($("rdDel")) $("rdDel").onclick = function () {
@@ -160,10 +160,28 @@
     var f = r.el.querySelector(r.mode === "one" && $("rdNext") ? "#rdNext" : "#rdX"); if (f) f.focus({ preventScroll: true });
     var one = r.el.querySelector(".rd-one"); if (one) one.scrollTop = 0;
   }
+  // 서명이 필요한 교육: "다 봤어요" → 서명하시겠어요?
+  function askSign() {
+    var r = RD; if (!r) return;
+    var old = document.getElementById("rdAsk"); if (old) old.remove();
+    var admin = !!r.opts.admin, url = signUrl();
+    var box = document.createElement("div"); box.id = "rdAsk"; box.className = "rd-ask"; box.setAttribute("role", "alertdialog"); box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-labelledby", "rdAskT");
+    box.innerHTML = '<div class="rd-ask__card"><span class="rd-ask__ic">' + IC.pen + '</span>'
+      + '<p class="rd-ask__s">교육을 다 봤어요</p><h3 id="rdAskT">서명하시겠어요?</h3>'
+      + '<p class="rd-ask__d">' + (admin ? "크루에게는 이 안내가 보이고, 누르면 교육 서명 페이지로 가요." : "이 교육은 서명이 필요해요. 서명 페이지에서 내 이름을 고르고 서명해 주세요.") + '</p>'
+      + '<a class="rd-ask__yes" id="rdAskYes" href="' + esc(url) + '"' + (admin ? ' target="_blank" rel="noopener"' : "") + '>네, 서명할게요</a>'
+      + '<button type="button" class="rd-ask__no" id="rdAskNo">나중에 할게요</button></div>';
+    r.el.appendChild(box);
+    box.onclick = function (e) { if (e.target === box) box.remove(); };
+    document.getElementById("rdAskNo").onclick = function () { box.remove(); };
+    if (admin) document.getElementById("rdAskYes").addEventListener("click", function () { box.remove(); });
+    document.getElementById("rdAskYes").focus();
+  }
   function go(d) { if (!RD) return; var n = (RD.m.steps || []).length, j = RD.i + d; if (j < 0 || j >= n) return; RD.i = j; paintReader(); }
   document.addEventListener("keydown", function (e) {
     if (!RD) return;
-    if (e.key === "Escape") closeReader();
+    if (e.key === "Escape") { var a = document.getElementById("rdAsk"); if (a) a.remove(); else closeReader(); }
     else if (RD.mode === "one" && e.key === "ArrowRight") go(1);
     else if (RD.mode === "one" && e.key === "ArrowLeft") go(-1);
   });

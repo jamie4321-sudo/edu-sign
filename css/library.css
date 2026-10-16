@@ -184,3 +184,26 @@ a.rd-nav { text-decoration: none; }
 .rd-step:has(.rd-noph) { grid-template-columns: minmax(0, 860px); justify-content: center; }
 .rd-step:has(.rd-noph) .rd-ph { display: none; }
 .rd-one .rd-step:has(.rd-noph) .rd-text { font-size: clamp(24px, 2.6vw, 32px); }
+
+/* 소리로 듣기: 아주 작게 */
+.rd-say { gap: 5px; padding: 4px 10px 4px 8px; font-size: 12px; font-weight: 700; color: var(--ink-3); border-color: var(--line-soft); background: transparent; }
+.rd-say svg { width: 14px; height: 14px; }
+.rd-say:hover { color: var(--ink); border-color: var(--line); }
+.rd-say.on { color: var(--bg); }
+
+/* 다 봤어요 → 서명하시겠어요? */
+.rd-endwrap { display: flex; justify-content: center; padding: 8px 16px 28px; }
+.rd-endwrap .rd-nav { min-width: 220px; }
+.rd-ask { position: absolute; inset: 0; z-index: 5; background: var(--scrim, rgba(20,22,10,.45)); display: grid; place-items: center; padding: 20px; animation: rd-ask-in .18s ease-out; }
+.rd-ask__card { width: min(420px, 100%); background: var(--panel); border-radius: 22px; padding: 28px 24px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: var(--shadow); animation: rd-ask-up .24s cubic-bezier(.23,1,.32,1); }
+.rd-ask__ic { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; margin-bottom: 4px; }
+.rd-ask__ic svg { width: 28px; height: 28px; }
+.rd-ask__s { margin: 0; font-size: 15px; font-weight: 700; color: var(--ink-3); }
+.rd-ask h3 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -.5px; }
+.rd-ask__d { margin: 2px 0 10px; font-size: 15px; color: var(--ink-2); line-height: 1.55; word-break: keep-all; }
+.rd-ask__yes { display: flex; align-items: center; justify-content: center; width: 100%; height: 60px; border-radius: 16px; background: var(--accent); color: var(--accent-ink); font-size: 20px; font-weight: 800; text-decoration: none; }
+.rd-ask__no { width: 100%; height: 52px; border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 16px; font-weight: 700; border-radius: 14px; cursor: pointer; }
+.rd-ask__no:hover { background: var(--panel-2); }
+@keyframes rd-ask-in { from { opacity: 0; } }
+@keyframes rd-ask-up { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .rd-ask, .rd-ask__card { animation: none; } }
