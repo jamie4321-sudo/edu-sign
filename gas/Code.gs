@@ -392,15 +392,25 @@ function handlePdf_(action, data) {
  * 키: Apps Script > 프로젝트 설정 > 스크립트 속성 GEMINI_API_KEY (aistudio.google.com/apikey)
  * 키가 없거나 실패하면 사이트가 스스로 만든 초안을 쓴다.
  */
-var AI_MODEL = "gemini-2.5-flash";
+// 모델: 앞에서부터 시도하고, 없어진 모델(404)이면 다음 것으로. 바꾸고 싶으면 스크립트 속성 GEMINI_MODEL 에 이름을 넣는다.
+// gemini-flash-latest = 늘 최신 Flash 를 가리키는 이름이라 모델이 없어져도 코드를 안 고쳐도 된다.
+var AI_MODELS = ["gemini-flash-latest", "gemini-3.8-flash", "gemini-2.5-flash"];
+function gemini_(key, body) {
+  var pref = PropertiesService.getScriptProperties().getProperty("GEMINI_MODEL");
+  var models = (pref ? [pref] : []).concat(AI_MODELS), res = null;
+  for (var i = 0; i < models.length; i++) {
+    res = UrlFetchApp.fetch("https://generativelanguage.googleapis.com/v1beta/models/" + models[i] + ":generateContent?key=" + encodeURIComponent(key),
+      { method: "post", contentType: "application/json", payload: JSON.stringify(body), muteHttpExceptions: true });
+    if (res.getResponseCode() !== 404) return { res: res, model: models[i] };
+  }
+  return { res: res, model: models[models.length - 1] };
+}
 // 편집기에서 ▶ 실행: 바깥 요청 권한을 받고, GEMINI_API_KEY 가 맞는지 확인한다 (실행 로그에 결과)
 function testGemini() {
   var key = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
   if (!key) { Logger.log("❌ 스크립트 속성에 GEMINI_API_KEY 가 없어요"); return; }
-  var res = UrlFetchApp.fetch("https://generativelanguage.googleapis.com/v1beta/models/" + AI_MODEL + ":generateContent?key=" + encodeURIComponent(key), {
-    method: "post", contentType: "application/json", muteHttpExceptions: true,
-    payload: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "'안녕하세요'라고만 답해 줘" }] }] }) });
-  Logger.log(res.getResponseCode() === 200 ? "✅ 연결 성공" : "❌ " + res.getResponseCode() + " " + res.getContentText().slice(0, 300));
+  var g = gemini_(key, { contents: [{ role: "user", parts: [{ text: "'안녕하세요'라고만 답해 줘" }] }] });
+  Logger.log(g.res.getResponseCode() === 200 ? "✅ 연결 성공 (모델 " + g.model + ")" : "❌ " + g.res.getResponseCode() + " " + g.res.getContentText().slice(0, 300));
 }
 function handleAi_(action, data) {
   var key = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
@@ -437,16 +447,15 @@ function handleAi_(action, data) {
   };
   var body = { contents: [{ role: "user", parts: parts }],
     generationConfig: { temperature: 0.3, responseMimeType: "application/json", responseSchema: schema } };
-  var url = "https://generativelanguage.googleapis.com/v1beta/models/" + AI_MODEL + ":generateContent?key=" + encodeURIComponent(key);
   try {
-    var res = UrlFetchApp.fetch(url, { method: "post", contentType: "application/json", payload: JSON.stringify(body), muteHttpExceptions: true });
+    var g = gemini_(key, body), res = g.res;
     var code = res.getResponseCode();
     if (code !== 200) return json_({ ok: false, error: "gemini " + code, detail: res.getContentText().slice(0, 300) });
     var out = JSON.parse(res.getContentText());
     var txt = out.candidates && out.candidates[0] && out.candidates[0].content && out.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("");
     var r = JSON.parse(txt);
     r.steps = (r.steps || []).slice(0, max);
-    return json_({ ok: true, result: r });
+    return json_({ ok: true, result: r, model: g.model });
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message || err) });
   }
