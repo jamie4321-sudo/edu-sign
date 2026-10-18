@@ -393,6 +393,15 @@ function handlePdf_(action, data) {
  * 키가 없거나 실패하면 사이트가 스스로 만든 초안을 쓴다.
  */
 var AI_MODEL = "gemini-2.5-flash";
+// 편집기에서 ▶ 실행: 바깥 요청 권한을 받고, GEMINI_API_KEY 가 맞는지 확인한다 (실행 로그에 결과)
+function testGemini() {
+  var key = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
+  if (!key) { Logger.log("❌ 스크립트 속성에 GEMINI_API_KEY 가 없어요"); return; }
+  var res = UrlFetchApp.fetch("https://generativelanguage.googleapis.com/v1beta/models/" + AI_MODEL + ":generateContent?key=" + encodeURIComponent(key), {
+    method: "post", contentType: "application/json", muteHttpExceptions: true,
+    payload: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "'안녕하세요'라고만 답해 줘" }] }] }) });
+  Logger.log(res.getResponseCode() === 200 ? "✅ 연결 성공" : "❌ " + res.getResponseCode() + " " + res.getContentText().slice(0, 300));
+}
 function handleAi_(action, data) {
   var key = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
   if (!key) return json_({ ok: false, error: "no key" });
