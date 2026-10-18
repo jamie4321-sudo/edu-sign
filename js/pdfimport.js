@@ -1,7 +1,7 @@
 /* =========================================================
    EDU — PDF 로 교육 자료 만들기
    · '+ 교육 자료 만들기' → 직접 입력 / PDF 업로드 고르기
-   · 기준: 장애 크루가 보기 쉽게 — 단계 최대 9개(10개 미만), 단계마다 아주 짧고 쉬운 말
+   · 기준: 크루가 보기 쉽게 — 단계 최대 9개(10개 미만), 단계마다 아주 짧고 쉬운 말
    · PDF 를 올리면
      1) 브라우저가 쪽마다 글을 읽고 그림으로 그린다 (pdf.js)
      2) 앱스스크립트(Gemini, type:"ai")에 PDF 를 보내 쉬운 말 단계로 다시 쓰게 한다 — 단계마다 사진으로 쓸 쪽도 고름
@@ -221,7 +221,7 @@
       + '<h3 id="mkT">교육 자료 만들기</h3><p class="mk-s">어떻게 만들까요?</p>'
       + '<div class="mk-opts">'
         + '<button type="button" class="mk-opt" id="mkHand"><span class="mk-opt__ic">' + IC.pen + '</span><b>직접 입력하여 만들기</b><span>단계마다 사진과 설명을 순서대로 넣어요.</span></button>'
-        + '<label class="mk-opt mk-opt--pdf" id="mkDrop"><span class="mk-opt__ic">' + IC.pdf + '</span><b>PDF 업로드하여 만들기</b><span>PDF를 올리면 내용을 읽고 장애 크루가 보기 쉬운 말로 교육 순서(9단계 이하)를 자동으로 만들어요.</span>'
+        + '<label class="mk-opt mk-opt--pdf" id="mkDrop"><span class="mk-opt__ic">' + IC.pdf + '</span><b>PDF 업로드하여 만들기</b><span>PDF를 올리면 내용을 읽고 크루가 보기 쉬운 교육 순서(9단계 이하)를 자동으로 만들어요.</span>'
           + '<em class="mk-opt__drop">' + IC.up + 'PDF 고르기 · 여기로 끌어 놓기</em><input type="file" accept="application/pdf,.pdf" id="mkFile" hidden></label>'
       + '</div>'
       + (err ? '<p class="mk-err" role="alert">' + esc(err) + '</p>' : '<p class="mk-note">자동으로 만든 내용은 바로 올라가지 않아요. 편집 화면에서 사진과 문장을 확인하고 고친 뒤 저장해 주세요.</p>')
@@ -241,7 +241,7 @@
     var m = MK; if (!m) return;
     var pct = n ? Math.round(k / n * 100) : 0;
     m.el.className = "mk";
-    m.el.innerHTML = '<div class="mk-card mk-card--busy"><h3 id="mkT">' + (ai ? "쉬운 말로 바꾸는 중" : "PDF 읽는 중") + '</h3><p class="mk-s">' + esc(t) + '</p>'
+    m.el.innerHTML = '<div class="mk-card mk-card--busy"><h3 id="mkT">' + (ai ? "교육 자료 만드는 중" : "PDF 읽는 중") + '</h3><p class="mk-s">' + esc(t) + '</p>'
       + '<div class="mk-bar' + (ai ? " is-wait" : "") + '" role="progressbar" aria-valuemin="0" aria-valuemax="100"' + (ai ? "" : ' aria-valuenow="' + pct + '"') + '><i style="width:' + (ai ? 35 : pct) + '%"></i></div>'
       + '<button type="button" class="mk-cancel" id="mkStop">그만두기</button></div>';
     document.getElementById("mkStop").onclick = function () { m.stopped = true; close(); };
@@ -254,7 +254,7 @@
     analyze(file, function (k, n) { if (MK === m && !m.stopped) paintBusy(k + " / " + n + "쪽 읽는 중…", k - 1, n); }).then(function (r) {
       if (MK !== m || m.stopped) { try { r.doc.destroy(); } catch (e) {} return; }
       m.doc = r.doc; m.plan = plan(file, r);
-      paintBusy("장애 크루가 보기 쉬운 말로 순서를 만드는 중… (30초쯤 걸려요)", 0, 0, true);
+      paintBusy("교육 자료 만드는 중… (30초쯤 걸려요)", 0, 0, true);
       askAi(file, m.plan).then(function (res) { return applyAi(m.plan, res); })
         .catch(function (e) { console.warn("AI 쉬운 말 변환 못 함 → 브라우저 초안", e); return false; })
         .then(function (ok) {

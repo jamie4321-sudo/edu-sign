@@ -388,7 +388,7 @@ function handlePdf_(action, data) {
 }
 
 /* ---------------- PDF → 쉬운 말 교육 단계 (Gemini) ----------------
- * 사이트에서 PDF(또는 쪽별 글)를 보내면, 장애 크루가 보기 쉬운 말로 최대 9단계 교육 순서를 만들어 돌려준다.
+ * 사이트에서 PDF(또는 쪽별 글)를 보내면, 크루가 보기 쉬운 말로 최대 9단계 교육 순서를 만들어 돌려준다.
  * 키: Apps Script > 프로젝트 설정 > 스크립트 속성 GEMINI_API_KEY (aistudio.google.com/apikey)
  * 키가 없거나 실패하면 사이트가 스스로 만든 초안을 쓴다.
  */
@@ -408,7 +408,7 @@ function handleAi_(action, data) {
   var max = Math.min(Number(data.maxSteps) || 9, 9);
   var topics = (data.topics || []).join(", ");
   var prompt = [
-    "너는 장애인 크루(발달장애·지적장애 크루 포함)에게 현장 업무를 가르치는 교육 담당자야.",
+    "너는 글을 읽고 이해하는 데 도움이 필요한 크루에게 현장 업무를 가르치는 교육 담당자야.",
     "첨부한 교육 자료(PDF)를 읽고, 크루가 휴대폰이나 큰 화면에서 한 단계씩 보며 따라 할 수 있는 교육 순서를 만들어.",
     "",
     "규칙:",
@@ -420,7 +420,8 @@ function handleAi_(action, data) {
     "- page 는 그 단계에 가장 잘 맞는 그림이 있는 PDF 쪽 번호(1부터). 표지 쪽은 고르지 마. 같은 쪽을 여러 번 써도 돼.",
     "- title: 자료 제목(20자 이내, 쉬운 말). summary: 이 교육으로 무엇을 배우는지 한 문장(40자 이내).",
     "- topic: 다음 중 가장 맞는 것 하나 — " + topics,
-    "- 자료에 없는 내용은 지어내지 마."
+    "- 자료에 없는 내용은 지어내지 마.",
+    "- 크루의 특성이나 크루를 부르는 말은 쓰지 말고, 할 일만 써."
   ].join("\n");
   var parts = [{ text: prompt }];
   if (data.pdf) parts.push({ inline_data: { mime_type: "application/pdf", data: String(data.pdf).replace(/^data:[^,]*,/, "") } });
