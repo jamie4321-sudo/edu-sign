@@ -403,15 +403,18 @@ function gemini_(key, body) {
     return UrlFetchApp.fetch("https://generativelanguage.googleapis.com/v1beta/models/" + m + ":generateContent?key=" + encodeURIComponent(key),
       { method: "post", contentType: "application/json", payload: JSON.stringify(body), muteHttpExceptions: true });
   };
+  // 404 = 없는 모델, 503·500 = 붐빔, 429 = 한도 → 다음 모델로 (붐빔은 2초 쉬고 한 번 더)
+  var next = function (c) { return c === 404 || c === 429 || c >= 500; };
   for (var i = 0; i < models.length; i++) {
     res = call(models[i]);
-    if (res.getResponseCode() !== 404) return { res: res, model: models[i], tried: tried };
+    if (res.getResponseCode() >= 500) { Utilities.sleep(2000); res = call(models[i]); }
+    if (!next(res.getResponseCode())) return { res: res, model: models[i], tried: tried };
   }
   // 다 없으면: 이 키로 쓸 수 있는 모델 목록에서 Flash 를 골라 쓰고, 찾은 이름을 GEMINI_MODEL 에 기억
   var found = availableFlash_(key, tried);
   for (var k = 0; k < found.length; k++) {
     res = call(found[k]);
-    if (res.getResponseCode() !== 404) { if (res.getResponseCode() === 200) props.setProperty("GEMINI_MODEL", found[k]); return { res: res, model: found[k], tried: tried }; }
+    if (!next(res.getResponseCode())) { if (res.getResponseCode() === 200) props.setProperty("GEMINI_MODEL", found[k]); return { res: res, model: found[k], tried: tried }; }
   }
   return { res: res, model: tried[tried.length - 1], tried: tried };
 }
