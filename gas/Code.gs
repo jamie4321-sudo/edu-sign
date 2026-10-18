@@ -396,21 +396,42 @@ function handlePdf_(action, data) {
 // gemini-flash-latest = 늘 최신 Flash 를 가리키는 이름이라 모델이 없어져도 코드를 안 고쳐도 된다.
 var AI_MODELS = ["gemini-flash-latest", "gemini-3.8-flash", "gemini-2.5-flash"];
 function gemini_(key, body) {
-  var pref = PropertiesService.getScriptProperties().getProperty("GEMINI_MODEL");
-  var models = (pref ? [pref] : []).concat(AI_MODELS), res = null;
-  for (var i = 0; i < models.length; i++) {
-    res = UrlFetchApp.fetch("https://generativelanguage.googleapis.com/v1beta/models/" + models[i] + ":generateContent?key=" + encodeURIComponent(key),
+  var props = PropertiesService.getScriptProperties(), pref = props.getProperty("GEMINI_MODEL");
+  var models = (pref ? [pref] : []).concat(AI_MODELS), tried = [], res = null;
+  var call = function (m) {
+    tried.push(m);
+    return UrlFetchApp.fetch("https://generativelanguage.googleapis.com/v1beta/models/" + m + ":generateContent?key=" + encodeURIComponent(key),
       { method: "post", contentType: "application/json", payload: JSON.stringify(body), muteHttpExceptions: true });
-    if (res.getResponseCode() !== 404) return { res: res, model: models[i] };
+  };
+  for (var i = 0; i < models.length; i++) {
+    res = call(models[i]);
+    if (res.getResponseCode() !== 404) return { res: res, model: models[i], tried: tried };
   }
-  return { res: res, model: models[models.length - 1] };
+  // 다 없으면: 이 키로 쓸 수 있는 모델 목록에서 Flash 를 골라 쓰고, 찾은 이름을 GEMINI_MODEL 에 기억
+  var found = availableFlash_(key, tried);
+  for (var k = 0; k < found.length; k++) {
+    res = call(found[k]);
+    if (res.getResponseCode() !== 404) { if (res.getResponseCode() === 200) props.setProperty("GEMINI_MODEL", found[k]); return { res: res, model: found[k], tried: tried }; }
+  }
+  return { res: res, model: tried[tried.length - 1], tried: tried };
+}
+function availableFlash_(key, skip) {
+  try {
+    var r = UrlFetchApp.fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=" + encodeURIComponent(key), { muteHttpExceptions: true });
+    if (r.getResponseCode() !== 200) return [];
+    return (JSON.parse(r.getContentText()).models || []).filter(function (m) {
+      var n = String(m.name || "").replace(/^models\//, "");
+      return (m.supportedGenerationMethods || []).indexOf("generateContent") >= 0 && /flash/.test(n) && !/lite|image|tts|live|audio|thinking|exp/.test(n) && skip.indexOf(n) < 0;
+    }).map(function (m) { return String(m.name).replace(/^models\//, ""); })
+      .sort(function (a, b) { return b.localeCompare(a, "en", { numeric: true }); }).slice(0, 4);
+  } catch (e) { return []; }
 }
 // 편집기에서 ▶ 실행: 바깥 요청 권한을 받고, GEMINI_API_KEY 가 맞는지 확인한다 (실행 로그에 결과)
 function testGemini() {
   var key = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
   if (!key) { Logger.log("❌ 스크립트 속성에 GEMINI_API_KEY 가 없어요"); return; }
   var g = gemini_(key, { contents: [{ role: "user", parts: [{ text: "'안녕하세요'라고만 답해 줘" }] }] });
-  Logger.log(g.res.getResponseCode() === 200 ? "✅ 연결 성공 (모델 " + g.model + ")" : "❌ " + g.res.getResponseCode() + " " + g.res.getContentText().slice(0, 300));
+  Logger.log(g.res.getResponseCode() === 200 ? "✅ 연결 성공 (모델 " + g.model + ")" : "❌ " + g.res.getResponseCode() + " (시도한 모델: " + g.tried.join(", ") + ") " + g.res.getContentText().slice(0, 300));
 }
 function handleAi_(action, data) {
   var key = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
@@ -450,7 +471,7 @@ function handleAi_(action, data) {
   try {
     var g = gemini_(key, body), res = g.res;
     var code = res.getResponseCode();
-    if (code !== 200) return json_({ ok: false, error: "gemini " + code, detail: res.getContentText().slice(0, 300) });
+    if (code !== 200) return json_({ ok: false, error: "gemini " + code, tried: g.tried, detail: res.getContentText().slice(0, 300) });
     var out = JSON.parse(res.getContentText());
     var txt = out.candidates && out.candidates[0] && out.candidates[0].content && out.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("");
     var r = JSON.parse(txt);
