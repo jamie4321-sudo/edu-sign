@@ -101,7 +101,7 @@
             + (o.doneIds && o.doneIds[m.id] ? '<span class="lib-done">✓ 다 봤어요</span>' : "") + '</span></button>';
         }).join("") + '</div>'
         : '<div class="prep">' + IC.book + '<b>' + (items.length ? "이 주제에는 아직 자료가 없어요" : "아직 교육 자료가 없어요") + '</b>'
-          + '<p>' + (o.admin ? "<b>+ 교육 자료 만들기</b>로 사진과 설명을 단계별로 올려 주세요." : "자료가 올라오면 여기에서 볼 수 있어요.") + '</p></div>');
+          + '<p>' + (o.admin ? "<b>+ 교육 자료 만들기</b>로 사진과 설명을 단계별로 올리거나, PDF를 올려 자동으로 만들어 보세요." : "자료가 올라오면 여기에서 볼 수 있어요.") + '</p></div>');
     el.querySelectorAll("[data-tab]").forEach(function (b) { b.onclick = function () { LIST.tab = b.dataset.tab; paintList(); }; });
     el.querySelectorAll("[data-topic]").forEach(function (b) { b.onclick = function () { LIST.topic = b.dataset.topic; paintList(); }; });
     el.querySelectorAll("[data-open]").forEach(function (b) {
@@ -253,14 +253,16 @@
 
   /* ---------------- 만들기 · 수정 (관리자) ---------------- */
   var ED = null;
-  function openEditor(m, opts) {
+  // preset: PDF 로 만든 초안 (js/pdfimport.js) — { title, summary, topic, steps:[{ nu, text, warn }], fromPdf }
+  function openEditor(m, opts, preset) {
     opts = opts || {};
     var isNew = !m;
     m = m || { id: Store.newMaterialId(), status: "draft", part: opts.part || "garden", topic: LIST.topic || TOPICS[0], title: "", summary: "", steps: [] };
-    var steps = (m.steps || []).map(function (s) { return { u: s.u || "", p: s.p || "", text: s.text || "", warn: s.warn || "" }; });
+    if (isNew && preset) m = Object.assign(m, { title: preset.title || "", summary: preset.summary || "", topic: preset.topic || m.topic });
+    var steps = (isNew && preset ? preset.steps || [] : m.steps || []).slice(0, MAX_STEPS).map(function (s) { return { u: s.u || "", p: s.p || "", text: s.text || "", warn: s.warn || "", nu: s.nu || null }; });
     if (!steps.length) steps.push({ u: "", p: "", text: "", warn: "" });
     ED = { m: m, isNew: isNew, opts: opts, steps: steps, orig: (m.steps || []).map(function (s) { return s.p; }).filter(Boolean), busy: false,
-      topic: m.topic || "", title: m.title || "", summary: m.summary || "",
+      topic: m.topic || "", title: m.title || "", summary: m.summary || "", fromPdf: isNew && preset ? preset.fromPdf : null,
       // 서명: null = 아직 안 고름(새 자료는 꼭 고르게), true/false
       sign: isNew || (isDraft(m) && !m.needsSign) ? null : !!m.needsSign, signHow: m.signSessionId ? "keep" : "new", signDate: today(), signPick: "", sessions: null };
     Store.listSessions().then(function (ss) { if (ED) { ED.sessions = ss.filter(function (x) { return !x.locked; }); if (ED.sign) paintEditor(); } }).catch(function () { if (ED) ED.sessions = []; });
@@ -289,6 +291,7 @@
         + (pub ? '<button type="button" class="btn" id="edDraft" ' + dis + '>게시 내리기</button>' : '<button type="button" class="btn" id="edDraft" ' + dis + '>임시 보관</button>')
         + '<button type="button" class="btn btn--primary" id="edSave" ' + dis + '>' + (e.busy ? esc(e.busyText || "저장하는 중…") : pub ? "저장" : "게시하기") + '</button></div></header>'
       + '<div class="ed-body"><div class="ed-in">'
+        + pdfNote(e)
         + '<div class="ed-meta">'
           + '<label class="fld"><span>주제</span><input id="edTopic" list="edTopics" value="' + esc(e.topic) + '" placeholder="예: 장비 · 도구 관리" maxlength="30"></label>'
           + '<datalist id="edTopics">' + allTopics.map(function (t) { return '<option value="' + esc(t) + '">'; }).join("") + '</datalist>'
@@ -335,6 +338,16 @@
       window.shrinkPhoto(file).then(function (ph) { st.reading = false; st.nu = ph; st.u = ""; st.p = ""; if (ED === e) paintEditor(); })
         .catch(function () { st.reading = false; toast("사진을 열 수 없어요. 다른 사진으로 넣어 주세요."); if (ED === e) paintEditor(); });
     }; });
+  }
+  function pdfNote(e) {
+    var f = e.fromPdf; if (!f) return "";
+    return '<div class="ed-pdf" role="status"><b>' + (f.ai ? "PDF를 쉬운 말로 바꿔 만든 초안이에요" : "PDF에서 만든 초안이에요") + '</b>'
+      + '<span>' + esc(f.name) + ' · ' + f.pages + '쪽 → ' + f.used + '단계' + (f.cover ? " · 첫 쪽은 표지라 제목으로 썼어요" : "") + '</span>'
+      + '<p>' + (f.ai ? "장애 크루가 보기 쉽게 단계마다 짧은 문장으로 만들었어요. 내용이 자료와 맞는지, 사진이 단계와 맞는지 꼭 확인해 주세요."
+          : f.aiFailed ? "쉬운 말 자동 변환을 지금 쓸 수 없어서 쪽마다 첫 문장만 옮겼어요. <b>장애 크루가 알기 쉽게 짧고 쉬운 말</b>로 고쳐 주세요."
+          : "쪽마다 첫 문장만 옮겼어요. 장애 크루가 알기 쉽게 짧고 쉬운 말로 고쳐 주세요.")
+        + (f.textless ? " 이 PDF는 글을 읽을 수 없어서(그림으로 된 PDF) 설명을 직접 써 주세요." : "") + '</p>'
+      + '<p class="ed-pdf__tip">쉬운 문장 기준: 한 문장에 한 가지 행동 · 40자 안팎 · ‘~해요’ · 어려운 말은 쉬운 말로</p></div>';
   }
   function signHtml(e) {
     var linked = e.m.signSessionId, ss = e.sessions;
@@ -409,5 +422,7 @@
   addEventListener("beforeunload", function (ev) { if (ED && ED.busy) { ev.preventDefault(); ev.returnValue = ""; } });
 
   function showDrafts() { LIST.tab = "draft"; if (LIST.el && document.body.contains(LIST.el) && LIST.items && !LIST.opts.noTopics) paintList(); }
-  window.EduLib = { isDraft: isDraft, showDrafts: showDrafts, TOPICS: TOPICS, MAX_STEPS: MAX_STEPS, mountList: mountList, refreshList: refreshList, openReader: openReader, openEditor: openEditor };
+  // '+ 교육 자료 만들기': 직접 입력 / PDF 업로드 고르기 (js/pdfimport.js 가 없으면 바로 직접 입력)
+  function openCreate(opts) { if (window.EduPdfImport) window.EduPdfImport.open(opts); else openEditor(null, opts); }
+  window.EduLib = { openCreate: openCreate, isDraft: isDraft, showDrafts: showDrafts, TOPICS: TOPICS, MAX_STEPS: MAX_STEPS, mountList: mountList, refreshList: refreshList, openReader: openReader, openEditor: openEditor };
 })();

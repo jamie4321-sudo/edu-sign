@@ -240,6 +240,7 @@ function doPost(e) {
   if (data.type === "roster") return handleRoster_(action, data);
   if (data.type === "photo") return handlePhoto_(action, data);
   if (data.type === "pdf") return handlePdf_(action, data);
+  if (data.type === "ai") return handleAi_(action, data);
   return json_({ ok: false, error: "unknown type" });
 }
 
@@ -384,6 +385,60 @@ function handlePdf_(action, data) {
   var file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(m[1]), "application/pdf", name));
   file.setDescription(tag);
   return json_({ ok: true, url: file.getUrl(), folderUrl: folder.getUrl(), name: name });
+}
+
+/* ---------------- PDF → 쉬운 말 교육 단계 (Gemini) ----------------
+ * 사이트에서 PDF(또는 쪽별 글)를 보내면, 장애 크루가 보기 쉬운 말로 최대 9단계 교육 순서를 만들어 돌려준다.
+ * 키: Apps Script > 프로젝트 설정 > 스크립트 속성 GEMINI_API_KEY (aistudio.google.com/apikey)
+ * 키가 없거나 실패하면 사이트가 스스로 만든 초안을 쓴다.
+ */
+var AI_MODEL = "gemini-2.5-flash";
+function handleAi_(action, data) {
+  var key = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
+  if (!key) return json_({ ok: false, error: "no key" });
+  var max = Math.min(Number(data.maxSteps) || 9, 9);
+  var topics = (data.topics || []).join(", ");
+  var prompt = [
+    "너는 장애인 크루(발달장애·지적장애 크루 포함)에게 현장 업무를 가르치는 교육 담당자야.",
+    "첨부한 교육 자료(PDF)를 읽고, 크루가 휴대폰이나 큰 화면에서 한 단계씩 보며 따라 할 수 있는 교육 순서를 만들어.",
+    "",
+    "규칙:",
+    "- 단계는 " + max + "개 이하(10개 미만). 자료가 짧으면 더 적게. 꼭 필요한 순서만 남기고 비슷한 내용은 합쳐.",
+    "- 단계 설명(text)은 아주 쉬운 말로 1~2문장, 40자 안팎(최대 70자). 한 문장에 한 가지 행동만.",
+    "- '~해요' 존댓말. 어려운 한자어·외래어·전문 용어는 쉬운 말로 바꿔. 꼭 써야 하는 이름(장비 이름 등)은 그대로.",
+    "- 숫자·시간·횟수는 구체적으로(예: '물을 컵 1개만큼 줘요').",
+    "- 주의(warn)는 다치거나 망가질 수 있는 것만 짧게 한 문장(최대 40자). 없으면 빈 문자열.",
+    "- page 는 그 단계에 가장 잘 맞는 그림이 있는 PDF 쪽 번호(1부터). 표지 쪽은 고르지 마. 같은 쪽을 여러 번 써도 돼.",
+    "- title: 자료 제목(20자 이내, 쉬운 말). summary: 이 교육으로 무엇을 배우는지 한 문장(40자 이내).",
+    "- topic: 다음 중 가장 맞는 것 하나 — " + topics,
+    "- 자료에 없는 내용은 지어내지 마."
+  ].join("\n");
+  var parts = [{ text: prompt }];
+  if (data.pdf) parts.push({ inline_data: { mime_type: "application/pdf", data: String(data.pdf).replace(/^data:[^,]*,/, "") } });
+  if (data.pagesText) parts.push({ text: "쪽별 글(PDF에서 뽑은 것):\n" + String(data.pagesText).slice(0, 60000) });
+  var schema = {
+    type: "OBJECT",
+    properties: {
+      title: { type: "STRING" }, summary: { type: "STRING" }, topic: { type: "STRING" },
+      steps: { type: "ARRAY", items: { type: "OBJECT", properties: { page: { type: "INTEGER" }, text: { type: "STRING" }, warn: { type: "STRING" } }, required: ["page", "text", "warn"] } }
+    },
+    required: ["title", "summary", "topic", "steps"]
+  };
+  var body = { contents: [{ role: "user", parts: parts }],
+    generationConfig: { temperature: 0.3, responseMimeType: "application/json", responseSchema: schema } };
+  var url = "https://generativelanguage.googleapis.com/v1beta/models/" + AI_MODEL + ":generateContent?key=" + encodeURIComponent(key);
+  try {
+    var res = UrlFetchApp.fetch(url, { method: "post", contentType: "application/json", payload: JSON.stringify(body), muteHttpExceptions: true });
+    var code = res.getResponseCode();
+    if (code !== 200) return json_({ ok: false, error: "gemini " + code, detail: res.getContentText().slice(0, 300) });
+    var out = JSON.parse(res.getContentText());
+    var txt = out.candidates && out.candidates[0] && out.candidates[0].content && out.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("");
+    var r = JSON.parse(txt);
+    r.steps = (r.steps || []).slice(0, max);
+    return json_({ ok: true, result: r });
+  } catch (err) {
+    return json_({ ok: false, error: String(err && err.message || err) });
+  }
 }
 
 function json_(obj) {

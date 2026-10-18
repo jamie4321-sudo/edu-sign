@@ -246,7 +246,7 @@
     var opts = { admin: Auth.can("material:garden"), part: "garden", by: Admin.current(), limit: 6, noTopics: true };
     if (!opts.admin) document.getElementById("gNewMat").hidden = document.getElementById("gDraftBox").hidden = true;
     document.getElementById("gDraftBox").onclick = function () { EduLib.showDrafts(); location.hash = "#/garden/library"; };
-    document.getElementById("gNewMat").onclick = function () { EduLib.openEditor(null, opts); };
+    document.getElementById("gNewMat").onclick = function () { EduLib.openCreate(opts); };
     EduLib.mountList(document.getElementById("gMats"), opts).then(function (ms) {
       var sm = document.getElementById("gSummary"); if (!sm) return;
       var drafts = ms.filter(EduLib.isDraft).length; ms = ms.filter(function (x) { return !EduLib.isDraft(x); });
@@ -293,7 +293,7 @@
     var opts = { admin: Auth.can("material:garden"), part: "garden", by: Admin.current() };
     if (!opts.admin) document.getElementById("newMaterialBtn").hidden = document.getElementById("draftBoxBtn").hidden = true;
     document.getElementById("draftBoxBtn").onclick = function () { EduLib.showDrafts(); var l = document.getElementById("libList"); if (l) l.scrollIntoView({ behavior: "smooth", block: "start" }); };
-    document.getElementById("newMaterialBtn").onclick = function () { EduLib.openEditor(null, opts); };
+    document.getElementById("newMaterialBtn").onclick = function () { EduLib.openCreate(opts); };
     document.getElementById("copyLibBtn").onclick = function () {
       var input = document.getElementById("libUrlInput");
       (navigator.clipboard ? navigator.clipboard.writeText(input.value) : Promise.reject()).then(function () { toast("링크를 복사했습니다"); })
