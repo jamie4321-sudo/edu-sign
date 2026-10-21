@@ -32,10 +32,8 @@
   Promise.all([Store.listSessions(), Store.listAllRoster()]).then(function (res) {
     allSessions = res[0] || [];
     allRoster = res[1] || [];
-    var saved = "";
-    try { saved = localStorage.getItem(LOGIN_KEY) || ""; } catch (e) {}
-    if (saved && allRoster.some(function (r) { return r.name === saved; })) renderSessionSelect(saved);
-    else renderLogin();
+    // 저장된 이름으로 자동 로그인하지 않음 — 같은 기기를 여러 크루가 쓰므로 항상 이름 로그인부터
+    renderLogin();
   }).catch(function () {
     root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div><div class="sw-mark">' + MARK_SVG + '</div>'
       + '<h1 class="sw-title">불러오지 못했습니다</h1><p class="sw-sub">네트워크 상태를 확인하고 새로고침해주세요.</p>';
