@@ -1,6 +1,6 @@
 /* =========================================================
    EDU — 크루 이름 로그인 (교육 자료 보기 · library.html)
-   · 교육 서명(sign.html)과 같은 방식: 명단에 있는 내 이름을 골라 들어오고, 이 기기에 기억한다
+   · 교육 서명(sign.html)과 같은 방식: 명단에 있는 내 이름을 골라 들어온다 (자동 로그인 없음)
    · 같은 저장 열쇠(edusign-login-name)를 써서 서명 페이지와 로그인이 이어진다
    · 비밀번호는 없다 (장애 크루도 부담 없이) — 누가 봤는지 구분하기 위한 로그인
    ========================================================= */
@@ -49,19 +49,17 @@
 
   // 로그인 화면 → 이름이 정해지면 onIn(name)
   function gate(root, title, onIn) {
-    var saved = get();
     root.innerHTML = '<div class="cl"><p class="cl-wait">불러오는 중…</p></div>';
     names().then(function (list) {
       var deptOf = function (nm) { var x = list.filter(function (n) { return n.name === nm; })[0]; return x ? x.dept : ""; };
-      if (saved && list.some(function (n) { return n.name === saved; })) { onIn(saved, deptOf(saved)); return; }
-      if (saved) set("");
+      // 저장된 이름으로 자동 로그인하지 않음 — 같은 기기를 여러 크루가 쓰므로 항상 이름 고르기부터 (서명 페이지와 같음)
       var sel = "";
       root.innerHTML = '<div class="cl"><div class="cl-card">'
         + '<div class="cl-brand">SNACK<em>&amp;</em>GARDEN EDU</div>'
         + '<h1>' + esc(title) + '</h1><p class="cl-sub">내 이름으로 들어와요</p>'
         + '<button type="button" class="cl-pick is-empty" id="clPick">이름 고르기</button>'
         + '<button type="button" class="cl-go" id="clGo" disabled>들어가기</button>'
-        + '<p class="cl-note">한 번 들어오면 이 폰이 기억해요. 내 이름이 없으면 매니저에게 알려 주세요.</p></div></div>';
+        + '<p class="cl-note">내 이름이 없으면 매니저에게 알려 주세요.</p></div></div>';
       var pick = document.getElementById("clPick"), go = document.getElementById("clGo");
       pick.onclick = function () { pickSheet(list, sel, function (n) { sel = n; pick.textContent = n; pick.classList.remove("is-empty"); go.disabled = false; go.focus(); }); };
       go.onclick = function () { if (!sel) return; set(sel); onIn(sel, deptOf(sel)); };
