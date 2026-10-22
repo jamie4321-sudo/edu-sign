@@ -45,15 +45,7 @@
   function renderConsent(session, roster) {
     var doc = Consent.doc, cols = Consent.cols(session);
     document.title = doc.docTitle + " — 출력";
-    var body = '<div class="sheet consent">'
-      + '<h1 class="cs-title">' + esc(doc.docTitle) + '</h1>'
-      + '<p class="cs-intro">' + esc(doc.intro(Consent.event(session))) + '</p>'
-      + doc.sections.map(function (sec) {
-          return '<h2 class="cs-h">' + esc(sec.h) + '</h2><ul class="cs-list">' + sec.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ul>';
-        }).join("")
-      + '<h2 class="cs-h cs-h--confirm">' + esc(doc.confirmTitle) + '</h2>'
-      + '<p class="cs-confirm">' + esc(doc.confirm) + '</p>'
-      + '</div>';
+    var body = '<div class="sheet consent">' + Consent.docHtml(session) + '</div>';
     var head = '<tr><th>성명</th><th>' + esc(doc.sigLabel) + '</th>' + cols.map(function (c) {
       return '<th>' + esc(c.label) + (c.sub ? '<br>' + esc(c.sub) : "") + '</th>';
     }).join("") + '</tr>';

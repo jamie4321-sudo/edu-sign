@@ -158,21 +158,40 @@
   /* ---------------- 3단계: 인사 + 서명 ---------------- */
   function isConsent(session) { return !!(window.Consent && Consent.isConsent(session)); }
 
-  // 동의서: 쉬운 말 요약을 먼저, 원문 전체는 펼쳐 보기
+  // 동의서: '대략적인 내용'(쉬운 말)을 먼저 보여 주고, 원본 그대로의 동의서는 '실제 동의서 보기'로
   function consentDocHtml(session) {
     var d = Consent.doc;
     return '<div class="sw-card sw-consent">'
       + '<h3>' + esc(d.docTitle) + '</h3>'
       + '<p class="hint">' + esc(Consent.event(session)) + '</p>'
-      + '<ul class="sw-consent__easy">' + d.easy.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ul>'
-      + '<details class="sw-consent__full"><summary>동의서 전체 내용 보기</summary>'
-      + '<p>' + esc(d.intro(Consent.event(session))) + '</p>'
-      + d.sections.map(function (sec) {
-          return '<h4>' + esc(sec.h) + '</h4><ul>' + sec.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ul>';
-        }).join("")
-      + '</details>'
+      + '<p class="sw-consent__label">대략적인 내용</p>'
+      + '<dl class="sw-consent__easy">' + d.easy.map(function (x) { return '<div><dt>' + esc(x.k) + '</dt><dd>' + esc(x.t) + '</dd></div>'; }).join("") + '</dl>'
+      + '<button type="button" class="sw-btn sw-consent__open" id="openDocBtn">실제 동의서 보기</button>'
       + '<p class="sw-consent__confirm">' + esc(d.confirm) + '</p>'
       + '</div>';
+  }
+
+  // 원본 1쪽 그대로의 동의서 + 내가 서명할 줄(성명 · 촬영 동의 서명)을 종이처럼 보여 줌
+  function openConsentPaper(session, row) {
+    var d = Consent.doc;
+    var wrap = document.createElement("div");
+    wrap.className = "sw-doc";
+    wrap.setAttribute("role", "dialog"); wrap.setAttribute("aria-modal", "true"); wrap.setAttribute("aria-label", d.docTitle);
+    wrap.innerHTML = '<div class="sw-doc__bar"><b>실제 동의서</b><button type="button" class="sw-doc__x" aria-label="닫기">닫기</button></div>'
+      + '<div class="sw-doc__scroll"><div class="sw-paper">' + Consent.docHtml(session)
+      + '<table class="sw-paper__row"><thead><tr><th>성명</th><th>' + esc(d.sigLabel) + '</th></tr></thead>'
+      + '<tbody><tr><td>' + esc(Consent.printName(row)) + '</td><td>' + (row.signature ? '<img src="' + row.signature + '" alt="내 서명" />' : '<span>여기에 내 서명이 들어가요</span>') + '</td></tr></tbody></table>'
+      + '</div></div>'
+      + '<div class="sw-doc__foot"><button type="button" class="sw-btn sw-btn--primary" id="docDoneBtn">다 읽었어요</button></div>';
+    document.body.appendChild(wrap);
+    document.body.style.overflow = "hidden";
+    function close() { wrap.remove(); document.body.style.overflow = ""; }
+    wrap.querySelector(".sw-doc__x").addEventListener("click", close);
+    wrap.querySelector("#docDoneBtn").addEventListener("click", function () {
+      close();
+      var pad = document.getElementById("sigPad");
+      if (pad) pad.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
   }
 
   function renderGreet(session, row, name) {
@@ -183,6 +202,8 @@
       + '<div id="signArea"></div>';
 
     document.getElementById("backBtn").addEventListener("click", function () { renderSessionSelect(name); });
+    var openDoc = document.getElementById("openDocBtn");
+    if (openDoc) openDoc.addEventListener("click", function () { openConsentPaper(session, rosterRowFor(session.id, name) || row); });
 
     if (row.signature) renderDoneCard(session, row, name);
     else if (session.locked) renderLockedCard();

@@ -28,11 +28,12 @@ window.Consent = (function () {
         "귀하는 본 초상권 수집·이용 동의를 거부할 권리가 있습니다.",
         "다만, 동의를 거부하실 경우 단체 촬영 시 제외되거나, 콘텐츠 제작 시 모자이크 처리될 수 있습니다."] }
     ],
-    // 크루 화면용 쉬운 말 요약 (장애 크루가 먼저 읽는 부분)
+    // 크루 화면용 '대략적인 내용' — 쉬운 말 (장애 크루가 먼저 읽는 부분)
     easy: [
-      "행사 날 사진과 영상을 찍어요.",
-      "사진·영상은 회사 소식, 인스타그램, 유튜브, 뉴스에 나올 수 있어요.",
-      "싫으면 동의하지 않아도 괜찮아요. 그러면 사진에서 빠지거나 얼굴을 가려요."
+      { k: "무엇을", t: "훈련 날과 대회 날에 사진과 영상을 찍어요." },
+      { k: "무엇이 나와요", t: "내 얼굴, 목소리, 모습이 나올 수 있어요." },
+      { k: "어디에 써요", t: "아지트 글, 인스타그램, 유튜브, 뉴스, 행사 보고서에 써요." },
+      { k: "싫으면", t: "동의하지 않아도 괜찮아요. 단체 사진에서 빠지거나, 얼굴을 가려요(모자이크)." }
     ],
     confirmTitle: "[동의 여부 확인]",
     confirm: "본인은 위 내용을 숙지하였으며, 개인정보 및 초상권 수집·이용에 동의합니다.",
@@ -43,6 +44,20 @@ window.Consent = (function () {
     ],
     defaultEvent: "오티즘 레이스 in 판교"
   };
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  // 동의서 본문(원본 1쪽) — 출력(print.html)과 크루 '실제 동의서 보기'가 같이 씀
+  function docHtml(session) {
+    var d = PORTRAIT;
+    return '<h1 class="cs-title">' + esc(d.docTitle) + '</h1>'
+      + '<p class="cs-intro">' + esc(d.intro(event(session))) + '</p>'
+      + d.sections.map(function (sec) {
+          return '<h2 class="cs-h">' + esc(sec.h) + '</h2><ul class="cs-list">' + sec.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ul>';
+        }).join("")
+      + '<h2 class="cs-h cs-h--confirm">' + esc(d.confirmTitle) + '</h2>'
+      + '<p class="cs-confirm">' + esc(d.confirm) + '</p>';
+  }
 
   function isConsent(session) {
     return !!session && (session.category === CATEGORY || (session.meta && session.meta.kind === "consent"));
@@ -64,5 +79,5 @@ window.Consent = (function () {
   var MARKS = ["", "O", "X", "-"];
   function nextMark(v) { return MARKS[(MARKS.indexOf(v || "") + 1) % MARKS.length]; }
 
-  return { CATEGORY: CATEGORY, doc: PORTRAIT, isConsent: isConsent, event: event, cols: cols, nick: nick, printName: printName, nextMark: nextMark };
+  return { CATEGORY: CATEGORY, doc: PORTRAIT, docHtml: docHtml, isConsent: isConsent, event: event, cols: cols, nick: nick, printName: printName, nextMark: nextMark };
 })();

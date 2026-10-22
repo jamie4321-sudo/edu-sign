@@ -12,9 +12,9 @@
      이 파일과 Code.gs 를 함께 교체하고 GAS 를 새 버전으로 재배포하세요.
    ========================================================= */
 window.CONFIG = {
-  // 관리자 화면 "서명 링크 복사"에 쓰는 공유용 고정 주소. 비우면 지금 접속한 주소 기준으로 만듦
-  // (배포 주소가 바뀌어도 그대로 따라가도록 비워 둠 — 깃허브 아이디가 들어간 주소를 박지 않기)
-  signUrl: "",
+  // 관리자 화면 "서명 링크 복사" · QR 에 쓰는 공유용 고정 주소 = Cloudflare Pages
+  // (예전 github.io 로 열어도 깃허브 아이디가 들어간 주소가 공유되지 않게 고정. 비우면 지금 접속한 주소 기준)
+  signUrl: "https://linkagelab-edu.pages.dev/sign",
 
   endpoint: "https://script.google.com/macros/s/AKfycbwEcs-RxDHQsGi8BJOySZql1wZ7IyJgA242JacDYfWNQTtPnKA1DXy9B-8e-SYICVrE/exec",
   apiKey: "sg-edusign-ydAMyHruYjli1O7kQgRgCZMcBboEC",
