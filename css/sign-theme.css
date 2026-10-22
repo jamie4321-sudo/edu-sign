@@ -142,3 +142,14 @@ button, select, input { font-family: inherit; }
 .sw-session-card__badge { font-size: 12px; font-weight: 800; white-space: nowrap; padding: 6px 12px; border-radius: 999px; }
 .sw-session-card__badge.is-done { color: var(--sw-green); background: rgba(22,163,74,.10); }
 .sw-session-card__badge.is-todo { color: var(--sw-accent-ink); background: var(--sw-accent); }
+
+/* ---- 동의서 (촬영·초상권 등) ---- */
+.sw-consent h3 { font-size: 18px; }
+.sw-consent__easy { margin: 14px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.sw-consent__easy li { background: var(--sw-card-2); border-radius: 14px; padding: 13px 15px; font-size: 16px; font-weight: 700; line-height: 1.45; color: var(--sw-ink); }
+.sw-consent__full { margin-top: 14px; border-top: 1px solid var(--sw-line); padding-top: 12px; }
+.sw-consent__full summary { font-size: 14px; font-weight: 700; color: var(--sw-ink-2); cursor: pointer; }
+.sw-consent__full p, .sw-consent__full li { font-size: 14px; color: var(--sw-ink-2); line-height: 1.6; }
+.sw-consent__full h4 { margin: 14px 0 4px; font-size: 14px; font-weight: 800; color: var(--sw-ink); }
+.sw-consent__full ul { margin: 0; padding-left: 18px; }
+.sw-consent__confirm { margin: 14px 0 0; font-size: 14px; font-weight: 700; color: var(--sw-ink); line-height: 1.5; }

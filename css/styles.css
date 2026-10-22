@@ -499,3 +499,9 @@ html:not([data-can-sign]) label:has(#photoInput) { display: none !important; }
 .plb-prev { left: 12px; } .plb-next { right: 12px; }
 .plb-x:hover, .plb-nav:hover { background: rgba(255,255,255,.26); }
 @media (max-width: 720px) { .ph-th__img { width: 96px; height: 96px; } .plb-nav { width: 40px; height: 52px; font-size: 28px; } }
+
+/* ---- 동의서: 출력용 실명 · O/X 확인 칸 ---- */
+.cs-mark { min-width: 40px; height: 32px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--ink); font: inherit; font-weight: 800; font-size: 14px; cursor: pointer; }
+.cs-mark.is-empty { color: var(--ink-3); font-weight: 400; }
+.cs-mark:disabled { cursor: default; opacity: .6; }
+.board__table td b, .board__table td:nth-child(2) { white-space: nowrap; }

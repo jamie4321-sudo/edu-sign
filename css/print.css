@@ -42,3 +42,22 @@ td.c-sig img { display: block; margin: 0 auto; max-height: 6.5mm; max-width: 85%
   .print-toolbar { display: none; }
   .sheet { padding: 12mm 14mm; }
 }
+
+/* ---- 동의서 (촬영 및 초상권 활용 동의서 — 원본 hwpx 서식) ---- */
+.sheet.consent { padding: 25mm 20mm 20mm; font-family: "Malgun Gothic", "Pretendard", sans-serif; }
+.cs-title { text-align: center; font-size: 26px; font-weight: 800; margin: 6mm 0 12mm; letter-spacing: 1px; }
+.cs-intro { font-size: 13px; line-height: 1.7; margin: 0 0 9mm; text-align: justify; }
+.cs-h { font-size: 15px; font-weight: 700; margin: 0 0 4mm; }
+.cs-list { margin: 0 0 11mm; padding-left: 11mm; font-size: 13px; font-weight: 700; line-height: 1.75; }
+.cs-list li::marker { font-weight: 400; }
+.cs-h--confirm { margin-top: 26mm; }
+.cs-confirm { font-size: 13px; font-weight: 700; margin: 0; }
+
+table.cs-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+table.cs-table th, table.cs-table td { width: 25%; border: 1px solid #222; text-align: center; vertical-align: middle; height: 10.7mm; padding: 0 1mm; font-size: 12.5px; }
+table.cs-table th { font-weight: 700; line-height: 1.35; }
+table.cs-table td.c-sig { padding: 0.8mm 0; }
+table.cs-table td.c-sig img { display: block; margin: 0 auto; max-height: 8.6mm; max-width: 90%; }
+@media print { .sheet.consent { padding: 20mm 20mm 16mm; } }
+table.cs-table { font-family: "Batang", "바탕", "Noto Serif KR", serif; }
+table.cs-table td.c-name { text-align: left; padding-left: 2mm; }

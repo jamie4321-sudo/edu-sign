@@ -18,7 +18,7 @@
     return added + "명을 추가했습니다" + (skipped ? " · 이미 등록된 " + skipped + "명 제외" : "");
   }
 
-  var CATEGORIES = ["정기 교육", "산업안전보건교육", "장애인 인식개선교육", "성희롱 예방교육", "개인정보보호교육", "퇴직연금교육", "기타"];
+  var CATEGORIES = ["정기 교육", "산업안전보건교육", "장애인 인식개선교육", "성희롱 예방교육", "개인정보보호교육", "퇴직연금교육", Consent.CATEGORY, "기타"];
 
   var shrinkPhoto = window.shrinkPhoto;   // js/photo.js
 
@@ -433,18 +433,19 @@
       var s = d.session, roster = d.roster || [];
       var signed = roster.filter(function (r) { return !!r.signature; }).length;
       var url = signUrl();
+      var consent = Consent.isConsent(s), cCols = consent ? Consent.cols(s) : [];
 
       view.innerHTML = '<div class="wrap">'
         + '<div class="detail-head"><a class="back-link" href="' + SIGN + '">← 교육 서명 관리</a></div>'
         + '<div class="page-head">'
         + '<div><p class="eyebrow">' + esc(s.date || "") + ' · ' + (s.locked ? "마감" : "진행중") + '</p>'
-        + '<h2>' + esc(s.title || s.category || "제목 없음") + '</h2>'
-        + '<p class="sub">' + esc(s.category || "") + '</p></div>'
+        + '<h2>' + esc(consent ? Consent.doc.docTitle : (s.title || s.category || "제목 없음")) + '</h2>'
+        + '<p class="sub">' + esc(consent ? Consent.event(s) : (s.category || "")) + '</p></div>'
         + '<div class="row-actions" style="gap:8px">'
         + '<button class="btn btn--sm" id="editSessionBtn">세션 수정</button>'
         + '<button class="btn btn--sm" id="toggleLockBtn">' + (s.locked ? "마감 해제" : "서명 마감") + '</button>'
         + '<button class="btn btn--sm" id="excelBtn">⬇ 엑셀</button>'
-        + '<button class="btn btn--sm btn--primary" id="printBtn">출력(PDF)</button>'
+        + '<button class="btn btn--sm btn--primary" id="printBtn">' + (consent ? "동의서 PDF" : "출력(PDF)") + '</button>'
         + (Admin.isAuthed() ? '<button class="btn btn--sm btn--danger" id="deleteSessionBtn">세션 삭제</button>' : "")
         + '</div></div>'
 
@@ -462,14 +463,16 @@
           + '</div>'
 
         + '<div class="board"><div class="board__head">'
-        + '<h3 class="board__title">참석자 명단 <span class="chip-mono">' + roster.length + '명</span></h3>'
+        + '<h3 class="board__title">' + (consent ? "서명 대상자" : "참석자 명단") + ' <span class="chip-mono">' + roster.length + '명</span></h3>'
         + (s.locked ? "" : '<button class="btn btn--sm btn--primary" id="addRosterBtn">+ 명단 등록</button>')
         + '</div>'
         + '<div class="board__scroll"><table class="board__table"><thead><tr>'
-        + '<th>연번</th><th>부서</th><th>성명</th><th>서명</th><th>서명시각</th>' + (s.locked ? "" : '<th></th>')
+        + '<th>연번</th><th>부서</th><th>성명</th><th>서명</th>'
+        + cCols.map(function (c) { return '<th title="' + esc(c.sub || "") + '">' + esc(c.label) + '</th>'; }).join("")
+        + '<th>서명시각</th>' + (s.locked ? "" : '<th></th>')
         + '</tr></thead><tbody>'
-        + (roster.length ? roster.map(function (r, i) { return rosterRow(s.locked, r, i + 1); }).join("")
-            : '<tr><td colspan="6" class="board__empty">등록된 명단이 없습니다. <b>+ 명단 등록</b>으로 참석 예정자를 추가하세요.</td></tr>')
+        + (roster.length ? roster.map(function (r, i) { return rosterRow(s.locked, r, i + 1, cCols); }).join("")
+            : '<tr><td colspan="' + (6 + cCols.length) + '" class="board__empty">등록된 명단이 없습니다. <b>+ 명단 등록</b>으로 참석 예정자를 추가하세요.</td></tr>')
         + '</tbody></table></div></div>'
 
         + '<div class="board" style="margin-top:16px">'
@@ -486,9 +489,11 @@
       document.getElementById("printBtn").addEventListener("click", function () { window.open("print.html?id=" + encodeURIComponent(s.id), "_blank"); });
       document.getElementById("excelBtn").addEventListener("click", function () {
         var rows = roster.map(function (r, i) {
-          return { 연번: i + 1, 부서: r.dept || "", 성명: r.name || "", 서명여부: sigStatus_(r), 서명시각: fmtDateTime(r.signedAt) };
+          var o = { 연번: i + 1, 부서: r.dept || "", 성명: consent ? Consent.printName(r) : (r.name || ""), 서명여부: sigStatus_(r), 서명시각: fmtDateTime(r.signedAt) };
+          cCols.forEach(function (c) { o[c.label] = (r.extra || {})[c.key] || ""; });
+          return o;
         });
-        var cols = [{ wch: 6 }, { wch: 10 }, { wch: 12 }, { wch: 9 }, { wch: 18 }];
+        var cols = [{ wch: 6 }, { wch: 10 }, { wch: consent ? 20 : 12 }, { wch: 9 }, { wch: 18 }].concat(cCols.map(function () { return { wch: 14 }; }));
         var fname = safeFileName_((s.date || "") + "_" + (s.title || s.category || "교육") + "_출석부") + ".xlsx";
         exportXlsx_(fname, "출석부", rows, cols);
       });
@@ -517,6 +522,22 @@
         input.select();
         navigator.clipboard && navigator.clipboard.writeText(input.value).then(function () { toast("링크를 복사했습니다"); }).catch(function () { document.execCommand("copy"); toast("링크를 복사했습니다"); });
       });
+      // 동의서: O/X 확인 칸 (roster.extra — supabase/consent.sql 실행 필요)
+      function saveExtra(r, patch, done) {
+        var next = Object.assign({}, r.extra || {}, patch);
+        Store.updateRosterExtra(r.id, next).then(function () { r.extra = next; done && done(true); })
+          .catch(function (e) { console.warn(e); toast("저장하지 못했어요 — supabase/consent.sql 을 먼저 실행해 주세요"); done && done(false); });
+      }
+      view.querySelectorAll("[data-mark]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var r = roster.find(function (x) { return x.id === btn.dataset.row; });
+          var v = Consent.nextMark((r.extra || {})[btn.dataset.mark]), patch = {};
+          patch[btn.dataset.mark] = v;
+          btn.disabled = true;
+          saveExtra(r, patch, function (ok) { btn.disabled = false; if (ok) { btn.textContent = v || "·"; btn.classList.toggle("is-empty", !v); } });
+        });
+      });
+
       var addBtn = document.getElementById("addRosterBtn");
       if (addBtn) addBtn.addEventListener("click", function () { openRosterModal(s.id, roster); });
 
@@ -608,15 +629,20 @@
     });
   }
 
-  function rosterRow(locked, r, displayNo) {
+  function rosterRow(locked, r, displayNo, cCols) {
     var sig = r.signature
       ? '<img class="sig-thumb" src="' + r.signature + '" alt="서명" />'
       : '<span class="sig-empty">미서명</span>';
+    var x = r.extra || {};
     return '<tr>'
       + '<td class="seq-cell mono">' + esc(displayNo) + '</td>'
       + '<td>' + esc(r.dept) + '</td>'
       + '<td><b>' + esc(r.name) + '</b></td>'
       + '<td>' + sig + '</td>'
+      + (cCols || []).map(function (c) {
+          var v = x[c.key] || "";
+          return '<td><button type="button" class="cs-mark' + (v ? "" : " is-empty") + '" data-mark="' + esc(c.key) + '" data-row="' + esc(r.id) + '" title="눌러서 O → X → - → 비움"' + (locked ? " disabled" : "") + '>' + esc(v || "·") + '</button></td>';
+        }).join("")
       + '<td class="mono" style="color:var(--ink-3);font-size:12px">' + fmtDateTime(r.signedAt) + '</td>'
       + (locked ? "" : '<td><div class="row-actions">'
           + '<button class="icon-btn" data-edit-roster="' + esc(r.id) + '" title="수정">✎</button>'

@@ -76,7 +76,7 @@
 
     root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
       + '<div class="sw-mark">' + MARK_SVG + '</div>'
-      + '<h1 class="sw-title">교육 서명</h1>'
+      + '<h1 class="sw-title">서명</h1>'
       + '<p class="sw-sub">이름으로 로그인해주세요</p>'
       + '<p class="sw-fld-label">이름을 선택하세요</p>'
       + '<div class="sw-select-wrap"><button type="button" class="sw-select is-placeholder" id="nameTrigger">이름 선택</button></div>'
@@ -121,21 +121,22 @@
 
     root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
       + '<p class="sw-hello"><b>' + esc(name) + '</b>님, 안녕하세요!</p>'
-      + '<h1 class="sw-title" style="font-size:20px;margin-bottom:2px">서명할 교육을 선택하세요</h1>'
+      + '<h1 class="sw-title" style="font-size:20px;margin-bottom:2px">서명할 것을 선택하세요</h1>'
       + '<div class="sw-session-list" id="sessionList"></div>'
       + '<div class="sw-login-foot"><button id="logoutBtn">다른 사람으로 로그인</button></div>';
 
     var list = document.getElementById("sessionList");
     if (!sessions.length) {
-      list.innerHTML = '<div class="sw-empty">지금 서명할 수 있는 교육이 없어요.<br>담당자에게 문의해주세요.</div>';
+      list.innerHTML = '<div class="sw-empty">지금 서명할 것이 없어요.<br>담당자에게 문의해주세요.</div>';
     } else {
       list.innerHTML = sessions.map(function (s) {
         var row = rosterRowFor(s.id, name);
         var done = !!(row && row.signature);
+        var consent = isConsent(s);   // 동의서는 교육이 아니라 '촬영 및 초상권 활용 동의서' 로 보이게
         return '<div class="sw-session-card" data-id="' + esc(s.id) + '">'
           + '<div><div class="sw-session-card__date">' + esc(s.date || "") + '</div>'
-          + '<div class="sw-session-card__title">' + esc(s.title || s.category || "교육") + '</div>'
-          + '<div class="sw-session-card__cat">' + esc(s.category || "") + '</div></div>'
+          + '<div class="sw-session-card__title">' + esc(consent ? Consent.doc.docTitle : (s.title || s.category || "교육")) + '</div>'
+          + '<div class="sw-session-card__cat">' + esc(consent ? Consent.event(s) : (s.category || "")) + '</div></div>'
           + '<span class="sw-session-card__badge ' + (done ? "is-done" : "is-todo") + '">' + (done ? "서명완료" : "서명하기") + '</span>'
           + '</div>';
       }).join("");
@@ -155,9 +156,30 @@
   }
 
   /* ---------------- 3단계: 인사 + 서명 ---------------- */
+  function isConsent(session) { return !!(window.Consent && Consent.isConsent(session)); }
+
+  // 동의서: 쉬운 말 요약을 먼저, 원문 전체는 펼쳐 보기
+  function consentDocHtml(session) {
+    var d = Consent.doc;
+    return '<div class="sw-card sw-consent">'
+      + '<h3>' + esc(d.docTitle) + '</h3>'
+      + '<p class="hint">' + esc(Consent.event(session)) + '</p>'
+      + '<ul class="sw-consent__easy">' + d.easy.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ul>'
+      + '<details class="sw-consent__full"><summary>동의서 전체 내용 보기</summary>'
+      + '<p>' + esc(d.intro(Consent.event(session))) + '</p>'
+      + d.sections.map(function (sec) {
+          return '<h4>' + esc(sec.h) + '</h4><ul>' + sec.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ul>';
+        }).join("")
+      + '</details>'
+      + '<p class="sw-consent__confirm">' + esc(d.confirm) + '</p>'
+      + '</div>';
+  }
+
   function renderGreet(session, row, name) {
-    root.innerHTML = '<span class="sw-back" id="backBtn">← 다른 교육 선택</span>'
-      + '<div class="sw-greet"><h1>' + esc(row.name) + '님, 안녕하세요!</h1><p>' + esc(session.date || "") + ' · ' + esc(session.category || "") + '</p></div>'
+    var consent = isConsent(session);
+    root.innerHTML = '<span class="sw-back" id="backBtn">← 다른 서명 선택</span>'
+      + '<div class="sw-greet"><h1>' + esc(row.name) + '님, 안녕하세요!</h1><p>' + (consent ? esc(Consent.doc.docTitle) : esc(session.date || "") + ' · ' + esc(session.category || "")) + '</p></div>'
+      + (consent ? consentDocHtml(session) : "")
       + '<div id="signArea"></div>';
 
     document.getElementById("backBtn").addEventListener("click", function () { renderSessionSelect(name); });
@@ -168,12 +190,12 @@
   }
 
   function renderLockedCard() {
-    document.getElementById("signArea").innerHTML = '<div class="sw-card"><h3>서명이 마감되었습니다</h3><p class="hint">이 교육 세션은 더 이상 서명을 받지 않습니다. 담당자에게 문의해주세요.</p></div>';
+    document.getElementById("signArea").innerHTML = '<div class="sw-card"><h3>서명이 마감되었습니다</h3><p class="hint">이 서명은 더 이상 서명을 받지 않습니다. 담당자에게 문의해주세요.</p></div>';
   }
 
   function renderDoneCard(session, row, name) {
     document.getElementById("signArea").innerHTML = '<div class="sw-card">'
-      + '<div class="sw-done-badge"><span class="ok">✓</span><div><h3>서명 완료</h3><p class="hint">' + esc(fmtDateTime(row.signedAt)) + '에 서명했어요</p></div></div>'
+      + '<div class="sw-done-badge"><span class="ok">✓</span><div><h3>' + (isConsent(session) ? "동의 서명 완료" : "서명 완료") + '</h3><p class="hint">' + esc(fmtDateTime(row.signedAt)) + '에 서명했어요</p></div></div>'
       + '<div class="sw-done-img"><img src="' + row.signature + '" alt="서명" /></div>'
       + '</div>'
       + (session.locked ? "" : '<button class="sw-btn sw-btn--ghost" id="resignBtn">다시 서명하기</button>');
@@ -185,12 +207,22 @@
   }
 
   function renderSignCard(session, row, name) {
+    var consent = isConsent(session);
     document.getElementById("signArea").innerHTML = '<div class="sw-card">'
-      + '<h3>여기에 서명해주세요</h3><p class="hint">손가락으로 이름을 적어주세요</p>'
+      + '<h3>' + (consent ? "동의하면 여기에 서명해주세요" : "여기에 서명해주세요") + '</h3><p class="hint">손가락으로 이름을 적어주세요</p>'
       + '<canvas class="sw-sigpad" id="sigPad"></canvas>'
       + '<div class="sw-sig-actions"><button type="button" id="sigClear">다시 쓰기</button></div>'
       + '</div>'
-      + '<button class="sw-btn sw-btn--primary" id="sigSave">서명 완료</button>';
+      + '<button class="sw-btn sw-btn--primary" id="sigSave">' + (consent ? "동의하고 서명 완료" : "서명 완료") + '</button>'
+      + (consent ? '<button class="sw-btn sw-btn--ghost" id="noConsentBtn">동의하지 않아요</button>' : "");
+
+    var noBtn = document.getElementById("noConsentBtn");
+    if (noBtn) noBtn.addEventListener("click", function () {
+      document.getElementById("signArea").innerHTML = '<div class="sw-card"><h3>괜찮아요</h3>'
+        + '<p class="hint">서명하지 않으면 동의하지 않은 것으로 해요.<br>담당자에게 "동의하지 않아요"라고 말해 주세요.</p></div>'
+        + '<button class="sw-btn sw-btn--ghost" id="reConsentBtn">다시 생각해 볼게요 (서명하러 가기)</button>';
+      document.getElementById("reConsentBtn").addEventListener("click", function () { renderSignCard(session, row, name); });
+    });
 
     var canvas = document.getElementById("sigPad");
     var ctx = canvas.getContext("2d");

@@ -65,13 +65,13 @@ window.Store = (function () {
   function mapSession(r) {
     if (!r) return r;
     return { id: r.id, date: r.date || "", category: r.category || "", title: r.title || "",
-      locked: !!r.locked, createdAt: r.created_at || "",
+      locked: !!r.locked, createdAt: r.created_at || "", meta: r.meta || {},
       total: (r.total != null ? Number(r.total) : undefined),
       signed: (r.signed != null ? Number(r.signed) : undefined) };
   }
   function mapRoster(r) {
     return { id: r.id, sessionId: r.session_id, seq: r.seq, dept: r.dept || "",
-      name: r.name || "", signature: r.signature || "", signedAt: r.signed_at || "" };
+      name: r.name || "", signature: r.signature || "", signedAt: r.signed_at || "", extra: r.extra || {} };
   }
   function mapMaterial(r) {
     return { id: r.id, part: r.part || "garden", topic: r.topic || "", title: r.title || "", summary: r.summary || "",
@@ -238,6 +238,14 @@ window.Store = (function () {
       if (SUPA) return sb().from("roster").update({ signature: signature, signed_at: new Date().toISOString() }).eq("id", id).then(must).then(function () { return { ok: true }; });
       if (LIVE) return api({ type: "roster", action: "sign", id: id, signature: signature });
       DB = load(); var r = DB.roster.find(function (x) { return x.id === id; }); if (r) { r.signature = signature; r.signedAt = new Date().toISOString(); } persist(DB);
+      return Promise.resolve({ ok: true });
+    },
+
+    /* ---------- 명단 추가 정보(동의서: 실명 · O/X 확인 칸) — roster.extra, supabase/consent.sql ---------- */
+    updateRosterExtra: function (id, extra) {
+      if (SUPA) return sb().from("roster").update({ extra: extra || {} }).eq("id", id).then(must).then(function () { return { ok: true }; });
+      if (LIVE) return Promise.reject(new Error("구글시트 모드는 동의서 확인 칸을 지원하지 않습니다"));
+      DB = load(); var r = DB.roster.find(function (x) { return x.id === id; }); if (r) r.extra = extra || {}; persist(DB);
       return Promise.resolve({ ok: true });
     },
 

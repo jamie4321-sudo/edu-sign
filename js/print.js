@@ -12,7 +12,8 @@
 
   Store.getSession(id).then(function (d) {
     if (!d || !d.session) { document.getElementById("sheets").innerHTML = '<div style="padding:40px;text-align:center;color:#888">세션을 찾을 수 없습니다</div>'; return; }
-    render(d.session, d.roster || []);
+    if (window.Consent && Consent.isConsent(d.session)) renderConsent(d.session, d.roster || []);
+    else render(d.session, d.roster || []);
   });
 
   function chunk(arr, size) {
@@ -38,6 +39,36 @@
         + "</tr>";
     }
     return rows;
+  }
+
+  /* 동의서: 1쪽 본문 + 다음 쪽부터 성명/서명/확인 칸 표 (원본 hwpx: 4칸 균등, 한 쪽 21명) */
+  function renderConsent(session, roster) {
+    var doc = Consent.doc, cols = Consent.cols(session);
+    document.title = doc.docTitle + " — 출력";
+    var body = '<div class="sheet consent">'
+      + '<h1 class="cs-title">' + esc(doc.docTitle) + '</h1>'
+      + '<p class="cs-intro">' + esc(doc.intro(Consent.event(session))) + '</p>'
+      + doc.sections.map(function (sec) {
+          return '<h2 class="cs-h">' + esc(sec.h) + '</h2><ul class="cs-list">' + sec.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ul>';
+        }).join("")
+      + '<h2 class="cs-h cs-h--confirm">' + esc(doc.confirmTitle) + '</h2>'
+      + '<p class="cs-confirm">' + esc(doc.confirm) + '</p>'
+      + '</div>';
+    var head = '<tr><th>성명</th><th>' + esc(doc.sigLabel) + '</th>' + cols.map(function (c) {
+      return '<th>' + esc(c.label) + (c.sub ? '<br>' + esc(c.sub) : "") + '</th>';
+    }).join("") + '</tr>';
+    var pages = chunk(roster, 21);
+    if (!pages.length) pages = [[]];
+    var tables = pages.map(function (page) {
+      var rows = page.map(function (r) {
+        var x = r.extra || {};
+        return '<tr><td class="c-name">' + esc(Consent.printName(r)) + '</td>'
+          + '<td class="c-sig">' + (r.signature ? '<img src="' + r.signature + '" alt="서명" />' : "") + '</td>'
+          + cols.map(function (c) { return '<td>' + esc(x[c.key] || "") + '</td>'; }).join("") + '</tr>';
+      }).join("");
+      return '<div class="sheet consent"><table class="cs-table"><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>';
+    }).join("");
+    document.getElementById("sheets").innerHTML = body + tables;
   }
 
   function render(session, roster) {
