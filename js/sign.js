@@ -184,7 +184,7 @@
   /* ---------------- 3단계: 인사 + 서명 ---------------- */
   function isConsent(session) { return !!(window.Consent && Consent.isConsent(session)); }
 
-  // 동의서: '대략적인 내용'(쉬운 말)을 먼저 보여 주고, 원본 그대로의 동의서는 '실제 동의서 보기'로
+  // 동의서: '대략적인 내용'(쉬운 말)을 먼저 보여 주고, 원본 그대로의 동의서는 '동의서 크게 보기'로
   function consentDocHtml(session) {
     var d = Consent.doc;
     return '<div class="sw-card sw-consent">'
@@ -192,7 +192,7 @@
       + '<p class="hint">' + esc(Consent.event(session)) + '</p>'
       + '<p class="sw-consent__label">대략적인 내용</p>'
       + '<dl class="sw-consent__easy">' + d.easy.map(function (x) { return '<div><dt>' + esc(x.k) + '</dt><dd>' + esc(x.t) + '</dd></div>'; }).join("") + '</dl>'
-      + '<button type="button" class="sw-btn sw-consent__open" id="openDocBtn">실제 동의서 보기</button>'
+      + '<button type="button" class="sw-btn sw-consent__open" id="openDocBtn">동의서 크게 보기</button>'
       + '<p class="sw-consent__confirm">' + esc(d.confirm) + '</p>'
       + '</div>';
   }
@@ -203,7 +203,7 @@
     var wrap = document.createElement("div");
     wrap.className = "sw-doc";
     wrap.setAttribute("role", "dialog"); wrap.setAttribute("aria-modal", "true"); wrap.setAttribute("aria-label", d.docTitle);
-    wrap.innerHTML = '<div class="sw-doc__bar"><b>실제 동의서</b><button type="button" class="sw-doc__x" aria-label="닫기">닫기</button></div>'
+    wrap.innerHTML = '<div class="sw-doc__bar"><b>동의서 크게 보기</b><button type="button" class="sw-doc__x" aria-label="닫기">닫기</button></div>'
       + '<div class="sw-doc__scroll"><div class="sw-paper">' + Consent.docHtml(session)
       + '<table class="sw-paper__row"><thead><tr><th>성명</th><th>' + esc(d.sigLabel) + '</th></tr></thead>'
       + '<tbody><tr><td>' + esc(Consent.printName(row)) + '</td><td>' + (row.signature ? '<img src="' + row.signature + '" alt="내 서명" />' : '<span>여기에 내 서명이 들어가요</span>') + '</td></tr></tbody></table>'

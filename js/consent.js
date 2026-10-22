@@ -48,7 +48,7 @@ window.Consent = (function () {
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
-  // 동의서 본문(원본 1쪽) — 출력(print.html)과 크루 '실제 동의서 보기'가 같이 씀
+  // 동의서 본문(원본 1쪽) — 출력(print.html)과 크루 '동의서 크게 보기'가 같이 씀
   function docHtml(session) {
     var d = PORTRAIT;
     return '<h1 class="cs-title">' + esc(d.docTitle) + '</h1>'
