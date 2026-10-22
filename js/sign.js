@@ -21,6 +21,10 @@
 
   var root = document.getElementById("sw");
   var allSessions = [], allRoster = [];
+  // ?s=<세션id> → 그 서명 전용 링크 (동의서 등): 그 명단 이름만 보이고, 로그인하면 바로 서명 화면
+  // 공용 링크(파라미터 없음)에는 동의서 세션과 그 명단을 보이지 않음 — 동의서는 전용 링크로만
+  var ONLY = new URLSearchParams(location.search).get("s") || "";
+  var onlySession = null;
 
   function loadingView() {
     root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
@@ -32,6 +36,20 @@
   Promise.all([Store.listSessions(), Store.listAllRoster()]).then(function (res) {
     allSessions = res[0] || [];
     allRoster = res[1] || [];
+    if (ONLY) {
+      onlySession = allSessions.find(function (s) { return s.id === ONLY; }) || null;
+      allSessions = onlySession ? [onlySession] : [];
+      allRoster = allRoster.filter(function (r) { return r.sessionId === ONLY; });
+      if (!onlySession) {
+        root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div><div class="sw-mark">' + MARK_SVG + '</div>'
+          + '<h1 class="sw-title">링크를 찾을 수 없어요</h1><p class="sw-sub">담당자에게 새 링크를 받아 주세요.</p>';
+        return;
+      }
+    } else {
+      var hidden = {};
+      allSessions = allSessions.filter(function (s) { if (isConsent(s)) { hidden[s.id] = true; return false; } return true; });
+      allRoster = allRoster.filter(function (r) { return !hidden[r.sessionId]; });
+    }
     // 저장된 이름으로 자동 로그인하지 않음 — 같은 기기를 여러 크루가 쓰므로 항상 이름 로그인부터
     renderLogin();
   }).catch(function () {
@@ -76,8 +94,8 @@
 
     root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
       + '<div class="sw-mark">' + MARK_SVG + '</div>'
-      + '<h1 class="sw-title">서명</h1>'
-      + '<p class="sw-sub">이름으로 로그인해주세요</p>'
+      + '<h1 class="sw-title">' + esc(onlySession && isConsent(onlySession) ? Consent.doc.docTitle : (onlySession ? (onlySession.title || "서명") : "서명")) + '</h1>'
+      + '<p class="sw-sub">' + (onlySession ? esc(isConsent(onlySession) ? Consent.event(onlySession) : (onlySession.category || "")) + ' · 이름을 고르면 바로 서명해요' : "이름으로 로그인해주세요") + '</p>'
       + '<p class="sw-fld-label">이름을 선택하세요</p>'
       + '<div class="sw-select-wrap"><button type="button" class="sw-select is-placeholder" id="nameTrigger">이름 선택</button></div>'
       + '<div class="sw-spacer"></div>'
@@ -101,7 +119,8 @@
     loginBtn.addEventListener("click", function () {
       if (!selectedName) return;
       try { localStorage.setItem(LOGIN_KEY, selectedName); } catch (e) {}
-      renderSessionSelect(selectedName);
+      if (onlySession) renderGreet(onlySession, rosterRowFor(onlySession.id, selectedName), selectedName);
+      else renderSessionSelect(selectedName);
     });
   }
 
@@ -196,12 +215,12 @@
 
   function renderGreet(session, row, name) {
     var consent = isConsent(session);
-    root.innerHTML = '<span class="sw-back" id="backBtn">← 다른 서명 선택</span>'
+    root.innerHTML = '<span class="sw-back" id="backBtn">' + (onlySession ? "← 다른 사람으로 로그인" : "← 다른 서명 선택") + '</span>'
       + '<div class="sw-greet"><h1>' + esc(row.name) + '님, 안녕하세요!</h1><p>' + (consent ? esc(Consent.doc.docTitle) : esc(session.date || "") + ' · ' + esc(session.category || "")) + '</p></div>'
       + (consent ? consentDocHtml(session) : "")
       + '<div id="signArea"></div>';
 
-    document.getElementById("backBtn").addEventListener("click", function () { renderSessionSelect(name); });
+    document.getElementById("backBtn").addEventListener("click", function () { if (onlySession) renderLogin(); else renderSessionSelect(name); });
     var openDoc = document.getElementById("openDocBtn");
     if (openDoc) openDoc.addEventListener("click", function () { openConsentPaper(session, rosterRowFor(session.id, name) || row); });
 

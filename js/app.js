@@ -434,6 +434,8 @@
       var signed = roster.filter(function (r) { return !!r.signature; }).length;
       var url = signUrl();
       var consent = Consent.isConsent(s), cCols = consent ? Consent.cols(s) : [];
+      // 동의서는 전용 링크 — 이 명단 이름만 보이고 공용 서명 링크에는 안 나옴
+      if (consent) url += (url.indexOf("?") < 0 ? "?" : "&") + "s=" + encodeURIComponent(s.id);
 
       view.innerHTML = '<div class="wrap">'
         + '<div class="detail-head"><a class="back-link" href="' + SIGN + '">← 교육 서명 관리</a></div>'
@@ -456,7 +458,7 @@
         + '</div>'
 
         + '<div class="share-box">'
-          + '<div style="flex:1;min-width:200px"><p class="hint" style="margin:0 0 6px">크루용 서명 페이지 (모든 세션 공용 — 한 번만 공유하면 계속 사용)</p>'
+          + '<div style="flex:1;min-width:200px"><p class="hint" style="margin:0 0 6px">' + (consent ? "이 동의서 전용 서명 링크 — 대상자 이름만 보여요 (공용 서명 링크에는 안 나와요)" : "크루용 서명 페이지 (모든 세션 공용 — 한 번만 공유하면 계속 사용)") + '</p>'
           + '<input type="text" readonly value="' + esc(url) + '" id="shareUrlInput" /></div>'
           + '<button class="btn btn--sm" id="copyLinkBtn">링크 복사</button>'
           + '<img class="qr-box" width="72" height="72" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' + encodeURIComponent(url) + '" />'
