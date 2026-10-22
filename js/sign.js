@@ -318,7 +318,7 @@
       + '<div class="sw-sig-actions"><button type="button" id="sigClear">다시 쓰기</button></div>'
       + '</div>'
       + '<button class="sw-btn sw-btn--primary" id="sigSave">' + (consent ? "동의하고 서명 완료" : "서명 완료") + '</button>'
-      + (consent ? '<button class="sw-btn sw-btn--ghost" id="noConsentBtn">동의하지 않아요</button>' : "");
+      + (consent ? '<button class="sw-btn sw-btn--no" id="noConsentBtn">동의하지 않아요</button>' : "");
 
     var noBtn = document.getElementById("noConsentBtn");
     if (noBtn) noBtn.addEventListener("click", function () {
