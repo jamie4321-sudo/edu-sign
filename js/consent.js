@@ -39,8 +39,9 @@ window.Consent = (function () {
     confirm: "본인은 위 내용을 숙지하였으며, 개인정보 및 초상권 수집·이용에 동의합니다.",
     sigLabel: "촬영 동의 서명",
     cols: [
-      { key: "online", label: "온라인 교육 참여 여부", sub: "9/29 17:00 (O/X)" },
-      { key: "training", label: "훈련 참여 여부", sub: "10/1 16:30 (O/X)" }
+      // ask 가 있는 칸은 크루가 서명한 뒤 직접 O/X 를 고름 (관리자가 '-'(해당 없음)로 둔 사람은 묻지 않음)
+      { key: "online", label: "온라인 교육 참여 여부", sub: "9/29 17:00 (O/X)", ask: "9월 29일 17:00 온라인 교육에 참여했나요?" },
+      { key: "training", label: "훈련 참여 여부", sub: "10/1 16:30 (O/X)", ask: "10월 1일 16:30 훈련에 참여했나요?" }
     ],
     defaultEvent: "오티즘 레이스 in 판교"
   };

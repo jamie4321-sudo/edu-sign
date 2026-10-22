@@ -39,7 +39,7 @@
     if (ONLY) {
       onlySession = allSessions.find(function (s) { return s.id === ONLY; }) || null;
       allSessions = onlySession ? [onlySession] : [];
-      allRoster = allRoster.filter(function (r) { return r.sessionId === ONLY; });
+      allRoster = scopeRoster(allRoster);
       if (!onlySession) {
         root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div><div class="sw-mark">' + MARK_SVG + '</div>'
           + '<h1 class="sw-title">링크를 찾을 수 없어요</h1><p class="sw-sub">담당자에게 새 링크를 받아 주세요.</p>';
@@ -48,7 +48,7 @@
     } else {
       var hidden = {};
       allSessions = allSessions.filter(function (s) { if (isConsent(s)) { hidden[s.id] = true; return false; } return true; });
-      allRoster = allRoster.filter(function (r) { return !hidden[r.sessionId]; });
+      allRoster = scopeRoster(allRoster);
     }
     // 저장된 이름으로 자동 로그인하지 않음 — 같은 기기를 여러 크루가 쓰므로 항상 이름 로그인부터
     renderLogin();
@@ -56,6 +56,13 @@
     root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div><div class="sw-mark">' + MARK_SVG + '</div>'
       + '<h1 class="sw-title">불러오지 못했습니다</h1><p class="sw-sub">네트워크 상태를 확인하고 새로고침해주세요.</p>';
   });
+
+  // 이 링크에서 보이는 세션의 명단만 남김 (전용 링크 = 그 세션, 공용 링크 = 동의서 빼고)
+  function scopeRoster(rows) {
+    var ids = {};
+    allSessions.forEach(function (s) { ids[s.id] = true; });
+    return (rows || []).filter(function (r) { return ids[r.sessionId]; });
+  }
 
   /* ---------------- 커스텀 선택 시트 (네이티브 select 대신) ---------------- */
   function openPickSheet(title, items, selectedValue, onSelect) {
@@ -238,11 +245,54 @@
       + '<div class="sw-done-badge"><span class="ok">✓</span><div><h3>' + (isConsent(session) ? "동의 서명 완료" : "서명 완료") + '</h3><p class="hint">' + esc(fmtDateTime(row.signedAt)) + '에 서명했어요</p></div></div>'
       + '<div class="sw-done-img"><img src="' + row.signature + '" alt="서명" /></div>'
       + '</div>'
+      + askHtml(session, row)
       + (session.locked ? "" : '<button class="sw-btn sw-btn--ghost" id="resignBtn">다시 서명하기</button>');
+    bindAsk(session, row);
     var resignBtn = document.getElementById("resignBtn");
     if (resignBtn) resignBtn.addEventListener("click", function () {
       if (!confirm("기존 서명을 지우고 다시 서명하시겠습니까?")) return;
       renderSignCard(session, row, name);
+    });
+  }
+
+  /* 동의서: 서명한 뒤 크루가 직접 고르는 O/X (예: 훈련 참여 여부) → roster.extra */
+  function askCols(session) {
+    return isConsent(session) ? Consent.cols(session).filter(function (c) { return c.ask; }) : [];
+  }
+  function askHtml(session, row) {
+    var x = row.extra || {};
+    return askCols(session).filter(function (c) { return x[c.key] !== "-"; }).map(function (c) {
+      var v = x[c.key] || "";
+      return '<div class="sw-card sw-ask" data-ask="' + esc(c.key) + '">'
+        + '<h3>' + esc(c.ask) + '</h3><p class="hint">' + (v ? "골랐어요. 바꾸려면 다시 누르세요." : "하나를 눌러 주세요") + '</p>'
+        + '<div class="sw-ask__btns">'
+        + '<button type="button" class="sw-ask__btn' + (v === "O" ? " is-on" : "") + '" data-v="O"' + (session.locked ? " disabled" : "") + '><b>O</b>참여했어요</button>'
+        + '<button type="button" class="sw-ask__btn' + (v === "X" ? " is-on" : "") + '" data-v="X"' + (session.locked ? " disabled" : "") + '><b>X</b>참여 못 했어요</button>'
+        + '</div></div>';
+    }).join("");
+  }
+  function bindAsk(session, row) {
+    document.querySelectorAll(".sw-ask").forEach(function (card) {
+      var key = card.dataset.ask;
+      card.querySelectorAll(".sw-ask__btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var next = Object.assign({}, row.extra || {});
+          next[key] = btn.dataset.v;
+          card.querySelectorAll(".sw-ask__btn").forEach(function (b) { b.disabled = true; });
+          Store.updateRosterExtra(row.id, next).then(function () {
+            row.extra = next;
+            card.querySelectorAll(".sw-ask__btn").forEach(function (b) { b.disabled = false; b.classList.toggle("is-on", b === btn); });
+            card.querySelector(".hint").textContent = "골랐어요. 바꾸려면 다시 누르세요.";
+            toast("저장했어요");
+            // 다음 질문이 아직 안 골라졌으면 그쪽으로
+            var nextCard = card.nextElementSibling;
+            if (nextCard && nextCard.classList.contains("sw-ask") && !nextCard.querySelector(".is-on")) nextCard.scrollIntoView({ behavior: "smooth", block: "center" });
+          }).catch(function () {
+            card.querySelectorAll(".sw-ask__btn").forEach(function (b) { b.disabled = false; });
+            toast("저장하지 못했어요. 다시 눌러 주세요.");
+          });
+        });
+      });
     });
   }
 
@@ -322,9 +372,11 @@
         toast("서명이 저장되었습니다");
         return Store.listAllRoster();
       }).then(function (fresh) {
-        allRoster = fresh;
+        allRoster = scopeRoster(fresh);
         var updated = rosterRowFor(session.id, name);
         renderDoneCard(session, updated, name);
+        var ask = document.querySelector(".sw-ask");
+        if (ask) ask.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     });
   }
