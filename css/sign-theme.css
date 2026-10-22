@@ -181,3 +181,4 @@ button, select, input { font-family: inherit; }
 .sw-ask__btn b { font-size: 30px; line-height: 1; font-weight: 800; }
 .sw-ask__btn.is-on { background: var(--sw-accent); border-color: var(--sw-accent-ink); color: var(--sw-accent-ink); }
 .sw-ask__btn:disabled { opacity: .6; cursor: default; }
+.sw-done-badge .ok.is-no { background: rgba(220,47,40,.10); color: var(--sw-red); }

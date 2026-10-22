@@ -232,8 +232,22 @@
     if (openDoc) openDoc.addEventListener("click", function () { openConsentPaper(session, rosterRowFor(session.id, name) || row); });
 
     if (row.signature) renderDoneCard(session, row, name);
+    else if (isConsent(session) && Consent.isRefused(row)) renderRefusedCard(session, row, name);
     else if (session.locked) renderLockedCard();
     else renderSignCard(session, row, name);
+  }
+
+  // 동의하지 않음으로 기록된 상태 — 참석 O/X 는 그대로 고를 수 있고, 마음이 바뀌면 서명하러 갈 수 있음
+  function renderRefusedCard(session, row, name) {
+    document.getElementById("signArea").innerHTML = '<div class="sw-card">'
+      + '<div class="sw-done-badge"><span class="ok is-no">✕</span><div><h3>동의하지 않음</h3><p class="hint">' + esc(fmtDateTime(row.extra.refusedAt)) + '에 기록했어요</p></div></div>'
+      + '<p class="hint" style="margin-top:12px">괜찮아요. 단체 사진에서 빠지거나 얼굴을 가려요(모자이크).</p>'
+      + '</div>'
+      + askHtml(session, row)
+      + (session.locked ? "" : '<button class="sw-btn sw-btn--ghost" id="reConsentBtn">마음이 바뀌었어요 (동의하고 서명하기)</button>');
+    bindAsk(session, row);
+    var re = document.getElementById("reConsentBtn");
+    if (re) re.addEventListener("click", function () { renderSignCard(session, row, name); });
   }
 
   function renderLockedCard() {
@@ -308,10 +322,20 @@
 
     var noBtn = document.getElementById("noConsentBtn");
     if (noBtn) noBtn.addEventListener("click", function () {
-      document.getElementById("signArea").innerHTML = '<div class="sw-card"><h3>괜찮아요</h3>'
-        + '<p class="hint">서명하지 않으면 동의하지 않은 것으로 해요.<br>담당자에게 "동의하지 않아요"라고 말해 주세요.</p></div>'
-        + '<button class="sw-btn sw-btn--ghost" id="reConsentBtn">다시 생각해 볼게요 (서명하러 가기)</button>';
-      document.getElementById("reConsentBtn").addEventListener("click", function () { renderSignCard(session, row, name); });
+      if (!confirm("촬영·초상권 활용에 동의하지 않는 것으로 기록할까요?" + (row.signature ? " 지금 있는 서명은 지워져요." : ""))) return;
+      noBtn.disabled = true;
+      var next = Object.assign({}, row.extra || {}, { refusedAt: new Date().toISOString() });
+      (row.signature ? Store.unsignRoster(row.id) : Promise.resolve())
+        .then(function () { return Store.updateRosterExtra(row.id, next); })
+        .then(function () { return Store.listAllRoster(); })
+        .then(function (fresh) {
+          allRoster = scopeRoster(fresh);
+          toast("동의하지 않음으로 기록했어요");
+          renderRefusedCard(session, rosterRowFor(session.id, name), name);
+          var ask = document.querySelector(".sw-ask");
+          if (ask) ask.scrollIntoView({ behavior: "smooth", block: "center" });
+        })
+        .catch(function () { noBtn.disabled = false; toast("기록하지 못했어요. 다시 눌러 주세요."); });
     });
 
     var canvas = document.getElementById("sigPad");
@@ -370,6 +394,11 @@
       var dataUrl = out.toDataURL("image/png");
       Store.signRoster(row.id, dataUrl).then(function () {
         toast("서명이 저장되었습니다");
+        if (row.extra && row.extra.refusedAt) {
+          var next = Object.assign({}, row.extra); delete next.refusedAt;
+          return Store.updateRosterExtra(row.id, next).catch(function () {});
+        }
+      }).then(function () {
         return Store.listAllRoster();
       }).then(function (fresh) {
         allRoster = scopeRoster(fresh);

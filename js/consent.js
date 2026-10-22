@@ -77,8 +77,10 @@ window.Consent = (function () {
     var real = r && r.extra && r.extra.realName;
     return real ? real + " (" + nick(r.name) + ")" : String((r && r.name) || "");
   }
+  // 미동의: '동의하지 않아요'를 누르면 extra.refusedAt 기록 (서명하면 지워짐) — 출력·관리자에 '미동의'
+  function isRefused(r) { return !!r && !r.signature && !!(r.extra && r.extra.refusedAt); }
   var MARKS = ["", "O", "X", "-"];
   function nextMark(v) { return MARKS[(MARKS.indexOf(v || "") + 1) % MARKS.length]; }
 
-  return { CATEGORY: CATEGORY, doc: PORTRAIT, docHtml: docHtml, isConsent: isConsent, event: event, cols: cols, nick: nick, printName: printName, nextMark: nextMark };
+  return { CATEGORY: CATEGORY, doc: PORTRAIT, docHtml: docHtml, isConsent: isConsent, event: event, cols: cols, nick: nick, printName: printName, isRefused: isRefused, nextMark: nextMark };
 })();

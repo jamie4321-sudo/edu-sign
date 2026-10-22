@@ -434,6 +434,7 @@
       var signed = roster.filter(function (r) { return !!r.signature; }).length;
       var url = signUrl();
       var consent = Consent.isConsent(s), cCols = consent ? Consent.cols(s) : [];
+      var refused = consent ? roster.filter(Consent.isRefused).length : 0;
       // 동의서는 전용 링크 — 이 명단 이름만 보이고 공용 서명 링크에는 안 나옴
       if (consent) url += (url.indexOf("?") < 0 ? "?" : "&") + "s=" + encodeURIComponent(s.id);
 
@@ -454,7 +455,8 @@
         + '<div class="stat-row">'
         + '<div class="stat"><div class="stat__label">전체 인원</div><div class="stat__value">' + roster.length + '</div></div>'
         + '<div class="stat"><div class="stat__label">서명 완료</div><div class="stat__value accent">' + signed + '</div></div>'
-        + '<div class="stat"><div class="stat__label">미서명</div><div class="stat__value">' + (roster.length - signed) + '</div></div>'
+        + (consent ? '<div class="stat"><div class="stat__label">미동의</div><div class="stat__value">' + refused + '</div></div>' : "")
+        + '<div class="stat"><div class="stat__label">미서명</div><div class="stat__value">' + (roster.length - signed - refused) + '</div></div>'
         + '</div>'
 
         + '<div class="share-box">'
@@ -491,7 +493,7 @@
       document.getElementById("printBtn").addEventListener("click", function () { window.open("print.html?id=" + encodeURIComponent(s.id), "_blank"); });
       document.getElementById("excelBtn").addEventListener("click", function () {
         var rows = roster.map(function (r, i) {
-          var o = { 연번: i + 1, 부서: r.dept || "", 성명: consent ? Consent.printName(r) : (r.name || ""), 서명여부: sigStatus_(r), 서명시각: fmtDateTime(r.signedAt) };
+          var o = { 연번: i + 1, 부서: r.dept || "", 성명: consent ? Consent.printName(r) : (r.name || ""), 서명여부: consent && Consent.isRefused(r) ? "미동의" : sigStatus_(r), 서명시각: fmtDateTime(r.signedAt) };
           cCols.forEach(function (c) { o[c.label] = (r.extra || {})[c.key] || ""; });
           return o;
         });
@@ -634,7 +636,7 @@
   function rosterRow(locked, r, displayNo, cCols) {
     var sig = r.signature
       ? '<img class="sig-thumb" src="' + r.signature + '" alt="서명" />'
-      : '<span class="sig-empty">미서명</span>';
+      : (Consent.isRefused(r) ? '<span class="sig-refused">미동의</span>' : '<span class="sig-empty">미서명</span>');
     var x = r.extra || {};
     return '<tr>'
       + '<td class="seq-cell mono">' + esc(displayNo) + '</td>'

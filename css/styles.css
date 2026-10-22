@@ -505,3 +505,4 @@ html:not([data-can-sign]) label:has(#photoInput) { display: none !important; }
 .cs-mark.is-empty { color: var(--ink-3); font-weight: 400; }
 .cs-mark:disabled { cursor: default; opacity: .6; }
 .board__table td b, .board__table td:nth-child(2) { white-space: nowrap; }
+.sig-refused { display: inline-block; font-size: 12px; font-weight: 800; color: #dc2f28; background: rgba(220,47,40,.10); border-radius: 999px; padding: 3px 10px; }

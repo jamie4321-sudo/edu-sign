@@ -55,7 +55,7 @@
       var rows = page.map(function (r) {
         var x = r.extra || {};
         return '<tr><td class="c-name">' + esc(Consent.printName(r)) + '</td>'
-          + '<td class="c-sig">' + (r.signature ? '<img src="' + r.signature + '" alt="서명" />' : "") + '</td>'
+          + '<td class="c-sig">' + (r.signature ? '<img src="' + r.signature + '" alt="서명" />' : (Consent.isRefused(r) ? '<span class="cs-refused">미동의</span>' : "")) + '</td>'
           + cols.map(function (c) { return '<td>' + esc(x[c.key] || "") + '</td>'; }).join("") + '</tr>';
       }).join("");
       return '<div class="sheet consent"><table class="cs-table"><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>';

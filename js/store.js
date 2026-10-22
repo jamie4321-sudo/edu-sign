@@ -241,6 +241,14 @@ window.Store = (function () {
       return Promise.resolve({ ok: true });
     },
 
+    /* ---------- 서명 지우기(동의서 '동의하지 않아요' 때 기존 서명 취소) ---------- */
+    unsignRoster: function (id) {
+      if (SUPA) return sb().from("roster").update({ signature: "", signed_at: null }).eq("id", id).then(must).then(function () { return { ok: true }; });
+      if (LIVE) return api({ type: "roster", action: "sign", id: id, signature: "" });
+      DB = load(); var r = DB.roster.find(function (x) { return x.id === id; }); if (r) { r.signature = ""; r.signedAt = ""; } persist(DB);
+      return Promise.resolve({ ok: true });
+    },
+
     /* ---------- 명단 추가 정보(동의서: 실명 · O/X 확인 칸) — roster.extra, supabase/consent.sql ---------- */
     updateRosterExtra: function (id, extra) {
       if (SUPA) return sb().from("roster").update({ extra: extra || {} }).eq("id", id).then(must).then(function () { return { ok: true }; });
