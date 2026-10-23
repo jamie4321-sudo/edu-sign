@@ -161,7 +161,7 @@
     });
   }
 
-  /* ---------------- 에듀 홈 · 가든 교육 홈 · 준비 중 ---------------- */
+  /* ---------------- 직무 교육 홈 · 가든 교육 홈 · 준비 중 ---------------- */
   function svg(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>'; }
   var IC = {
     leaf: svg('<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-4 6-7 10-9"/>'),
@@ -175,9 +175,9 @@
   // 가든 교육 자료실에 들어갈 주제 (2단계에서 실제 자료로 채움)
   var GARDEN_TOPICS = ["장비 · 도구 관리", "식물 관리 기본", "병해충 · 이슈 대응", "안전 · 보건", "현장 매너 · 보안", "기록 앱 사용법"];
   var PARTS = [
-    { key: "garden", name: "가든 교육", desc: "장비 관리 · 식물 관리 · 안전 교육 자료", ic: IC.leaf, on: true },
-    { key: "snack", name: "스낵큐레이션 교육", desc: "스낵바 운영 · 진열 · 위생 교육", ic: IC.cup },
-    { key: "support", name: "총무지원 교육", desc: "총무지원 업무 · 사무 지원 교육", ic: IC.box }
+    { key: "garden", name: "가든 직무 교육", desc: "장비 관리 · 식물 관리 · 안전 교육 자료", ic: IC.leaf, on: true },
+    { key: "snack", name: "스낵큐레이션 직무 교육", desc: "스낵바 운영 · 진열 · 위생 교육", ic: IC.cup },
+    { key: "support", name: "총무지원 직무 교육", desc: "총무지원 업무 · 사무 지원 교육", ic: IC.box }
   ];
   function curMonth() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2); }
   function signStats(sessions) {
@@ -195,9 +195,9 @@
   }
 
   function renderHome() {
-    setCrumb("EDU · 교육 홈");
-    view.innerHTML = '<div class="wrap"><div class="page-head"><div><h2>교육 홈</h2>'
-      + '<p class="sub">스낵큐레이션 · 가든 · 총무지원, 우리 팀 교육을 한곳에서 관리해요.</p></div></div>'
+    setCrumb("EDU · 직무 교육 홈");
+    view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">EDU · 직무 교육</p><h2>직무 교육 홈</h2>'
+      + '<p class="sub">스낵큐레이션 · 가든 · 총무지원 크루가 현장에서 일하는 데 필요한 직무 교육을 한곳에서 관리해요.</p></div></div>'
       + '<div class="part-grid">' + PARTS.map(function (p) {
           var tag = p.on ? "a" : "div";
           return '<' + tag + ' class="part-card ' + (p.on ? "is-on" : "is-soon") + '"' + (p.on ? ' href="#/' + p.key + '"' : "") + '>'
