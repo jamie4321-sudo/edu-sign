@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <script>/* 예전 github.io 주소로 들어오면 Cloudflare 주소로 옮김 (깃허브 아이디 노출 막기) */ if (/github\.io$/.test(location.hostname)) location.replace("https://linkagelab-edu.pages.dev" + location.pathname.replace(/^\/edu-sign/, "") + location.search + location.hash);</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2732%27 fill=%27%23ff8a00%27/%3E%3Ctext x=%2732%27 y=%2741%27 text-anchor=%27middle%27 font-family=%27Arial Black,Arial,sans-serif%27 font-weight=%27900%27 font-size=%2722%27 fill=%27%2314160a%27%3EEDU%3C/text%3E%3C/svg%3E" />
+  <title>중증장애인 인턴제 출·퇴근 기록부 — 출력</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" />
+  <style>
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html, body { margin: 0; padding: 0; background: #e9eae4; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; }
+    .bar { position: sticky; top: 0; z-index: 5; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 16px; background: #16160f; color: #fff; font-size: 13px; }
+    .bar button, .bar select { font-family: inherit; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid #44443c; background: #26261e; color: #fff; padding: 7px 12px; cursor: pointer; }
+    .bar .pri { background: #bff000; color: #14160a; border-color: #bff000; }
+    .bar .sp { flex: 1; }
+    .bar .msg { color: #c9c9bf; font-size: 12px; }
+    .a4 { width: 210mm; height: 297mm; margin: 14px auto; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,.12); overflow: hidden; }
+    @media print {
+      @page { size: A4 portrait; margin: 0; }
+      html, body { background: #fff; }
+      .bar { display: none; }
+      .a4 { margin: 0; box-shadow: none; page-break-after: always; }
+      .a4:last-child { page-break-after: auto; }
+    }
+  </style>
+  <style id="ptCss"></style>
+</head>
+<body>
+  <div class="bar">
+    <button id="back">← 관리 화면</button>
+    <select id="month"></select>
+    <span class="sp"></span>
+    <span class="msg" id="msg"></span>
+    <button id="drive">드라이브에 저장</button>
+    <button class="pri" id="print">인쇄 / PDF 저장</button>
+  </div>
+  <div id="pages"><div style="padding:40px;text-align:center;color:#888">불러오는 중…</div></div>
+
+  <script src="./js/config.js?v=9"></script>
+  <script src="./js/config.local.js?v=1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="./js/intern.js?v=1"></script>
+  <script src="./js/intern-print.js?v=1"></script>
+</body>
+</html>

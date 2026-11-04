@@ -8,7 +8,7 @@
   "use strict";
   var ROLES = {
     master: { label: "총괄 관리자", desc: "모든 기능 + 계정 · 권한 관리" },
-    admin:  { label: "관리자",     desc: "교육 서명 관리 + 맡은 파트의 교육 자료 만들기 · 수정" },
+    admin:  { label: "관리자",     desc: "교육 서명 관리 + 중증장애인턴제 출석 전체 + 맡은 파트의 교육 자료 만들기 · 수정" },
     editor: { label: "자료 담당",   desc: "맡은 파트의 교육 자료만 만들기 · 수정 (서명은 보기만)" },
     viewer: { label: "보기만",     desc: "모든 화면을 볼 수만 있어요" }
   };
@@ -35,7 +35,7 @@
     can: function (what) {
       var u = this.user; if (!u) return false;
       if (u.role === "master") return true;
-      if (what === "sign" || what === "delete") return u.role === "admin";
+      if (what === "sign" || what === "delete" || what === "intern") return u.role === "admin";   // intern = 중증장애인턴제 출석 전체 관리
       if (what === "accounts") return false;
       var m = /^material:(\w+)$/.exec(what);
       if (m) return (u.role === "admin" || u.role === "editor") && (u.parts || []).indexOf(m[1]) > -1;

@@ -25,6 +25,10 @@
   // 공용 링크(파라미터 없음)에는 동의서 세션과 그 명단을 보이지 않음 — 동의서는 전용 링크로만
   var ONLY = new URLSearchParams(location.search).get("s") || "";
   var onlySession = null;
+  // ?intern=<인턴 id> → 중증장애인턴제 출석 전용 링크 (그 인턴 이름만 보이고 로그인하면 바로 출석 · 서명)
+  var INTERN = new URLSearchParams(location.search).get("intern") || "";
+  var interns = [];
+  function internFor(name) { return interns.filter(function (p) { return p.active && (p.crewName || p.name) === name; })[0] || null; }
 
   function loadingView() {
     root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
@@ -33,10 +37,20 @@
   }
 
   loadingView();
-  Promise.all([Store.listSessions(), Store.listAllRoster()]).then(function (res) {
+  var internsP = window.Intern ? Intern.store.listProfiles().catch(function () { return []; }) : Promise.resolve([]);
+  Promise.all([Store.listSessions(), Store.listAllRoster(), internsP]).then(function (res) {
     allSessions = res[0] || [];
     allRoster = res[1] || [];
-    if (ONLY) {
+    interns = res[2] || [];
+    if (INTERN) {
+      interns = interns.filter(function (p) { return p.id === INTERN; });
+      allSessions = []; allRoster = [];
+      if (!interns.length) {
+        root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div><div class="sw-mark">' + MARK_SVG + '</div>'
+          + '<h1 class="sw-title">링크를 찾을 수 없어요</h1><p class="sw-sub">담당자에게 새 링크를 받아 주세요.</p>';
+        return;
+      }
+    } else if (ONLY) {
       onlySession = allSessions.find(function (s) { return s.id === ONLY; }) || null;
       allSessions = onlySession ? [onlySession] : [];
       allRoster = scopeRoster(allRoster);
@@ -97,12 +111,16 @@
       seen[r.name] = true;
       names.push({ name: r.name, dept: r.dept || "" });
     });
+    if (!ONLY) interns.forEach(function (p) {
+      var n = p.crewName || p.name;
+      if (p.active && n && !seen[n]) { seen[n] = true; names.push({ name: n, dept: "인턴" }); }
+    });
     names.sort(function (a, b) { return a.name.localeCompare(b.name, "ko"); });
 
     root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
       + '<div class="sw-mark">' + MARK_SVG + '</div>'
-      + '<h1 class="sw-title">' + esc(onlySession && isConsent(onlySession) ? Consent.doc.docTitle : (onlySession ? (onlySession.title || "서명") : "서명")) + '</h1>'
-      + '<p class="sw-sub">' + (onlySession ? esc(isConsent(onlySession) ? Consent.event(onlySession) : (onlySession.category || "")) + ' · 이름을 고르면 바로 서명해요' : "이름으로 로그인해주세요") + '</p>'
+      + '<h1 class="sw-title">' + (INTERN ? "중증장애인턴제 출석" : "") + esc(INTERN ? "" : onlySession && isConsent(onlySession) ? Consent.doc.docTitle : (onlySession ? (onlySession.title || "서명") : "서명")) + '</h1>'
+      + '<p class="sw-sub">' + (INTERN ? "이름을 고르면 바로 오늘 출석 · 서명해요" : onlySession ? esc(isConsent(onlySession) ? Consent.event(onlySession) : (onlySession.category || "")) + ' · 이름을 고르면 바로 서명해요' : "이름으로 로그인해주세요") + '</p>'
       + '<p class="sw-fld-label">이름을 선택하세요</p>'
       + '<div class="sw-select-wrap"><button type="button" class="sw-select is-placeholder" id="nameTrigger">이름 선택</button></div>'
       + '<div class="sw-spacer"></div>'
@@ -126,7 +144,8 @@
     loginBtn.addEventListener("click", function () {
       if (!selectedName) return;
       try { localStorage.setItem(LOGIN_KEY, selectedName); } catch (e) {}
-      if (onlySession) renderGreet(onlySession, rosterRowFor(onlySession.id, selectedName), selectedName);
+      if (INTERN) InternCrew.open(root, interns[0], renderLogin);
+      else if (onlySession) renderGreet(onlySession, rosterRowFor(onlySession.id, selectedName), selectedName);
       else renderSessionSelect(selectedName);
     });
   }
@@ -152,10 +171,11 @@
       + '<div class="sw-login-foot"><button id="logoutBtn">다른 사람으로 로그인</button></div>';
 
     var list = document.getElementById("sessionList");
-    if (!sessions.length) {
+    var ip = internFor(name);
+    if (!sessions.length && !ip) {
       list.innerHTML = '<div class="sw-empty">지금 서명할 것이 없어요.<br>담당자에게 문의해주세요.</div>';
     } else {
-      list.innerHTML = sessions.map(function (s) {
+      list.innerHTML = (ip ? internCardHtml(ip) : "") + sessions.map(function (s) {
         var row = rosterRowFor(s.id, name);
         var done = !!(row && row.signature);
         var consent = isConsent(s);   // 동의서는 교육이 아니라 '촬영 및 초상권 활용 동의서' 로 보이게
@@ -166,7 +186,9 @@
           + '<span class="sw-session-card__badge ' + (done ? "is-done" : "is-todo") + '">' + (done ? "서명완료" : "서명하기") + '</span>'
           + '</div>';
       }).join("");
-      list.querySelectorAll(".sw-session-card").forEach(function (card) {
+      var ic = list.querySelector("[data-intern]");
+      if (ic) ic.addEventListener("click", function () { InternCrew.open(root, ip, function () { renderSessionSelect(name); }); });
+      list.querySelectorAll(".sw-session-card[data-id]").forEach(function (card) {
         card.addEventListener("click", function () {
           var s = allSessions.find(function (x) { return x.id === card.dataset.id; });
           var row = rosterRowFor(s.id, name);
@@ -179,6 +201,14 @@
       try { localStorage.removeItem(LOGIN_KEY); } catch (e) {}
       renderLogin();
     });
+  }
+
+  // 중증장애인턴제 출석 카드 (교육 서명 목록 맨 위)
+  function internCardHtml(p) {
+    return '<div class="sw-session-card" data-intern="' + esc(p.id) + '">'
+      + '<div><div class="sw-session-card__date">매일</div><div class="sw-session-card__title">중증장애인턴제 출석</div>'
+      + '<div class="sw-session-card__cat">오늘 출석하고 서명해요</div></div>'
+      + '<span class="sw-session-card__badge is-todo">출석하기</span></div>';
   }
 
   /* ---------------- 3단계: 인사 + 서명 ---------------- */

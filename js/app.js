@@ -143,9 +143,10 @@
     var hash = location.hash.replace(/^#\/?/, "");
     var old = hash.match(/^(?:s|garden\/sign)(\/.*)?$/);
     if (old) { location.replace(SIGN + (old[1] || "")); return; }
-    var m = hash.match(/^sign\/(.+)$/);
+    var m = hash.match(/^sign\/(.+)$/), im = hash.match(/^sign\/intern(?:\/(.+))?$/);
     window.scrollTo(0, 0);
-    if (m) { setNav("sign"); renderDetail(decodeURIComponent(m[1])); }
+    if (im) { setNav("sign"); if (im[1]) EduIntern.renderDetail(view, decodeURIComponent(im[1]), setCrumb); else EduIntern.renderList(view, setCrumb); }
+    else if (m) { setNav("sign"); renderDetail(decodeURIComponent(m[1])); }
     else if (hash === "sign") { setNav("sign"); renderList(); }
     else if (hash === "garden") { setNav("garden"); renderGardenHome(); }
     else if (hash === "garden/library") { setNav("garden/library"); renderLibrary(); }
@@ -370,6 +371,7 @@
       + '<div><p class="eyebrow">EDU · SIGN</p><h2>교육 서명 관리</h2><p class="sub">스낵큐레이션 · 가든 · 총무지원 교육 회차를 만들고 서명 링크를 공유하세요.</p></div>'
       + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button>'
       + '</div>'
+      + EduIntern.tabsHtml("sign")
       + '<div class="seg" id="sessionTabs" role="tablist" hidden>'
         + '<button class="seg__btn is-on" type="button" role="tab" data-tab="active">진행중 <span class="seg__n" id="cntActive">0</span></button>'
         + '<button class="seg__btn" type="button" role="tab" data-tab="archive">아카이브 <span class="seg__n" id="cntArchive">0</span></button>'
@@ -399,9 +401,11 @@
                 ? '진행 중인 교육이 없습니다.<br><b>아카이브</b> 탭에서 마감된 교육을 확인할 수 있어요.'
                 : '아직 등록된 교육 세션이 없습니다.<br><b>+ 새 교육 세션</b>으로 첫 세션을 만들어보세요.');
           grid.innerHTML = '<div class="empty" style="grid-column:1/-1">' + msg + '</div>';
+          if (which !== "archive") EduIntern.pinCards(grid);
           return;
         }
         grid.innerHTML = list.map(sessionCardHtml).join("");
+        if (which !== "archive") EduIntern.pinCards(grid);   // 중증장애인턴제 출석 카드는 진행중 맨 앞에
         grid.querySelectorAll(".session-card__drive").forEach(function (el) {
           el.addEventListener("click", function (e) {
             e.preventDefault(); e.stopPropagation();

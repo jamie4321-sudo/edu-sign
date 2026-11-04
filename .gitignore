@@ -1,3 +1,4 @@
 .DS_Store
 Thumbs.db
 js/config.local.js
+supabase/intern-import.sql

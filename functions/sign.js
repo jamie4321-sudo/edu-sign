@@ -11,7 +11,8 @@ const PREVIEW = {
 export async function onRequest(context) {
   const res = await context.next();
   const url = new URL(context.request.url);
-  const p = PREVIEW[url.searchParams.get("s") || ""];
+  // 중증장애인턴제 출석 전용 링크 (/sign?intern=<인턴 id>)
+  const p = url.searchParams.get("intern") ? { title: "중증장애인턴제 출석", desc: "연결의 시작 · 오늘 출석하고 서명해요" } : PREVIEW[url.searchParams.get("s") || ""];
   if (!p || !(res.headers.get("content-type") || "").includes("text/html")) return res;
   const set = (v) => ({ element(el) { el.setAttribute("content", v); } });
   return new HTMLRewriter()
