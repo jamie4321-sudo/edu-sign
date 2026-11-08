@@ -506,3 +506,47 @@ html:not([data-can-sign]) label:has(#photoInput) { display: none !important; }
 .cs-mark:disabled { cursor: default; opacity: .6; }
 .board__table td b, .board__table td:nth-child(2) { white-space: nowrap; }
 .sig-refused { display: inline-block; font-size: 12px; font-weight: 800; color: #dc2f28; background: rgba(220,47,40,.10); border-radius: 999px; padding: 3px 10px; }
+
+/* ---------- 스낵 교육 · AI 스터디 (js/snack-study.js) ---------- */
+.quick.is-soon b { color: var(--ink-2); }
+.ss-sub { font-size: 12.5px; color: var(--ink-3); }
+.ss-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--r-lg); padding: 18px 20px; margin-bottom: 14px; }
+.ss-intro__k { margin: 0 0 8px; font-size: 12px; font-weight: 700; color: var(--accent-text); }
+.ss-rules { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.ss-rules b { color: var(--ink); }
+.ss-intro .btn { flex: none; }
+.ss-courses { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.ss-course { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--r-lg); overflow: hidden; transition: border-color .15s ease, transform .2s var(--ease-out), box-shadow .2s var(--ease-out); }
+.ss-course:hover { border-color: var(--line); transform: translateY(-2px); box-shadow: var(--shadow); }
+.ss-course__th { position: relative; display: block; aspect-ratio: 16 / 9; background: var(--panel-2); }
+.ss-course__th img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ss-course__th i { position: absolute; right: 8px; bottom: 8px; font-style: normal; font-size: 11px; color: #fff; background: rgba(0,0,0,.65); border-radius: 999px; padding: 3px 8px; }
+.ss-course__b { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 14px; flex: 1; }
+.ss-course__b small { font-size: 11.5px; color: var(--ink-3); }
+.ss-course__b b { font-size: 14px; font-weight: 800; line-height: 1.35; flex: 1; }
+.ss-course__f { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.ss-course__f em { font-style: normal; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ss-table th.ss-c { text-align: center; font-variant-numeric: tabular-nums; }
+.ss-table th.ss-c span { display: block; font-size: 10.5px; font-weight: 500; max-width: 92px; margin: 2px auto 0; white-space: normal; line-height: 1.3; }
+.ss-table td.ss-c { text-align: center; }
+.ss-name { font-weight: 800; white-space: nowrap; }
+.ss-chk { width: 30px; height: 30px; border-radius: 9px; border: 1.5px solid var(--line); background: transparent; color: var(--accent-ink); font-size: 15px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background .12s, border-color .12s, transform .08s; }
+.ss-chk:not([disabled]):hover { border-color: var(--ink-3); }
+.ss-chk:not([disabled]):active { transform: scale(.94); }
+.ss-chk.is-on { background: var(--accent); border-color: var(--accent); }
+.ss-chk[disabled] { cursor: default; }
+.ss-badge { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 9px; background: var(--panel-2); color: var(--ink-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ss-badge.is-mid { color: var(--ink-2); }
+.ss-badge.is-ok { background: var(--accent); color: var(--accent-ink); }
+.ss-plan { min-width: 260px; }
+.ss-plan > div, .ss-plan__btn { display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.5; color: var(--ink-2); text-align: left; }
+.ss-plan__btn { width: 100%; font-family: inherit; background: transparent; border: 1px dashed transparent; border-radius: var(--r-sm); padding: 6px 8px; margin: -6px -8px; cursor: pointer; }
+.ss-plan__btn:hover { border-color: var(--line); background: var(--panel-2); }
+.ss-plan small { font-size: 12px; color: var(--ink-3); word-break: break-all; }
+.ss-none { color: var(--ink-3); }
+@media (max-width: 1100px) { .ss-courses { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 720px) {
+  .ss-courses { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ss-intro { flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) { .ss-course:hover { transform: none; } }

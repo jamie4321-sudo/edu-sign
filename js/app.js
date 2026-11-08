@@ -152,7 +152,8 @@
     else if (hash === "garden/library") { setNav("garden/library"); renderLibrary(); }
     else if (hash === "garden/progress") { setNav("garden/progress"); renderProgress(); }
     else if (hash === "admin") { setNav("admin"); EduAuth.renderAccounts(view, setCrumb); }
-    else if (hash === "snack") { setNav("snack"); renderPrep("snack"); }
+    else if (hash === "snack") { setNav("snack"); renderSnackHome(); }
+    else if (hash === "snack/ai-study") { setNav("snack"); renderSnackStudy(); }
     else if (hash === "support") { setNav("support"); renderPrep("support"); }
     else { setNav("home"); renderHome(); }
   }
@@ -177,7 +178,7 @@
   var GARDEN_TOPICS = ["장비 · 도구 관리", "식물 관리 기본", "병해충 · 이슈 대응", "안전 · 보건", "현장 매너 · 보안", "기록 앱 사용법"];
   var PARTS = [
     { key: "garden", name: "가든 직무 교육", desc: "장비 관리 · 식물 관리 · 안전 교육 자료", ic: IC.leaf, on: true },
-    { key: "snack", name: "스낵큐레이션 직무 교육", desc: "스낵바 운영 · 진열 · 위생 교육", ic: IC.cup },
+    { key: "snack", name: "스낵큐레이션 직무 교육", desc: "AI 스터디 · 스낵바 운영 · 진열 · 위생 교육", ic: IC.cup, on: true },
     { key: "support", name: "총무지원 직무 교육", desc: "총무지원 업무 · 사무 지원 교육", ic: IC.box }
   ];
   function curMonth() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2); }
@@ -216,6 +217,10 @@
       var f = document.getElementById("part-garden");
       if (f) f.innerHTML = '<span>교육 자료 <b>' + ms.length + '건</b>' + (ms.some(function (x) { return x.needsSign; }) ? ' · 서명 받는 자료 <b>' + ms.filter(function (x) { return x.needsSign; }).length + '건</b>' : "") + '</span>' + IC.arrow;
     }).catch(function () { var f = document.getElementById("part-garden"); if (f) f.innerHTML = '<span>교육 자료실 열기</span>' + IC.arrow; });
+    EduSnackStudy.summary().then(function (st) {
+      var f = document.getElementById("part-snack");
+      if (f) f.innerHTML = '<span>AI 스터디 기준 달성 <b>' + st.goal + ' / ' + st.n + '명</b></span>' + IC.arrow;
+    }).catch(function () {});
     sessionsWithParts().then(function (sessions) {
       var st = signStats(sessions); paintNavCount(st);
       var g = document.getElementById("homeSessions"); if (!g) return;
@@ -258,6 +263,41 @@
         + '<div><dt>사진</dt><dd>' + photos + '<small>장</small></dd></div>';
     });
     Store.listSessions().then(function (s) { paintNavCount(signStats(s)); }).catch(function () {});
+  }
+
+  /* ---------------- 스낵큐레이션 교육 · AI 스터디 (js/snack-study.js) ---------------- */
+  function snackSubnav(cur) {
+    var items = [["snack", "스낵 교육 홈"], ["snack/ai-study", "AI 스터디"]];
+    return '<nav class="subnav" aria-label="스낵 교육 메뉴">' + items.map(function (x) {
+      return '<a href="#/' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : "") + '>' + x[1] + '</a>';
+    }).join("") + '</nav>';
+  }
+  function renderSnackHome() {
+    setCrumb("EDU · 스낵큐레이션 교육");
+    view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">EDU · SNACK</p><h2>스낵큐레이션 교육</h2>'
+      + '<p class="sub">스낵&가든사업팀 AI 스터디와 스낵바 운영 · 진열 · 위생 교육을 모아요.</p></div></div>'
+      + snackSubnav("snack")
+      + '<div class="sec-h"><h3>바로가기</h3></div>'
+      + '<div class="quick-grid">'
+        + '<a class="quick" href="#/snack/ai-study"><div class="quick__h">' + IC.chk + '<b>AI 스터디</b><span class="pill pill--live">운영 중</span></div>'
+          + '<p id="snackStudyLine">Gemini 업무 활용 YouTube 강의 5개 · 2개 이상 보면 달성</p>'
+          + '<div class="chips">' + EduSnackStudy.COURSES.map(function (c) { return '<span>' + esc(c.title) + '</span>'; }).join("") + '</div></a>'
+        + '<div class="quick is-soon"><div class="quick__h">' + IC.book + '<b>교육 자료실</b><span class="pill">준비 중</span></div>'
+          + '<p>스낵바 운영 · 진열 · 위생 자료를 가든 교육과 같은 방식으로 올릴 예정이에요.</p></div>'
+        + '<a class="quick" href="' + SIGN + '"><div class="quick__h">' + IC.sign + '<b>교육 서명 관리</b><span class="pill">파트 공통</span></div>'
+          + '<p>서명이 필요한 교육은 교육 서명 관리에서 만들어요.</p></a>'
+      + '</div></div>';
+    EduSnackStudy.summary().then(function (st) {
+      var el = document.getElementById("snackStudyLine");
+      if (el) el.innerHTML = '강의 5개 중 2개 이상 보면 달성 · 지금 <b>' + st.goal + ' / ' + st.n + '명</b> 달성 (' + st.pct + '%)';
+    }).catch(function () {});
+  }
+  function renderSnackStudy() {
+    setCrumb("EDU · 스낵큐레이션 교육 · AI 스터디");
+    EduSnackStudy.render(view, { canEdit: Auth.can("material:snack"), by: Admin.current(),
+      head: '<div class="page-head"><div><p class="eyebrow">EDU · SNACK · AI STUDY</p><h2>스낵&가든 AI 스터디</h2>'
+        + '<p class="sub">Gemini 업무 활용 YouTube 강의를 보고, 하반기 POP 이미지 · 브랜딩 리포트에 써 봐요.</p></div></div>'
+        + snackSubnav("snack/ai-study") });
   }
 
   /* ---------------- 이수 현황 (js/progress.js) ---------------- */
