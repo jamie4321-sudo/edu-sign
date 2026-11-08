@@ -136,8 +136,10 @@
   // #/                     에듀 홈 (팀 3개 파트)
   // #/sign                 교육 서명 관리 (파트 공통 — 가든 교육 밖 별도 메뉴)
   // #/sign/<id>            서명 세션 상세 (예전 #/s/<id> · #/garden/sign/<id> 는 여기로 옮김)
-  // #/garden               가든 교육 홈 · #/garden/library 교육 자료실 · #/garden/progress 이수 현황(준비 중)
-  // #/snack · #/support    준비 중
+  // #/garden               가든 교육 홈 · #/garden/library 교육 자료실 · #/garden/progress 이수 현황
+  // #/snack                스낵 교육 홈 · #/snack/library 교육 자료실(AI 스터디 강의 + 스낵 자료) · #/snack/progress 이수 현황(AI 스터디)
+  //                        (예전 #/snack/ai-study → #/snack/progress)
+  // #/support              준비 중
   var SIGN = "#/sign";
   function route() {
     var hash = location.hash.replace(/^#\/?/, "");
@@ -153,7 +155,9 @@
     else if (hash === "garden/progress") { setNav("garden/progress"); renderProgress(); }
     else if (hash === "admin") { setNav("admin"); EduAuth.renderAccounts(view, setCrumb); }
     else if (hash === "snack") { setNav("snack"); renderSnackHome(); }
-    else if (hash === "snack/ai-study") { setNav("snack/ai-study"); renderSnackStudy(); }
+    else if (hash === "snack/ai-study") { location.replace("#/snack/progress"); return; }
+    else if (hash === "snack/library") { setNav("snack/library"); renderSnackLibrary(); }
+    else if (hash === "snack/progress") { setNav("snack/progress"); renderSnackProgress(); }
     else if (hash === "support") { setNav("support"); renderPrep("support"); }
     else { setNav("home"); renderHome(); }
   }
@@ -266,8 +270,9 @@
   }
 
   /* ---------------- 스낵큐레이션 교육 · AI 스터디 (js/snack-study.js) ---------------- */
+  var SNACK_TOPICS = EduLib.topicsOf ? EduLib.topicsOf("snack") : [];
   function snackSubnav(cur) {
-    var items = [["snack", "스낵 교육 홈"], ["snack/ai-study", "AI 스터디"]];
+    var items = [["snack", "스낵 교육 홈"], ["snack/library", "교육 자료실"], ["snack/progress", "이수 현황"]];
     return '<nav class="subnav" aria-label="스낵 교육 메뉴">' + items.map(function (x) {
       return '<a href="#/' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : "") + '>' + x[1] + '</a>';
     }).join("") + '</nav>';
@@ -275,29 +280,46 @@
   function renderSnackHome() {
     setCrumb("EDU · 스낵큐레이션 교육");
     view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">EDU · SNACK</p><h2>스낵큐레이션 교육</h2>'
-      + '<p class="sub">스낵&가든사업팀 AI 스터디와 스낵바 운영 · 진열 · 위생 교육을 모아요.</p></div></div>'
+      + '<p class="sub">스낵&가든사업팀 AI 스터디와 스낵바 운영 · 진열 · 위생 교육 자료를 모아요.</p></div></div>'
       + snackSubnav("snack")
       + '<div class="sec-h"><h3>바로가기</h3></div>'
       + '<div class="quick-grid">'
-        + '<a class="quick" href="#/snack/ai-study"><div class="quick__h">' + IC.chk + '<b>AI 스터디</b><span class="pill pill--live">운영 중</span></div>'
-          + '<p id="snackStudyLine">Gemini 업무 활용 YouTube 강의 5개 · 2개 이상 보면 달성</p>'
-          + '<div class="chips">' + EduSnackStudy.COURSES.map(function (c) { return '<span>' + esc(c.title) + '</span>'; }).join("") + '</div></a>'
-        + '<div class="quick is-soon"><div class="quick__h">' + IC.book + '<b>교육 자료실</b><span class="pill">준비 중</span></div>'
-          + '<p>스낵바 운영 · 진열 · 위생 자료를 가든 교육과 같은 방식으로 올릴 예정이에요.</p></div>'
+        + '<a class="quick" href="#/snack/library"><div class="quick__h">' + IC.book + '<b>교육 자료실</b><span class="pill pill--live">운영 중</span></div>'
+          + '<p>AI 스터디 추천 강의 5개와 스낵 교육 자료를 봐요.</p>'
+          + '<div class="chips">' + SNACK_TOPICS.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("") + '</div></a>'
         + '<a class="quick" href="' + SIGN + '"><div class="quick__h">' + IC.sign + '<b>교육 서명 관리</b><span class="pill">파트 공통</span></div>'
           + '<p>서명이 필요한 교육은 교육 서명 관리에서 만들어요.</p></a>'
+        + '<a class="quick" href="#/snack/progress"><div class="quick__h">' + IC.chk + '<b>이수 현황</b><span class="pill pill--live">운영 중</span></div>'
+          + '<p id="snackStudyLine">AI 스터디 — 강의 5개 중 2개 이상 보면 달성</p></a>'
       + '</div></div>';
     EduSnackStudy.summary().then(function (st) {
       var el = document.getElementById("snackStudyLine");
-      if (el) el.innerHTML = '강의 5개 중 2개 이상 보면 달성 · 지금 <b>' + st.goal + ' / ' + st.n + '명</b> 달성 (' + st.pct + '%)';
+      if (el) el.innerHTML = 'AI 스터디 달성 <b>' + st.goal + ' / ' + st.n + '명</b> (' + st.pct + '%) · 강의 5개 중 2개 이상 보면 달성';
     }).catch(function () {});
   }
-  function renderSnackStudy() {
-    setCrumb("EDU · 스낵큐레이션 교육 · AI 스터디");
+  function renderSnackLibrary() {
+    setCrumb("EDU · 스낵큐레이션 교육 · 교육 자료실");
+    view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">EDU · SNACK</p><h2>교육 자료실</h2>'
+      + '<p class="sub">AI 스터디 추천 강의와 스낵바 운영 · 진열 · 위생 교육 자료를 모아요.</p></div>'
+      + '<div class="head-acts"><button class="btn btn--draftbox" id="sDraftBox">임시보관함 <span class="draft-n" data-draft-n>–</span></button><button class="btn btn--primary" id="sNewMat">+ 교육 자료 만들기</button></div></div>'
+      + snackSubnav("snack/library")
+      + '<div class="sec-h"><h3>AI 스터디 · 추천 강의</h3><span class="ss-sub">Gemini 업무 활용 · YouTube</span></div>'
+      + '<div id="sCourses"></div>'
+      + '<div class="sec-h"><h3>스낵 교육 자료</h3></div>'
+      + '<div id="sLibList"></div></div>';
+    var opts = { admin: Auth.can("material:snack"), part: "snack", by: Admin.current() };
+    if (!opts.admin) document.getElementById("sNewMat").hidden = document.getElementById("sDraftBox").hidden = true;
+    document.getElementById("sDraftBox").onclick = function () { EduLib.showDrafts(); var l = document.getElementById("sLibList"); if (l) l.scrollIntoView({ behavior: "smooth", block: "start" }); };
+    document.getElementById("sNewMat").onclick = function () { EduLib.openCreate(opts); };
+    EduSnackStudy.mountCourses(document.getElementById("sCourses"));
+    EduLib.mountList(document.getElementById("sLibList"), opts);
+  }
+  function renderSnackProgress() {
+    setCrumb("EDU · 스낵큐레이션 교육 · 이수 현황");
     EduSnackStudy.render(view, { canEdit: Auth.can("material:snack"), by: Admin.current(),
-      head: '<div class="page-head"><div><p class="eyebrow">EDU · SNACK · AI STUDY</p><h2>스낵&가든 AI 스터디</h2>'
-        + '<p class="sub">Gemini 업무 활용 YouTube 강의를 보고, 하반기 POP 이미지 · 브랜딩 리포트에 써 봐요.</p></div></div>'
-        + snackSubnav("snack/ai-study") });
+      head: '<div class="page-head"><div><p class="eyebrow">EDU · SNACK</p><h2>이수 현황</h2>'
+        + '<p class="sub">AI 스터디는 강의 체크로 이수를 확인해요. 강의 5개 중 2개 이상 보면 달성이에요.</p></div></div>'
+        + snackSubnav("snack/progress") });
   }
 
   /* ---------------- 이수 현황 (js/progress.js) ---------------- */

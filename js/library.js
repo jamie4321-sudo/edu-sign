@@ -8,6 +8,13 @@
   "use strict";
   var MAX_STEPS = 9;
   var TOPICS = ["장비 · 도구 관리", "식물 관리 기본", "병해충 · 이슈 대응", "안전 · 보건", "현장 매너 · 보안", "기록 앱 사용법"];
+  // 파트별 주제 (가든 = TOPICS)
+  var PART_TOPICS = {
+    garden: TOPICS,
+    snack: ["AI 활용", "스낵바 운영", "진열 · 상품 관리", "위생 · 안전", "현장 매너 · 보안"],
+    support: ["총무지원 업무", "사무 지원", "안전 · 보건"]
+  };
+  function topicsOf(part) { return PART_TOPICS[part || "garden"] || TOPICS; }
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function svg(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>'; }
@@ -42,7 +49,9 @@
   var isDraft = function (m) { return m.status === "draft"; };
   function fmtWhen(iso) { if (!iso) return ""; var d = new Date(iso); return (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
   function mountList(el, opts) {
-    LIST.el = el; LIST.opts = opts || {}; LIST.topic = LIST.topic || "";
+    var part = (opts && opts.part) || "garden";
+    if (LIST.part !== part) LIST.topic = "";
+    LIST.el = el; LIST.opts = opts || {}; LIST.part = part; LIST.topic = LIST.topic || "";
     el.innerHTML = '<div class="empty">불러오는 중…</div>';
     return Store.listMaterials(LIST.opts.part || "garden").then(function (items) {
       LIST.items = items; paintList();
@@ -63,7 +72,8 @@
     var inDraft = showTabs && LIST.tab === "draft";
     document.querySelectorAll("[data-draft-n]").forEach(function (n) { n.textContent = drafts.length; n.classList.toggle("is-zero", !drafts.length); });
     var items = inDraft ? drafts : pubs;
-    var topics = TOPICS.concat(items.map(function (m) { return m.topic; }).filter(function (t) { return t && TOPICS.indexOf(t) < 0; }))
+    var base = topicsOf(LIST.part);
+    var topics = base.concat(items.map(function (m) { return m.topic; }).filter(function (t) { return t && base.indexOf(t) < 0; }))
       .filter(function (t, i, a) { return a.indexOf(t) === i; });
     var shown = items.filter(function (m) { return o.noTopics || !LIST.topic || m.topic === LIST.topic; });
     if (o.limit) shown = shown.slice(0, o.limit);
@@ -257,7 +267,7 @@
   function openEditor(m, opts, preset) {
     opts = opts || {};
     var isNew = !m;
-    m = m || { id: Store.newMaterialId(), status: "draft", part: opts.part || "garden", topic: LIST.topic || TOPICS[0], title: "", summary: "", steps: [] };
+    m = m || { id: Store.newMaterialId(), status: "draft", part: opts.part || "garden", topic: LIST.topic || topicsOf(opts.part)[0], title: "", summary: "", steps: [] };
     if (isNew && preset) m = Object.assign(m, { title: preset.title || "", summary: preset.summary || "", topic: preset.topic || m.topic });
     var steps = (isNew && preset ? preset.steps || [] : m.steps || []).slice(0, MAX_STEPS).map(function (s) { return { u: s.u || "", p: s.p || "", text: s.text || "", warn: s.warn || "", nu: s.nu || null }; });
     if (!steps.length) steps.push({ u: "", p: "", text: "", warn: "" });
@@ -284,7 +294,7 @@
   }
   function paintEditor() {
     var e = ED, n = e.steps.length, photos = e.steps.filter(function (s) { return s.u || s.nu; }).length;
-    var allTopics = TOPICS.slice(); if (e.topic && allTopics.indexOf(e.topic) < 0) allTopics.push(e.topic);
+    var allTopics = topicsOf(e.m.part).slice(); if (e.topic && allTopics.indexOf(e.topic) < 0) allTopics.push(e.topic);
     var pub = !e.isNew && !isDraft(e.m), dis = e.busy ? "disabled" : "";
     e.el.innerHTML = '<header class="ed-h"><b>' + (e.isNew ? "교육 자료 만들기" : pub ? "교육 자료 수정" : "임시 보관 자료 · 이어서 쓰기") + '</b>'
         + '<div class="ed-h__a"><button type="button" class="btn" id="edCancel" ' + dis + '>취소</button>'
@@ -424,5 +434,5 @@
   function showDrafts() { LIST.tab = "draft"; if (LIST.el && document.body.contains(LIST.el) && LIST.items && !LIST.opts.noTopics) paintList(); }
   // '+ 교육 자료 만들기': 직접 입력 / PDF 업로드 고르기 (js/pdfimport.js 가 없으면 바로 직접 입력)
   function openCreate(opts) { if (window.EduPdfImport) window.EduPdfImport.open(opts); else openEditor(null, opts); }
-  window.EduLib = { openCreate: openCreate, isDraft: isDraft, showDrafts: showDrafts, TOPICS: TOPICS, MAX_STEPS: MAX_STEPS, mountList: mountList, refreshList: refreshList, openReader: openReader, openEditor: openEditor };
+  window.EduLib = { openCreate: openCreate, isDraft: isDraft, showDrafts: showDrafts, TOPICS: TOPICS, topicsOf: topicsOf, MAX_STEPS: MAX_STEPS, mountList: mountList, refreshList: refreshList, openReader: openReader, openEditor: openEditor };
 })();

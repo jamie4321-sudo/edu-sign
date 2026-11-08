@@ -70,6 +70,7 @@
 
   /* ---------------- 화면 ---------------- */
   var ST = { rows: [], live: false };
+  // 이수 현황 화면 (요약 + 이수 표) — #/snack/progress
   function render(view, opts) {
     view.innerHTML = '<div class="wrap">' + opts.head + '<div id="ssBody"><div class="empty">불러오는 중…</div></div></div>';
     load().then(function (d) {
@@ -77,33 +78,48 @@
       paint(document.getElementById("ssBody"), d);
     });
   }
+  // 교육 자료실 맨 위 'AI 스터디' 묶음 (규칙 + 추천 강의 5개) — #/snack/library
+  function mountCourses(el) {
+    if (!el) return Promise.resolve();
+    el.innerHTML = '<div class="empty">불러오는 중…</div>';
+    return load().then(function (d) {
+      var st = stats(d.rows);
+      el.innerHTML = introHtml() + coursesHtml(st)
+        + '<p class="ss-more">강의를 본 크루 체크 · 하반기 계획은 <a href="#/snack/progress"><b>이수 현황</b></a>에서 관리해요.</p>';
+    });
+  }
+  function introHtml() {
+    return '<section class="ss-intro">'
+        + '<div><p class="ss-intro__k">스터디 규칙</p><ul class="ss-rules">'
+          + '<li>추천 강의 5개 중 <b>2개 이상</b> 보고 완료 체크해요.</li>'
+          + '<li>추천 강의 말고 다른 자료로 공부했다면 <b>비고</b>에 링크를 남겨요.</li>'
+          + '<li>하반기 개인 성과 목표(<b>POP 이미지 제작 참여 · 개별 브랜딩 리포트 작성</b>)에 활용해요.</li></ul></div>'
+        + '<a class="btn btn--sm" href="' + SHEET_URL + '" target="_blank" rel="noopener">원본 시트 열기 ↗</a>'
+      + '</section>';
+  }
+  function coursesHtml(st) {
+    return '<div class="ss-courses">' + COURSES.map(function (c, i) {
+          var n = st.per[c.key], pct = st.n ? Math.round(n / st.n * 100) : 0;
+          return '<a class="ss-course" href="' + esc(c.url) + '" target="_blank" rel="noopener">'
+            + '<span class="ss-course__th"><img src="https://i.ytimg.com/vi/' + c.yt + '/mqdefault.jpg" alt="" loading="lazy"><i>▶</i></span>'
+            + '<span class="ss-course__b"><small>' + (i + 1) + ' · ' + esc(c.by) + '</small><b>' + esc(c.title) + '</b>'
+            + '<span class="ss-course__f"><span class="progress-bar"><span class="progress-bar__fill" style="width:' + pct + '%"></span></span><em>' + n + ' / ' + st.n + '명</em></span></span></a>';
+        }).join("") + '</div>';
+  }
 
   function paint(body, d) {
     if (!body) return;
     var st = stats(ST.rows);
     var note = d && d.missing ? '<div class="pg-note"><b>AI 스터디 기록 표가 아직 없어요.</b> Supabase SQL Editor 에서 <b>supabase/snack_study.sql</b> 을 한 번 실행하면 사이트에서 체크·계획을 고칠 수 있어요. 지금은 구글 시트 값(11/8 기준)으로 보여 드려요.</div>' : "";
     body.innerHTML = note
-      + '<section class="ss-intro">'
-        + '<div><p class="ss-intro__k">스터디 규칙</p><ul class="ss-rules">'
-          + '<li>추천 강의 5개 중 <b>2개 이상</b> 보고 완료 체크해요.</li>'
-          + '<li>추천 강의 말고 다른 자료로 공부했다면 <b>비고</b>에 링크를 남겨요.</li>'
-          + '<li>하반기 개인 성과 목표(<b>POP 이미지 제작 참여 · 개별 브랜딩 리포트 작성</b>)에 활용해요.</li></ul></div>'
-        + '<a class="btn btn--sm" href="' + SHEET_URL + '" target="_blank" rel="noopener">원본 시트 열기 ↗</a>'
-      + '</section>'
       + '<dl class="summary">'
         + '<div><dt>참여 인원</dt><dd>' + st.n + '<small>명</small></dd></div>'
         + '<div><dt>기준 달성 (2개 이상)</dt><dd>' + st.goal + '<small>명 · ' + st.pct + '%</small></dd></div>'
         + '<div><dt>5개 모두 완료</dt><dd>' + st.full + '<small>명</small></dd></div>'
         + '<div><dt>하반기 계획 작성</dt><dd>' + st.plan + '<small>명</small></dd></div></dl>'
-      + '<div class="sec-h"><h3>추천 강의</h3><span class="ss-sub">Gemini 업무 활용 · YouTube</span></div>'
-      + '<div class="ss-courses">' + COURSES.map(function (c, i) {
-          var n = st.per[c.key], pct = st.n ? Math.round(n / st.n * 100) : 0;
-          return '<a class="ss-course" href="' + esc(c.url) + '" target="_blank" rel="noopener">'
-            + '<span class="ss-course__th"><img src="https://i.ytimg.com/vi/' + c.yt + '/mqdefault.jpg" alt="" loading="lazy"><i>▶</i></span>'
-            + '<span class="ss-course__b"><small>' + (i + 1) + ' · ' + esc(c.by) + '</small><b>' + esc(c.title) + '</b>'
-            + '<span class="ss-course__f"><span class="progress-bar"><span class="progress-bar__fill" style="width:' + pct + '%"></span></span><em>' + n + ' / ' + st.n + '명</em></span></span></a>';
-        }).join("") + '</div>'
-      + '<div class="sec-h"><h3>이수 현황</h3><span class="ss-sub">' + (ST.edit ? "칸을 눌러 체크하고, 계획 칸을 눌러 하반기 계획 · 비고를 써요" : ST.live ? "보기만 할 수 있어요 (스낵 자료 권한이 있으면 고칠 수 있어요)" : "") + '</span></div>'
+      + '<div class="sec-h"><h3>강의별 본 인원</h3><a href="#/snack/library">추천 강의 보기 →</a></div>'
+      + coursesHtml(st)
+      + '<div class="sec-h"><h3>사람별 이수 현황</h3><span class="ss-sub">' + (ST.edit ? "칸을 눌러 체크하고, 계획 칸을 눌러 하반기 계획 · 비고를 써요" : ST.live ? "보기만 할 수 있어요 (스낵 자료 권한이 있으면 고칠 수 있어요)" : "") + '</span></div>'
       + '<div class="board"><div class="board__scroll"><table class="board__table ss-table"><thead><tr><th>이름</th>'
         + COURSES.map(function (c, i) { return '<th class="ss-c" title="' + esc(c.title) + '">' + (i + 1) + '<span>' + esc(c.title) + '</span></th>'; }).join("")
         + '<th>완료</th><th>하반기 계획 · 비고</th></tr></thead><tbody>'
@@ -164,5 +180,5 @@
   // 홈 카드용 한 줄 요약
   function summary() { return load().then(function (d) { return stats(d.rows); }); }
 
-  window.EduSnackStudy = { render: render, summary: summary, COURSES: COURSES, GOAL: GOAL };
+  window.EduSnackStudy = { render: render, mountCourses: mountCourses, summary: summary, COURSES: COURSES, GOAL: GOAL };
 })();
