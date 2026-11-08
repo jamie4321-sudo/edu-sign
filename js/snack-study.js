@@ -74,7 +74,7 @@
   function render(view, opts) {
     view.innerHTML = '<div class="wrap">' + opts.head + '<div id="ssBody"><div class="empty">불러오는 중…</div></div></div>';
     load().then(function (d) {
-      ST.rows = d.rows; ST.live = d.live; ST.edit = d.live && !!opts.canEdit; ST.by = opts.by || "";
+      ST.rows = d.rows; ST.live = d.live; ST.edit = d.live && !!opts.canEdit; ST.by = opts.by || ""; ST.pub = !!opts.pub;
       paint(document.getElementById("ssBody"), d);
     });
   }
@@ -88,13 +88,13 @@
         + '<p class="ss-more">강의를 본 크루 체크 · 하반기 계획은 <a href="#/snack/progress"><b>이수 현황</b></a>에서 관리해요.</p>';
     });
   }
-  function introHtml() {
+  function introHtml(pub) {
     return '<section class="ss-intro">'
         + '<div><p class="ss-intro__k">스터디 규칙</p><ul class="ss-rules">'
           + '<li>추천 강의 5개 중 <b>2개 이상</b> 보고 완료 체크해요.</li>'
           + '<li>추천 강의 말고 다른 자료로 공부했다면 <b>비고</b>에 링크를 남겨요.</li>'
           + '<li>하반기 개인 성과 목표(<b>POP 이미지 제작 참여 · 개별 브랜딩 리포트 작성</b>)에 활용해요.</li></ul></div>'
-        + '<a class="btn btn--sm" href="' + SHEET_URL + '" target="_blank" rel="noopener">원본 시트 열기 ↗</a>'
+        + (pub ? '' : '<a class="btn btn--sm" href="' + SHEET_URL + '" target="_blank" rel="noopener">원본 시트 열기 ↗</a>')
       + '</section>';
   }
   function coursesHtml(st) {
@@ -117,9 +117,9 @@
         + '<div><dt>기준 달성 (2개 이상)</dt><dd>' + st.goal + '<small>명 · ' + st.pct + '%</small></dd></div>'
         + '<div><dt>5개 모두 완료</dt><dd>' + st.full + '<small>명</small></dd></div>'
         + '<div><dt>하반기 계획 작성</dt><dd>' + st.plan + '<small>명</small></dd></div></dl>'
-      + '<div class="sec-h"><h3>강의별 본 인원</h3><a href="#/snack/library">추천 강의 보기 →</a></div>'
+      + '<div class="sec-h"><h3>강의별 본 인원</h3>' + (ST.pub ? '' : '<a href="#/snack/library">추천 강의 보기 →</a>') + '</div>'
       + coursesHtml(st)
-      + '<div class="sec-h"><h3>사람별 이수 현황</h3><span class="ss-sub">' + (ST.edit ? "칸을 눌러 체크하고, 계획 칸을 눌러 하반기 계획 · 비고를 써요" : ST.live ? "보기만 할 수 있어요 (스낵 자료 권한이 있으면 고칠 수 있어요)" : "") + '</span></div>'
+      + '<div class="sec-h"><h3>사람별 이수 현황</h3><span class="ss-sub">' + (ST.edit ? "칸을 눌러 체크하고, 계획 칸을 눌러 하반기 계획 · 비고를 써요" : ST.pub ? "" : ST.live ? "보기만 할 수 있어요 (스낵 자료 권한이 있으면 고칠 수 있어요)" : "") + '</span></div>'
       + '<div class="board"><div class="board__scroll"><table class="board__table ss-table"><thead><tr><th>이름</th>'
         + COURSES.map(function (c, i) { return '<th class="ss-c" title="' + esc(c.title) + '">' + (i + 1) + '<span>' + esc(c.title) + '</span></th>'; }).join("")
         + '<th>완료</th><th>하반기 계획 · 비고</th></tr></thead><tbody>'
@@ -180,5 +180,5 @@
   // 홈 카드용 한 줄 요약
   function summary() { return load().then(function (d) { return stats(d.rows); }); }
 
-  window.EduSnackStudy = { render: render, mountCourses: mountCourses, summary: summary, COURSES: COURSES, GOAL: GOAL };
+  window.EduSnackStudy = { introHtml: introHtml, render: render, mountCourses: mountCourses, summary: summary, COURSES: COURSES, GOAL: GOAL };
 })();
