@@ -153,7 +153,7 @@
     else if (hash === "garden/progress") { setNav("garden/progress"); renderProgress(); }
     else if (hash === "admin") { setNav("admin"); EduAuth.renderAccounts(view, setCrumb); }
     else if (hash === "snack") { setNav("snack"); renderSnackHome(); }
-    else if (hash === "snack/ai-study") { setNav("snack"); renderSnackStudy(); }
+    else if (hash === "snack/ai-study") { setNav("snack/ai-study"); renderSnackStudy(); }
     else if (hash === "support") { setNav("support"); renderPrep("support"); }
     else { setNav("home"); renderHome(); }
   }
