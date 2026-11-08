@@ -139,7 +139,7 @@
   // #/garden               가든 교육 홈 · #/garden/library 교육 자료실 · #/garden/progress 이수 현황
   // #/snack                스낵 교육 홈 · #/snack/library 교육 자료실(AI 스터디 강의 + 스낵 자료) · #/snack/progress 이수 현황(AI 스터디)
   //                        (예전 #/snack/ai-study → #/snack/progress)
-  // #/support              준비 중
+  // #/support              총무지원 교육 홈 · #/support/library 교육 자료실 · #/support/progress 이수 현황 (가든과 같은 구조)
   var SIGN = "#/sign";
   function route() {
     var hash = location.hash.replace(/^#\/?/, "");
@@ -158,7 +158,9 @@
     else if (hash === "snack/ai-study") { location.replace("#/snack/progress"); return; }
     else if (hash === "snack/library") { setNav("snack/library"); renderSnackLibrary(); }
     else if (hash === "snack/progress") { setNav("snack/progress"); renderSnackProgress(); }
-    else if (hash === "support") { setNav("support"); renderPrep("support"); }
+    else if (hash === "support") { setNav("support"); renderSupportHome(); }
+    else if (hash === "support/library") { setNav("support/library"); renderSupportLibrary(); }
+    else if (hash === "support/progress") { setNav("support/progress"); renderSupportProgress(); }
     else { setNav("home"); renderHome(); }
   }
   function setNav(key) {
@@ -183,7 +185,7 @@
   var PARTS = [
     { key: "garden", name: "가든 직무 교육", desc: "장비 관리 · 식물 관리 · 안전 교육 자료", ic: IC.leaf, on: true },
     { key: "snack", name: "스낵큐레이션 직무 교육", desc: "AI 스터디 · 스낵바 운영 · 진열 · 위생 교육", ic: IC.cup, on: true },
-    { key: "support", name: "총무지원 직무 교육", desc: "총무지원 업무 · 사무 지원 교육", ic: IC.box }
+    { key: "support", name: "총무지원 직무 교육", desc: "총무지원 업무 · 사무 지원 교육", ic: IC.box, on: true }
   ];
   function curMonth() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2); }
   function signStats(sessions) {
@@ -221,6 +223,11 @@
       var f = document.getElementById("part-garden");
       if (f) f.innerHTML = '<span>교육 자료 <b>' + ms.length + '건</b>' + (ms.some(function (x) { return x.needsSign; }) ? ' · 서명 받는 자료 <b>' + ms.filter(function (x) { return x.needsSign; }).length + '건</b>' : "") + '</span>' + IC.arrow;
     }).catch(function () { var f = document.getElementById("part-garden"); if (f) f.innerHTML = '<span>교육 자료실 열기</span>' + IC.arrow; });
+    Store.listMaterials("support").then(function (ms) {
+      ms = ms.filter(function (x) { return !EduLib.isDraft(x); });
+      var f = document.getElementById("part-support");
+      if (f) f.innerHTML = '<span>' + (ms.length ? '교육 자료 <b>' + ms.length + '건</b>' : '교육 자료실 열기') + '</span>' + IC.arrow;
+    }).catch(function () { var f = document.getElementById("part-support"); if (f) f.innerHTML = '<span>교육 자료실 열기</span>' + IC.arrow; });
     EduSnackStudy.summary().then(function (st) {
       var f = document.getElementById("part-snack");
       if (f) f.innerHTML = '<span>AI 스터디 기준 달성 <b>' + st.goal + ' / ' + st.n + '명</b></span>' + IC.arrow;
@@ -320,6 +327,69 @@
       head: '<div class="page-head"><div><p class="eyebrow">EDU · SNACK</p><h2>이수 현황</h2>'
         + '<p class="sub">AI 스터디는 강의 체크로 이수를 확인해요. 강의 5개 중 2개 이상 보면 달성이에요.</p></div></div>'
         + snackSubnav("snack/progress") });
+  }
+
+  /* ---------------- 총무지원 교육 (가든과 같은 구조: 홈 · 교육 자료실 · 이수 현황) ---------------- */
+  var SUPPORT_TOPICS = EduLib.topicsOf ? EduLib.topicsOf("support") : [];
+  function supportSubnav(cur) {
+    var items = [["support", "총무지원 교육 홈"], ["support/library", "교육 자료실"], ["support/progress", "이수 현황"]];
+    return '<nav class="subnav" aria-label="총무지원 교육 메뉴">' + items.map(function (x) {
+      return '<a href="#/' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : "") + '>' + x[1] + '</a>';
+    }).join("") + '</nav>';
+  }
+  function renderSupportHome() {
+    setCrumb("EDU · 총무지원 교육");
+    view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">EDU · SUPPORT</p><h2>총무지원 교육</h2>'
+      + '<p class="sub">총무지원 크루가 알아야 할 업무 · 사무 지원 · 안전 교육 자료를 모아요.</p></div>'
+      + '<div class="head-acts"><button class="btn btn--draftbox" id="uDraftBox">임시보관함 <span class="draft-n" data-draft-n>–</span></button><button class="btn btn--primary" id="uNewMat">+ 교육 자료 만들기</button></div></div>'
+      + supportSubnav("support")
+      + '<dl class="summary" id="uSummary">'
+        + '<div><dt>교육 자료</dt><dd>–</dd></div><div><dt>서명 받는 자료</dt><dd>–</dd></div>'
+        + '<div><dt>임시보관함</dt><dd>–</dd></div><div><dt>사진</dt><dd>–</dd></div></dl>'
+      + '<div class="sec-h"><h3>바로가기</h3></div>'
+      + '<div class="quick-grid">'
+        + '<a class="quick" href="#/support/library"><div class="quick__h">' + IC.book + '<b>교육 자료실</b><span class="pill pill--live">운영 중</span></div>'
+          + '<div class="chips">' + SUPPORT_TOPICS.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("") + '</div></a>'
+        + '<a class="quick" href="' + SIGN + '"><div class="quick__h">' + IC.sign + '<b>교육 서명 관리</b><span class="pill">파트 공통</span></div>'
+          + '<p>서명이 필요한 교육은 자료를 만들 때 서명 세션과 연결돼요.</p></a>'
+        + '<a class="quick" href="#/support/progress"><div class="quick__h">' + IC.chk + '<b>이수 현황</b><span class="pill pill--live">운영 중</span></div>'
+          + '<p>크루별로 어떤 교육을 마쳤는지 한눈에 봐요.</p></a>'
+      + '</div>'
+      + '<div class="sec-h"><h3>최근 교육 자료</h3><a href="#/support/library">전체 보기 →</a></div>'
+      + '<div id="uMats"></div></div>';
+    var opts = { admin: Auth.can("material:support"), part: "support", by: Admin.current(), limit: 6, noTopics: true };
+    if (!opts.admin) document.getElementById("uNewMat").hidden = document.getElementById("uDraftBox").hidden = true;
+    document.getElementById("uDraftBox").onclick = function () { EduLib.showDrafts(); location.hash = "#/support/library"; };
+    document.getElementById("uNewMat").onclick = function () { EduLib.openCreate(opts); };
+    EduLib.mountList(document.getElementById("uMats"), opts).then(function (ms) {
+      var sm = document.getElementById("uSummary"); if (!sm || !ms) return;
+      var drafts = ms.filter(EduLib.isDraft).length; ms = ms.filter(function (x) { return !EduLib.isDraft(x); });
+      var photos = 0; ms.forEach(function (x) { photos += (x.steps || []).filter(function (s) { return s.u; }).length; });
+      sm.innerHTML = '<div><dt>교육 자료</dt><dd>' + ms.length + '<small>건</small></dd></div>'
+        + '<div><dt>서명 받는 자료</dt><dd>' + ms.filter(function (x) { return x.needsSign; }).length + '<small>건</small></dd></div>'
+        + '<div><dt>임시보관함</dt><dd>' + drafts + '<small>건</small></dd></div>'
+        + '<div><dt>사진</dt><dd>' + photos + '<small>장</small></dd></div>';
+    });
+  }
+  function renderSupportLibrary() {
+    setCrumb("EDU · 총무지원 교육 · 교육 자료실");
+    view.innerHTML = '<div class="wrap"><div class="page-head"><div><p class="eyebrow">EDU · SUPPORT</p><h2>교육 자료실</h2>'
+      + '<p class="sub">총무지원 업무 · 사무 지원처럼 현장에서 보는 교육 자료를 단계별 사진과 설명으로 올려요.</p></div>'
+      + '<div class="head-acts"><button class="btn btn--draftbox" id="uDraftBox2">임시보관함 <span class="draft-n" data-draft-n>–</span></button><button class="btn btn--primary" id="uNewMat2">+ 교육 자료 만들기</button></div></div>'
+      + supportSubnav("support/library")
+      + '<div id="uLibList"></div></div>';
+    var opts = { admin: Auth.can("material:support"), part: "support", by: Admin.current() };
+    if (!opts.admin) document.getElementById("uNewMat2").hidden = document.getElementById("uDraftBox2").hidden = true;
+    document.getElementById("uDraftBox2").onclick = function () { EduLib.showDrafts(); var l = document.getElementById("uLibList"); if (l) l.scrollIntoView({ behavior: "smooth", block: "start" }); };
+    document.getElementById("uNewMat2").onclick = function () { EduLib.openCreate(opts); };
+    EduLib.mountList(document.getElementById("uLibList"), opts);
+  }
+  function renderSupportProgress() {
+    setCrumb("EDU · 총무지원 교육 · 이수 현황");
+    EduProgress.render(view, { part: "support", crewList: fetchCrewList,
+      head: '<div class="page-head"><div><p class="eyebrow">EDU · SUPPORT</p><h2>이수 현황</h2>'
+        + '<p class="sub">서명 받는 교육은 서명으로, 그 밖의 교육은 크루가 끝까지 보고 누른 &lsquo;다 봤어요&rsquo;로 이수를 확인해요.</p></div></div>'
+        + supportSubnav("support/progress") });
   }
 
   /* ---------------- 이수 현황 (js/progress.js) ---------------- */
