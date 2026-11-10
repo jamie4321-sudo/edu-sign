@@ -22,24 +22,27 @@
         { name: "직장 내 장애인 인식개선교육", am: "11:10~11:50", pm: "15:10~15:50", min: 40 },
         { name: "산업안전보건교육", am: "11:50~12:30", pm: "15:50~16:30", min: 40 }
       ],
+      meets: [
+        { label: "1타임", when: "오전", time: "10:00~12:30", meet: "https://meet.google.com/boj-nody-gvo" },
+        { label: "2타임", when: "오후", time: "14:00~16:30", meet: "https://meet.google.com/nso-saon-emd" }
+      ],
       others: [
         { name: "개인정보보호교육", how: "온라인 교육", note: "별도 안내 예정", link: "privacy" },
         { name: "퇴직연금교육", how: "아지트 안내 자료로 대체", note: "아지트 자료를 읽으면 돼요", link: "pension" }
       ],
       checks: [
         { t: "모든 크루 필수", d: "법정의무교육은 빠짐없이 모두 들어야 해요." },
-        { t: "11월 12일 (목) · 구글 미트", d: "같은 교육이 오전과 오후에 한 번씩 열려요. 시간표를 보고 미리 일정을 비워 두세요." },
+        { t: "11월 12일 (목) · 구글 미트", d: "같은 교육이 오전(1타임)과 오후(2타임)에 한 번씩 열려요. 시간표를 보고 미리 일정을 비워 두세요." },
         { t: "개인정보보호교육은 온라인", d: "따로 안내가 나가요. 안내가 오면 기간 안에 꼭 들어 주세요." },
         { t: "퇴직연금교육은 아지트 자료로", d: "아지트에 올라온 안내 자료를 읽으면 교육을 대신해요." }
       ],
       notice: "복지큐레이션센터 크루 중 구글 워크스페이스(GWS) 계정이 없는 4·6·8시간 크루는 따로 교육할 예정이에요.",
-      links: { agit: "", meet: "", privacy: "", pension: "" }
+      links: { agit: "", privacy: "", pension: "" }
     }
   ];
 
   var LINK_META = [
     { key: "agit", label: "아지트 공지 원문", hint: "2026년 법정의무교육 안내 글 링크" },
-    { key: "meet", label: "구글 미트 입장 링크", hint: "교육 당일 들어가는 주소" },
     { key: "privacy", label: "개인정보보호교육 (온라인)", hint: "온라인 교육 안내 · 수강 링크" },
     { key: "pension", label: "퇴직연금교육 아지트 자료", hint: "아지트 안내 자료 링크" }
   ];
@@ -113,6 +116,12 @@
           + '<div><dt>대상</dt><dd>모든 크루 (필수)</dd></div>'
         + '</dl>'
       + '</section>'
+      + ((Y.meets && Y.meets.length) ? '<div class="sec-h"><h3>구글 미트 주소</h3><span class="ss-sub">' + esc(Y.dateLabel) + ' · 시간에 맞춰 들어가요</span></div>'
+        + '<div class="lg-meets">' + Y.meets.map(function (m) {
+            return '<div class="lg-meet"><div class="lg-meet__h"><span class="lg-meet__tag">' + esc(m.label) + '</span><b>' + esc(m.when) + '</b><span class="lg-meet__time">' + esc(m.time) + '</span></div>'
+              + '<p class="lg-meet__addr">' + esc(m.meet.replace(/^https?:\/\//, "")) + '</p>'
+              + '<div class="lg-meet__acts">' + linkBtn(m.meet, "구글 미트 들어가기", true) + '</div></div>';
+          }).join("") + '</div>' : "")
       + '<div class="sec-h"><h3>꼭 확인해 주세요</h3></div>'
       + '<ol class="lg-checks">' + Y.checks.map(function (c, i) {
           return '<li><span class="lg-checks__n">' + (i + 1) + '</span><div><b>' + esc(c.t) + '</b><p>' + esc(c.d) + '</p></div></li>';
@@ -151,7 +160,7 @@
     loadLinks(y).then(function (st) {
       var L = st.links;
       var acts = document.getElementById("lgActs");
-      if (acts) acts.innerHTML = linkBtn(L.agit, "아지트 공지 보기", true) + linkBtn(L.meet, "구글 미트 들어가기");
+      if (acts) acts.innerHTML = linkBtn(L.agit, "아지트 공지 보기", true);
       var oth = document.getElementById("lgOthers");
       if (oth) oth.innerHTML = Y.others.map(function (o) {
         return '<div class="quick"><div class="quick__h">' + IC.chk + '<b>' + esc(o.name) + '</b><span class="pill">' + esc(o.how) + '</span></div>'

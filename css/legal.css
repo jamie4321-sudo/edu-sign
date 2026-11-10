@@ -50,3 +50,14 @@
   .lg-checks, .lg .quick-grid.lg-others { grid-template-columns: minmax(0, 1fr); }
   .lg-table th, .lg-table td { padding: 12px 14px; }
 }
+
+/* 구글 미트 주소 (오전 1타임 · 오후 2타임) */
+.lg-meets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.lg-meet { display: flex; flex-direction: column; gap: 10px; background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--r-lg); padding: 18px 20px; }
+.lg-meet__h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lg-meet__h b { font-size: 18px; font-weight: 800; letter-spacing: -.3px; }
+.lg-meet__tag { font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+.lg-meet__time { margin-left: auto; font-size: 14px; font-weight: 700; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.lg-meet__addr { margin: 0; font-size: 13px; color: var(--ink-3); word-break: break-all; }
+.lg-meet__acts { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 760px) { .lg-meets { grid-template-columns: minmax(0, 1fr); } }
