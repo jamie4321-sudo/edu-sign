@@ -139,6 +139,7 @@
   // #/garden               가든 교육 홈 · #/garden/library 교육 자료실 · #/garden/progress 이수 현황
   // #/snack                스낵 교육 홈 · #/snack/library 교육 자료실(AI 스터디 강의 + 스낵 자료) · #/snack/progress 이수 현황(AI 스터디)
   //                        (예전 #/snack/ai-study → #/snack/progress)
+  // #/legal                법정의무교육 (모든 크루 필수 · 년도별, js/legal.js · 크루용 공개 보기 legal.html)
   // #/support              총무지원 교육 홈 · #/support/library 교육 자료실 · #/support/progress 이수 현황 (가든과 같은 구조)
   var SIGN = "#/sign";
   function route() {
@@ -153,6 +154,7 @@
     else if (hash === "garden") { setNav("garden"); renderGardenHome(); }
     else if (hash === "garden/library") { setNav("garden/library"); renderLibrary(); }
     else if (hash === "garden/progress") { setNav("garden/progress"); renderProgress(); }
+    else if (hash === "legal") { setNav("legal"); renderLegal(); }
     else if (hash === "admin") { setNav("admin"); EduAuth.renderAccounts(view, setCrumb); }
     else if (hash === "snack") { setNav("snack"); renderSnackHome(); }
     else if (hash === "snack/ai-study") { location.replace("#/snack/progress"); return; }
@@ -390,6 +392,15 @@
       head: '<div class="page-head"><div><p class="eyebrow">EDU · SUPPORT</p><h2>이수 현황</h2>'
         + '<p class="sub">서명 받는 교육은 서명으로, 그 밖의 교육은 크루가 끝까지 보고 누른 &lsquo;다 봤어요&rsquo;로 이수를 확인해요.</p></div></div>'
         + supportSubnav("support/progress") });
+  }
+
+  /* ---------------- 법정의무교육 (js/legal.js) ---------------- */
+  function renderLegal() {
+    setCrumb("EDU · 법정의무교육");
+    EduLegal.render(view, { admin: Auth.can("sign"), by: Admin.current(),
+      shareUrl: location.origin + location.pathname.replace(/index\.html$/, "").replace(/\/$/, "") + "/legal",
+      head: '<div class="page-head"><div><p class="eyebrow">EDU · 법정의무교육</p><h2>법정의무교육</h2>'
+        + '<p class="sub">모든 크루가 반드시 들어야 하는 필수 교육이에요. 해마다 일정과 안내를 여기서 관리해요.</p></div></div>' });
   }
 
   /* ---------------- 이수 현황 (js/progress.js) ---------------- */
