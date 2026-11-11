@@ -19,10 +19,10 @@
       lede: "모든 크루가 꼭 들어야 하는 교육이에요. 회사와 크루 모두의 권리와 의무를 지키기 위한 교육이니 일정을 미리 확인해 주세요.",
       // 한눈에 보기 — 누가 · 언제까지 · 무엇을. 이 페이지의 요약은 여기 하나만 (아래에서 반복하지 않음)
       tiles: [
-        { who: "구글 계정이 있는 크루", big: "11월 12일 (목)", what: "구글 미트로 4대 교육 듣기", sub: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30 중 한 번", go: "harass" },
-        { who: "구글 계정이 없는 4·6·8시간 크루", big: "12월 31일까지", what: "4대 교육 영상 시청", sub: "11월 중 교육 영상을 받아서 12월 31일까지 시청하면 돼요.", hot: true, video: true },
-        { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy" },
-        { who: "모든 크루", big: "아지트 자료", what: "퇴직연금교육", sub: "아지트 안내 자료를 읽으면 돼요", go: "pension" }
+        { who: "구글 계정이 있는 크루", big: "11월 12일 (목)", what: "구글 미트로 4대 교육 듣기", sub: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30 중 한 번", go: "harass", tg: { field: "targets", only: "meet" } },
+        { who: "구글 계정이 없는 4·6·8시간 크루", big: "12월 31일까지", what: "4대 교육 영상 시청", sub: "11월 중 교육 영상을 받아서 12월 31일까지 시청하면 돼요.", hot: true, video: true, tg: { field: "targets", only: "video" } },
+        { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy", tg: { field: "t_privacy" } },
+        { who: "모든 크루", big: "아지트 자료", what: "퇴직연금교육", sub: "아지트 안내 자료를 읽으면 돼요", go: "pension", tg: { field: "t_pension" } }
       ],
       // 대상자 설정(관리자) — 크루 명단(edu_crews 재직)마다 아래 중 하나. 저장: edu_legal.links.targets { "이름(ldap)": key }
       targetWays: [
@@ -227,11 +227,53 @@
       return { crews: list };
     }).catch(function () { return { crews: [], missing: true }; });
   }
-  function wayOf(Y, k) { return Y.targetWays.filter(function (w) { return w.key === k; })[0]; }
-  function countTargets(Y, T, crews) {
-    var c = { none: 0 }; Y.targetWays.forEach(function (w) { c[w.key] = 0; });
+  // 개인정보 · 퇴직연금 = 기본 '대상'(모든 크루), 빼고 싶은 크루만 '대상 아님'
+  var IN_WAYS = [{ key: "in", label: "대상", when: "" }, { key: "out", label: "대상 아님", when: "이번 교육 대상이 아니에요" }];
+  function waysOf(Y, field) { return field === "targets" ? Y.targetWays : IN_WAYS; }
+  function wayOf(Y, k, field) { return waysOf(Y, field || "targets").filter(function (w) { return w.key === k; })[0]; }
+  // 이 칸의 대상자 명단
+  function membersOf(tg, L, crews) {
+    var T = L[tg.field] || {};
+    if (tg.field === "targets") return crews.filter(function (c) { return T[c.name] === tg.only; });
+    return crews.filter(function (c) { return T[c.name] !== "out"; });
+  }
+  function countTargets(Y, T, crews, ways) {
+    ways = ways || Y.targetWays;
+    var c = { none: 0 }; ways.forEach(function (w) { c[w.key] = 0; });
     crews.forEach(function (x) { var k = T[x.name]; if (k && c[k] != null) c[k]++; else c.none++; });
     return c;
+  }
+  function tileTgHtml(t, L, crews, admin) {
+    if (!t.tg) return "";
+    var n = membersOf(t.tg, L, crews).length, set = t.tg.field !== "targets" || Object.keys(L.targets || {}).length > 0;
+    return '<span class="lg-tile__tgn">대상자 <b>' + (crews.length ? (set ? n + "명" : "미정") : "–") + '</b></span>'
+      + '<span class="lg-tile__tgacts">'
+      + '<button type="button" class="lg-tile__tgbtn" data-tgcheck' + (n ? "" : " disabled") + '>대상자 확인</button>'
+      + (admin ? '<button type="button" class="lg-tile__tgbtn is-set" data-tgset>설정</button>' : "")
+      + '</span>';
+  }
+  function openTileCheck(Y, t, L, crews) {
+    var names = membersOf(t.tg, L, crews), field = t.tg.field, T = L[field] || {};
+    var m = modal(t.what + " 대상자", '<p class="lg-m__hint">' + esc(t.who) + ' · ' + esc(t.big) + '</p>'
+      + '<label class="lg-m__find"><span>내 이름 찾기</span><input type="search" id="lgFind" placeholder="이름을 써 주세요" autocomplete="off" /></label>'
+      + '<div class="lg-m__me" id="lgMe" aria-live="polite"></div>'
+      + '<section class="lg-m__g"><div class="lg-m__gh"><b>대상자</b><em>' + names.length + '명</em></div>'
+      + '<div class="lg-m__chips">' + names.map(function (c) { return '<span data-n="' + esc(shortName(c.name)) + '">' + esc(shortName(c.name)) + '</span>'; }).join("") + '</div></section>', true);
+    var inp = m.el.querySelector("#lgFind"), me = m.el.querySelector("#lgMe");
+    inp.oninput = function () {
+      var q = inp.value.trim();
+      m.el.querySelectorAll("[data-n]").forEach(function (x) { x.classList.toggle("is-hit", !!q && x.dataset.n.indexOf(q) > -1); });
+      if (!q) { me.innerHTML = ""; return; }
+      var hits = crews.filter(function (c) { return shortName(c.name).indexOf(q) > -1; });
+      me.innerHTML = hits.length ? hits.slice(0, 4).map(function (c) {
+        var mine = names.indexOf(c) > -1, w = wayOf(Y, T[c.name], field);
+        var txt = mine ? "이 교육 대상이에요 · " + t.big
+          : field === "targets" && w && w.key !== "out" ? "이 칸이 아니에요 — " + w.label + " (" + w.when + ")"
+          : "이 교육 대상이 아니에요";
+        return '<div class="lg-m__hit' + (mine ? "" : " is-none") + '"><b>' + esc(shortName(c.name)) + '</b><span>' + esc(txt) + '</span></div>';
+      }).join("") : '<div class="lg-m__hit is-none">이름을 찾지 못했어요. 리더에게 물어봐 주세요.</div>';
+    };
+    setTimeout(function () { inp.focus(); }, 50);
   }
   function tgBarHtml(Y, T, crews, admin) {
     var has = Object.keys(T || {}).length > 0, c = countTargets(Y, T || {}, crews);
@@ -283,8 +325,11 @@
     setTimeout(function () { inp.focus(); }, 50);
   }
   // 관리자: 대상자 설정 — 크루마다 방법 고르기
-  function openSet(Y, y, L, crews, opts, done) {
-    var T = Object.assign({}, L.targets || {});
+  function openSet(Y, y, L, crews, opts, done, field, title) {
+    field = field || "targets";
+    var WAYS = waysOf(Y, field), isIn = field !== "targets";
+    var T = Object.assign({}, L[field] || {});
+    if (isIn) crews.forEach(function (c) { if (T[c.name] !== "out") T[c.name] = "in"; });
     function rowsHtml() {
       return PARTS.concat(["기타"]).map(function (part) {
         var list = crews.filter(function (c) { return part === "기타" ? PARTS.indexOf(c.grp) < 0 : c.grp === part; });
@@ -292,23 +337,23 @@
         return '<section class="lg-m__g"><div class="lg-m__gh"><b>' + esc(PART_LABEL[part] || part) + '</b><em>' + list.length + '명</em></div>'
           + list.map(function (c) {
               return '<div class="lg-set"><div class="lg-set__n"><b>' + esc(shortName(c.name)) + '</b><small>' + esc(c.role || "") + '</small></div>'
-                + '<div class="lg-seg" role="radiogroup" aria-label="' + esc(shortName(c.name)) + '">' + Y.targetWays.map(function (w) {
+                + '<div class="lg-seg" role="radiogroup" aria-label="' + esc(shortName(c.name)) + '">' + WAYS.map(function (w) {
                     return '<button type="button" role="radio" data-c="' + esc(c.name) + '" data-w="' + w.key + '" aria-checked="' + (T[c.name] === w.key) + '">' + esc(w.label) + '</button>';
                   }).join("") + '</div></div>';
             }).join("") + '</section>';
       }).join("");
     }
-    var m = modal(y + "년 4대 교육 대상자 설정", '<p class="lg-m__hint">크루 명단(재직)마다 듣는 방법을 골라 주세요. 고르지 않은 크루는 &lsquo;미정&rsquo;으로 보여요.</p>'
-      + '<div class="lg-m__bulk"><span>미정인 크루 모두</span>' + Y.targetWays.filter(function (w) { return w.key !== "out"; }).map(function (w) { return '<button type="button" class="lg-copy" data-bulk="' + w.key + '">' + esc(w.label) + '</button>'; }).join("") + '</div>'
+    var m = modal(y + "년 " + (title || "4대 교육") + " 대상자 설정", '<p class="lg-m__hint">' + (isIn ? "기본은 모든 크루가 대상이에요. 빼야 하는 크루만 &lsquo;대상 아님&rsquo;을 눌러 주세요." : "크루 명단(재직)마다 듣는 방법을 골라 주세요. 고르지 않은 크루는 &lsquo;미정&rsquo;으로 보여요.") + '</p>'
+      + (isIn ? "" : '<div class="lg-m__bulk"><span>미정인 크루 모두</span>' + WAYS.filter(function (w) { return w.key !== "out"; }).map(function (w) { return '<button type="button" class="lg-copy" data-bulk="' + w.key + '">' + esc(w.label) + '</button>'; }).join("") + '</div>')
       + '<div id="lgSetRows">' + rowsHtml() + '</div>'
       + '<div class="modal__foot lg-m__save"><span class="hint" id="lgSetCount"></span><div class="modal__spacer"></div><button type="button" class="btn" data-close>취소</button><button type="button" class="btn btn--primary" id="lgSetSave">저장</button></div>', true);
     var box = m.el.querySelector("#lgSetRows"), cnt = m.el.querySelector("#lgSetCount");
-    function paintCount() { var c = countTargets(Y, T, crews); cnt.textContent = Y.targetWays.map(function (w) { return w.label + " " + c[w.key]; }).join(" · ") + " · 미정 " + c.none; }
+    function paintCount() { var c = countTargets(Y, T, crews, WAYS); cnt.textContent = WAYS.map(function (w) { return w.label + " " + c[w.key]; }).join(" · ") + (isIn ? "" : " · 미정 " + c.none); }
     function bind() {
       box.querySelectorAll("[data-w]").forEach(function (b) {
         b.onclick = function () {
           var n = b.dataset.c;
-          if (T[n] === b.dataset.w) delete T[n]; else T[n] = b.dataset.w;
+          if (T[n] === b.dataset.w && !isIn) delete T[n]; else T[n] = b.dataset.w;
           b.parentNode.querySelectorAll("[data-w]").forEach(function (x) { x.setAttribute("aria-checked", T[n] === x.dataset.w); });
           paintCount();
         };
@@ -320,7 +365,9 @@
     bind(); paintCount();
     m.el.querySelector("#lgSetSave").onclick = function () {
       var b = this; b.disabled = true; b.textContent = "저장 중…";
-      var out = Object.assign({}, L, { targets: T });
+      var save = T;
+      if (isIn) { save = {}; Object.keys(T).forEach(function (k) { if (T[k] === "out") save[k] = "out"; }); }
+      var out = Object.assign({}, L); out[field] = save;
       saveLinks(y, out, opts.by).then(function () { toast("대상자를 저장했어요"); m.close(); done(); })
         .catch(function (err) { b.disabled = false; b.textContent = "저장"; toast("저장하지 못했어요: " + (err && err.message || err)); });
     };
@@ -341,7 +388,7 @@
   }
 
   function tilesHtml(Y, L) {
-    return '<div class="lg-tiles">' + Y.tiles.map(function (t) {
+    return '<div class="lg-tiles">' + Y.tiles.map(function (t, i) {
       // 서명 버튼은 맨 아래(교육 상세 끝)에만 — 한눈에 보기 칸에는 넣지 않음 (Jamie)
       var act = t.video ? (safeUrl(L.video) ? btn(L.video, "4대 교육 영상 보기", true, IC.cam) : waitBtn("4대 교육 영상"))
         : (t.go ? '<button type="button" class="lg-tile__go" data-go="' + t.go + '">자세히 보기 →</button>' : "");
@@ -351,6 +398,7 @@
         + '<span class="lg-tile__what">' + esc(t.what) + '</span>'
         + '<span class="lg-tile__sub">' + esc(t.sub) + '</span>'
         + (act ? '<div class="lg-tile__act">' + act + '</div>' : "")
+        + (t.tg ? '<div class="lg-tile__tg" data-tile="' + i + '"><span class="lg-tile__tgn">대상자 <b>…</b></span></div>' : "")
         + '</div>';
     }).join("") + '</div>';
   }
@@ -410,7 +458,7 @@
       + '<h3 class="lg-sec">한눈에 보기</h3>'
       + '<div id="lgTiles">' + tilesHtml(Y, Y.links) + '</div>'
       + '<div class="lg-acts" id="lgAgit"></div>'
-      + '<div id="lgTgBox"></div>'
+
 
       // 2) 교육 6가지 — 누르면 아래 상세
       + '<h3 class="lg-sec">교육 6가지 <small>눌러서 자세히 보기</small></h3>'
@@ -472,14 +520,16 @@
       paintDetail(false);
       var tl = document.getElementById("lgTiles"); if (tl) { tl.innerHTML = tilesHtml(Y, L); bindGo(); }
       if (Y.targetWays) loadCrews().then(function (cr) {
-        var tb = document.getElementById("lgTgBox"); if (!tb) return;
-        var T = L.targets || {}, admin = !opts.pub && opts.admin && !st.missing;
-        tb.innerHTML = tgBarHtml(Y, T, cr.crews, admin);
-        var cb = document.getElementById("lgTgCheck"); if (cb) cb.onclick = function () { openCheck(Y, T, cr.crews); };
-        var sbtn = document.getElementById("lgTgSet"); if (sbtn) sbtn.onclick = function () {
-          if (!cr.crews.length) { toast("크루 명단을 불러오지 못했어요"); return; }
-          openSet(Y, y, L, cr.crews, opts, function () { render(view, opts); });
-        };
+        var admin = !opts.pub && opts.admin && !st.missing;
+        root.querySelectorAll(".lg-tile__tg[data-tile]").forEach(function (box) {
+          var t = Y.tiles[+box.dataset.tile];
+          box.innerHTML = tileTgHtml(t, L, cr.crews, admin);
+          var cb = box.querySelector("[data-tgcheck]"); if (cb) cb.onclick = function () { openTileCheck(Y, t, L, cr.crews); };
+          var sb2 = box.querySelector("[data-tgset]"); if (sb2) sb2.onclick = function () {
+            if (!cr.crews.length) { toast("크루 명단을 불러오지 못했어요"); return; }
+            openSet(Y, y, L, cr.crews, opts, function () { render(view, opts); }, t.tg.field, t.tg.field === "targets" ? "4대 교육" : t.what);
+          };
+        });
       });
       var h = document.getElementById("lgDbHint");
       if (h) h.textContent = st.missing ? "링크 저장 표가 아직 없어요 — supabase/legal.sql 을 실행하면 '링크 넣기'로 넣은 링크가 크루 화면에도 보여요."

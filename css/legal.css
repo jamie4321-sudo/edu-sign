@@ -267,3 +267,24 @@
 /* 관리자: 아지트 공지 링크 넣기 */
 .lg-addlink { font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; border-style: dashed; background: var(--panel); color: var(--ink-2); }
 .lg-addlink:hover { color: var(--ink); border-color: var(--ink-3); }
+
+/* 한눈에 보기 4칸 — 같은 크기 · 같은 간격, 칸마다 맨 아래 대상자 줄 */
+.lg-tiles { grid-auto-rows: 1fr; gap: 14px; }
+.lg-tile { min-height: 300px; }
+.lg-tile__act { margin-top: auto; padding-top: 14px; min-height: 60px; align-items: flex-end; }
+.lg-tile__tg { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 16px; padding-top: 14px; border-top: 2px solid var(--lg-line); }
+.lg-tile:first-child .lg-tile__tg { border-top-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+.lg-tile__tgn { font-size: 15px; color: var(--ink-2); }
+.lg-tile__tgn b { font-size: 18px; font-weight: 800; color: var(--ink); margin-left: 4px; }
+.lg-tile__tgacts { display: inline-flex; gap: 8px; }
+.lg-tile__tgbtn { font: inherit; font-size: 14.5px; font-weight: 800; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--ink); background: var(--ink); color: var(--bg); cursor: pointer; line-height: 1.2; }
+.lg-tile__tgbtn.is-set { background: transparent; color: var(--ink); border-color: var(--lg-line-2); }
+.lg-tile__tgbtn:hover { opacity: .88; }
+.lg-tile__tgbtn[disabled] { opacity: .35; cursor: not-allowed; }
+.lg-tile__tgbtn:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 2px; }
+.lg-tile.is-hot .lg-tile__tg { border-top-color: #3a3a30; }
+.lg-tile.is-hot .lg-tile__tgn { color: #d4d4d8; }
+.lg-tile.is-hot .lg-tile__tgn b { color: #f4f4f5; }
+.lg-tile.is-hot .lg-tile__tgbtn { background: #c6ff2e; border-color: #c6ff2e; color: #14160a; }
+.lg-tile.is-hot .lg-tile__tgbtn.is-set { background: transparent; color: #f4f4f5; border-color: #55554d; }
+@media (max-width: 760px) { .lg-tiles { grid-auto-rows: auto; } .lg-tile { min-height: 0; } }
