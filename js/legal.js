@@ -193,7 +193,7 @@
               + '<p class="lg-slot__time">' + esc(e[k]) + '</p><p class="lg-slot__sub">' + e.min + '분 · ' + esc(M.when) + ' 미트는 ' + esc(M.time) + ' 동안 열려요</p>'
               + btn(M.url, M.when + " 구글 미트 들어가기", true, IC.cam) + '</div>';
           }).join("") + '</div>'
-        + signBox(Y.signs && Y.signs.meet4, "완료 후, 서명은 아래 버튼으로 부탁드려요~");
+        + signBox(Y.signs && Y.signs.meet4, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
     } else if (e.kind === "privacy") {
       var P = Y.privacy, tg = privacyTag(P);
       h += '<dt>언제까지?</dt><dd>' + esc(P.period) + ' <span class="lg-dday lg-dday--' + tg.state + '">' + tg.txt + '</span></dd>'
@@ -206,7 +206,7 @@
               + '</div></li>';
           }).join("") + '</ol>'
         + '<h4 class="lg-h4">알아 두세요</h4><ul class="lg-notes">' + P.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join("") + '</ul>'
-        + signBox(Y.signs && Y.signs.privacy, "완료 후, 서명은 아래 버튼으로 부탁드려요~");
+        + signBox(Y.signs && Y.signs.privacy, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
     } else {
       h += '<dt>어떻게 해요?</dt><dd>아지트에 올라온 퇴직연금 안내 자료를 끝까지 읽어요.</dd></dl>'
         + '<div class="lg-acts">' + btn(L.pension, "아지트 자료 보기", true, IC.doc) + '</div>';
@@ -328,11 +328,15 @@
   function signUrl(id) { return (location.hostname === "localhost" || location.hostname === "127.0.0.1" ? "sign.html" : "/sign") + "?s=" + encodeURIComponent(id); }
   function signBtn(sg, primary) {
     if (!sg) return "";
-    return '<a class="lg-b lg-sign' + (primary === false ? "" : " is-pri") + '" href="' + signUrl(sg.id) + '">' + IC.pen + '<span>' + esc(sg.label) + '</span></a>';
+    return '<a class="lg-b lg-sign" href="' + signUrl(sg.id) + '">' + IC.pen + '<span>' + esc(sg.label) + '</span></a>';
   }
   function signBox(sg, title) {
     if (!sg) return "";
-    return '<div class="lg-signbox"><div><b>' + esc(title) + '</b>' + (sg.msg ? '<p>' + esc(sg.msg) + '</p>' : "") + '</div>' + signBtn(sg) + '</div>';
+    return '<div class="lg-signbox">'
+      + '<div class="lg-signbox__h"><span class="lg-signbox__ic">' + IC.pen + '</span><div><b>' + esc(title) + '</b>'
+      + (sg.msg ? '<p>' + esc(sg.msg) + '</p>' : "") + '</div></div>'
+      + '<a class="lg-signbtn" href="' + signUrl(sg.id) + '"><span>' + esc(sg.label) + '</span><i aria-hidden="true">→</i></a>'
+      + '</div>';
   }
 
   function tilesHtml(Y, L) {

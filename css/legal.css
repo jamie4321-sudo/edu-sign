@@ -244,12 +244,22 @@
 #lgAgit { margin-top: 12px; }
 @media (max-width: 760px) { .lg-tiles { grid-template-columns: minmax(0, 1fr); } .lg-tile { padding: 18px; } }
 
-/* 완료 서명 */
-.lg-signbox { margin-top: 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 18px 20px; border-radius: 16px; background: var(--lg-soft); border: 2px solid var(--accent); }
-.lg-signbox b { display: block; font-size: 17px; font-weight: 800; }
-.lg-signbox p { margin: 2px 0 0; font-size: 15px; color: var(--ink-2); max-width: 46ch; }
-.lg-sign { white-space: nowrap; }
+/* 완료 서명 — 형광 주황 버튼 */
+.lg { --lg-orange: #ff8a00; --lg-orange-2: #ff7300; }
+.lg-signbox { margin-top: 26px; display: grid; gap: 14px; padding: 20px 22px; border-radius: 20px; background: color-mix(in srgb, #ff8a00 9%, var(--panel)); border: 2px solid #ff8a00; }
+.lg-signbox__h { display: flex; align-items: center; gap: 14px; }
+.lg-signbox__ic { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #ff8a00; color: #14160a; }
+.lg-signbox__ic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.lg-signbox b { display: block; font-size: 20px; font-weight: 800; line-height: 1.4; letter-spacing: -.01em; }
+.lg-signbox p { margin: 2px 0 0; font-size: 15px; color: var(--ink-2); }
+.lg-signbtn { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 60px; padding: 12px 20px; border-radius: 16px; background: #ff8a00; color: #14160a; font-size: 19px; font-weight: 800; text-decoration: none; box-shadow: 0 4px 0 #d96f00; transition: transform .1s ease, box-shadow .1s ease, background-color .15s ease; }
+.lg-signbtn i { font-style: normal; font-size: 22px; transition: transform .15s ease; }
+.lg-signbtn:hover { background: #ff9a1f; }
+.lg-signbtn:hover i { transform: translateX(3px); }
+.lg-signbtn:active { transform: translateY(3px); box-shadow: 0 1px 0 #d96f00; }
+.lg-signbtn:focus-visible { outline: 3px solid #14160a; outline-offset: 3px; }
+.lg-sign { white-space: nowrap; background: #ff8a00 !important; border-color: #ff8a00 !important; color: #14160a !important; }
+.lg-sign:hover { background: #ff9a1f !important; }
 .lg-tile__act { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
-.lg-tile__act .lg-sign { min-height: 44px; font-size: 15px; padding: 8px 14px; }
-.lg-tile.is-hot .lg-sign:not(.is-pri) { background: transparent; border-color: #c6ff2e; color: #c6ff2e; }
-@media (max-width: 760px) { .lg-signbox .lg-b { width: 100%; justify-content: center; } }
+.lg-tile__act .lg-sign { min-height: 46px; font-size: 15.5px; padding: 8px 16px; }
+@media (max-width: 760px) { .lg-signbox { padding: 18px; } .lg-signbox b { font-size: 18px; } .lg-tile__act .lg-sign { width: 100%; justify-content: center; } }
