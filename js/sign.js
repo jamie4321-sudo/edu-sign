@@ -369,7 +369,7 @@
           return '<li class="sw-tl__i' + (on ? " is-on" : "") + '"><button type="button" class="sw-tl__b" data-chk="' + esc(c.key) + '" aria-pressed="' + on + '"' + (editable ? "" : " disabled") + '>'
             + '<span class="sw-tl__dot">' + (on ? "✓" : (i + 1)) + '</span>'
             + '<span class="sw-tl__t"><b>' + esc(c.label) + '</b>'
-            + (c.am || c.pm ? '<small>' + (c.am ? "오전 " + esc(c.am) : "") + (c.am && c.pm ? " · " : "") + (c.pm ? "오후 " + esc(c.pm) : "") + '</small>' : "")
+            + (c.am || c.pm ? '<small>' + (c.am ? "오전 " + esc(c.am) : "") + (c.am && c.pm ? " · " : "") + (c.pm ? "오후 " + esc(c.pm) : "") + '</small>' : (c.when ? '<small>' + esc(c.when) + '</small>' : ""))
             + '</span><span class="sw-tl__box" aria-hidden="true"></span></button></li>';
         }).join("") + '</ol>'
       + '<p class="sw-chk__n" id="chkCount">' + n + ' / ' + L.length + '개 체크</p>'

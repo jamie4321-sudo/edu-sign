@@ -263,3 +263,7 @@
 .lg-tile__act { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
 .lg-tile__act .lg-sign { min-height: 46px; font-size: 15.5px; padding: 8px 16px; }
 @media (max-width: 760px) { .lg-signbox { padding: 18px; } .lg-signbox b { font-size: 18px; } .lg-tile__act .lg-sign { width: 100%; justify-content: center; } }
+
+/* 관리자: 아지트 공지 링크 넣기 */
+.lg-addlink { font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; border-style: dashed; background: var(--panel); color: var(--ink-2); }
+.lg-addlink:hover { color: var(--ink); border-color: var(--ink-3); }

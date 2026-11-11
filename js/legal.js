@@ -19,9 +19,9 @@
       lede: "모든 크루가 꼭 들어야 하는 교육이에요. 회사와 크루 모두의 권리와 의무를 지키기 위한 교육이니 일정을 미리 확인해 주세요.",
       // 한눈에 보기 — 누가 · 언제까지 · 무엇을. 이 페이지의 요약은 여기 하나만 (아래에서 반복하지 않음)
       tiles: [
-        { who: "구글 계정이 있는 크루", big: "11월 12일 (목)", what: "구글 미트로 4대 교육 듣기", sub: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30 중 한 번", go: "harass", sign: "meet4" },
-        { who: "구글 계정이 없는 4·6·8시간 크루", big: "12월 31일까지", what: "4대 교육 영상 시청", sub: "11월 중 교육 영상을 받아서 12월 31일까지 시청하면 돼요.", hot: true, video: true, sign: "meet4" },
-        { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy", sign: "privacy" },
+        { who: "구글 계정이 있는 크루", big: "11월 12일 (목)", what: "구글 미트로 4대 교육 듣기", sub: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30 중 한 번", go: "harass" },
+        { who: "구글 계정이 없는 4·6·8시간 크루", big: "12월 31일까지", what: "4대 교육 영상 시청", sub: "11월 중 교육 영상을 받아서 12월 31일까지 시청하면 돼요.", hot: true, video: true },
+        { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy" },
         { who: "모든 크루", big: "아지트 자료", what: "퇴직연금교육", sub: "아지트 안내 자료를 읽으면 돼요", go: "pension" }
       ],
       // 대상자 설정(관리자) — 크루 명단(edu_crews 재직)마다 아래 중 하나. 저장: edu_legal.links.targets { "이름(ldap)": key }
@@ -78,9 +78,9 @@
         ],
       },
       // 교육을 마친 뒤 크루가 서명으로 '완료'를 알려 주는 곳 — 교육 서명 관리(#/sign)의 세션 id
+      // 서명 하나로 6가지 — 서명 화면에서 들은 교육을 체크 (sessions.meta.checks), 나중에 다시 들어와 체크 추가 가능
       signs: {
-        meet4: { id: "idmwbemuoqqncb", label: "4대 교육 완료 서명하기", msg: "11월 12일 교육을 듣거나 영상을 다 본 뒤 서명해 주세요." },
-        privacy: { id: "idmwalp33rhwa7sv", label: "개인정보보호교육 완료 서명하기", msg: "" }
+        all: { id: "idmwbemuoqqncb", label: "법정의무교육 완료 서명하기", msg: "서명 화면에서 들은 교육을 체크하고 서명해요. 나머지 교육은 듣고 나서 다시 들어와 체크하면 돼요." }
       },
       links: { agit: "", pension: "", video: "" }
     }
@@ -193,7 +193,7 @@
               + '<p class="lg-slot__time">' + esc(e[k]) + '</p><p class="lg-slot__sub">' + e.min + '분 · ' + esc(M.when) + ' 미트는 ' + esc(M.time) + ' 동안 열려요</p>'
               + btn(M.url, M.when + " 구글 미트 들어가기", true, IC.cam) + '</div>';
           }).join("") + '</div>'
-        + signBox(Y.signs && Y.signs.meet4, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
+        + signBox(Y.signs && Y.signs.all, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
     } else if (e.kind === "privacy") {
       var P = Y.privacy, tg = privacyTag(P);
       h += '<dt>언제까지?</dt><dd>' + esc(P.period) + ' <span class="lg-dday lg-dday--' + tg.state + '">' + tg.txt + '</span></dd>'
@@ -206,10 +206,11 @@
               + '</div></li>';
           }).join("") + '</ol>'
         + '<h4 class="lg-h4">알아 두세요</h4><ul class="lg-notes">' + P.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join("") + '</ul>'
-        + signBox(Y.signs && Y.signs.privacy, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
+        + signBox(Y.signs && Y.signs.all, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
     } else {
       h += '<dt>어떻게 해요?</dt><dd>아지트에 올라온 퇴직연금 안내 자료를 끝까지 읽어요.</dd></dl>'
-        + '<div class="lg-acts">' + btn(L.pension, "아지트 자료 보기", true, IC.doc) + '</div>';
+        + '<div class="lg-acts">' + btn(L.pension, "아지트 자료 보기", true, IC.doc) + '</div>'
+        + signBox(Y.signs && Y.signs.all, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
     }
     return h;
   }
@@ -467,7 +468,7 @@
     loadLinks(y).then(function (st) {
       L = st.links;
       var a = document.getElementById("lgAgit");
-      if (a) a.innerHTML = safeUrl(L.agit) ? btn(L.agit, "아지트 공지 원문 보기", false, IC.doc) : (opts.pub ? "" : '<span class="lg-b is-off">아지트 공지 · 링크 넣기로 추가</span>');
+      if (a) a.innerHTML = safeUrl(L.agit) ? btn(L.agit, "아지트 공지 원문 보기", false, IC.doc) : (opts.pub ? "" : opts.admin ? '<button type="button" class="lg-b lg-addlink" id="lgAgitAdd">+ 아지트 공지 링크 넣기</button>' : "");
       paintDetail(false);
       var tl = document.getElementById("lgTiles"); if (tl) { tl.innerHTML = tilesHtml(Y, L); bindGo(); }
       if (Y.targetWays) loadCrews().then(function (cr) {
@@ -485,6 +486,8 @@
         : st.updatedAt ? "링크 마지막 수정: " + String(st.updatedAt).slice(0, 16).replace("T", " ") + (st.updatedBy ? " · " + st.updatedBy : "") : "";
       var eb = document.getElementById("lgEditLinks");
       if (eb) eb.onclick = function () { openLinks(y, L, opts, function () { render(view, opts); }, st); };
+      var ab = document.getElementById("lgAgitAdd");
+      if (ab) ab.onclick = function () { openLinks(y, L, opts, function () { render(view, opts); }, st); setTimeout(function () { var i = document.querySelector('.modal input[name="agit"]'); if (i) i.focus(); }, 50); };
     });
   }
 
