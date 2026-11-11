@@ -118,7 +118,7 @@
 .lg-reg dd { margin: 0; padding: 8px 12px 8px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 18px; font-variant-numeric: tabular-nums; }
 .lg-reg dd b { font-weight: 800; }
 .lg-reg dd small { font-size: 14px; color: var(--ink-3); }
-.lg-copy { margin-left: auto; font: inherit; font-size: 14px; font-weight: 800; padding: 6px 14px; border-radius: 999px; border: 2px solid var(--lg-line-2); background: var(--panel); color: var(--ink); cursor: pointer; }
+.lg-copy { margin-left: auto; font: inherit; font-size: 14px; font-weight: 800; padding: 6px 14px; border-radius: 999px; border: 2px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
 .lg-copy:hover { border-color: var(--ink-3); }
 
 .lg-notes { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 16px; color: var(--ink-2); }
@@ -157,3 +157,51 @@
 .lg-alert__t { margin: 0; font-size: 20px; font-weight: 800; line-height: 1.5; color: #c6ff2e; }
 .lg-alert__d { margin: 0; font-size: 16px; line-height: 1.6; opacity: .88; }
 @media (max-width: 760px) { .lg-alert { padding: 18px; } .lg-alert__t { font-size: 18px; } }
+
+/* 스낵앤가든사업팀 대상자 — 확인(크루) · 설정(관리자) */
+.lg-tg { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; background: var(--panel); border: 2px solid var(--accent); border-radius: 18px; padding: 16px 20px; }
+.lg-tg__txt { display: grid; gap: 2px; }
+.lg-tg__txt b { font-size: 18px; font-weight: 800; }
+.lg-tg__txt span { font-size: 15px; color: var(--ink-2); }
+.lg-tg__txt em { font-style: normal; font-weight: 800; color: var(--ink); }
+.lg-tg__acts { display: flex; gap: 10px; flex-wrap: wrap; }
+.lg-tg .lg-b { font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; }
+.lg-tg .lg-b[disabled] { opacity: .45; cursor: not-allowed; }
+
+.lg-modal { font-family: "Kakao Big Sans", "Pretendard", system-ui, sans-serif; word-break: keep-all; }
+.lg-modal .modal__head h3 { font-size: 18px; font-weight: 800; }
+.lg-m { padding: 18px 20px 20px; display: grid; gap: 14px; }
+.lg-m__find { display: grid; gap: 6px; font-size: 14px; font-weight: 800; color: var(--ink-2); }
+.lg-m__find input { font: inherit; font-size: 18px; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--panel-2); color: var(--ink); outline: none; }
+.lg-m__find input:focus { border-color: var(--accent); }
+.lg-m__me:empty { display: none; }
+.lg-m__me { display: grid; gap: 8px; }
+.lg-m__hit { display: grid; gap: 2px; background: color-mix(in srgb, var(--accent) 24%, var(--panel)); border: 2px solid var(--accent); border-radius: 14px; padding: 12px 16px; }
+.lg-m__hit b { font-size: 20px; font-weight: 800; }
+.lg-m__hit span { font-size: 16px; font-weight: 700; }
+.lg-m__hit.is-none { background: var(--panel-2); border-color: var(--line); font-size: 15px; }
+.lg-m__g { display: grid; gap: 10px; border-top: 2px solid var(--line-soft); padding-top: 14px; }
+.lg-m__gh { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.lg-m__gh b { font-size: 17px; font-weight: 800; }
+.lg-m__gh span { font-size: 14px; color: var(--ink-2); }
+.lg-m__gh em { margin-left: auto; font-style: normal; font-size: 14px; font-weight: 800; color: var(--ink-3); }
+.lg-m__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.lg-m__chips span { font-size: 15px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--panel-2); border: 2px solid transparent; }
+.lg-m__chips span.is-hit { background: var(--accent); color: var(--accent-ink); }
+.lg-m__foot, .lg-m__hint { margin: 0; font-size: 14px; color: var(--ink-2); }
+.lg-m__bulk { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.lg-m__bulk .lg-copy { margin-left: 0; }
+.lg-set { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 10px; align-items: center; padding: 6px 0; }
+.lg-set__n b { display: block; font-size: 16px; font-weight: 800; }
+.lg-set__n small { font-size: 12.5px; color: var(--ink-3); }
+.lg-seg { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.lg-seg button { font: inherit; font-size: 14px; font-weight: 700; padding: 7px 12px; border-radius: 999px; border: 2px solid var(--line); background: var(--panel); color: var(--ink-2); cursor: pointer; }
+.lg-seg button:hover { border-color: var(--ink-3); }
+.lg-seg button[aria-checked="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.lg-seg button[data-w="out"][aria-checked="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.lg-m__save { position: sticky; bottom: -20px; background: var(--panel); padding: 12px 0 0; border-top: 2px solid var(--line-soft); }
+@media (max-width: 760px) {
+  .lg-tg .lg-tg__acts, .lg-tg .lg-b { width: 100%; justify-content: center; }
+  .lg-set { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .lg-seg { justify-content: flex-start; }
+}

@@ -24,6 +24,13 @@
         { k: "아지트 자료", v: "퇴직연금교육은 아지트 안내 자료를 읽어요.", s: "따로 모이지 않아요" }
       ],
       // 4대 교육(괴롭힘·성희롱·장애인 인식개선·산업안전) — 구글 계정 있고 없음에 따라 듣는 방법이 달라요
+      // 대상자 설정(관리자) — 크루 명단(edu_crews 재직)마다 아래 중 하나. 저장: edu_legal.links.targets { "이름(ldap)": key }
+      targetWays: [
+        { key: "meet", label: "구글 미트", when: "11월 12일 (목) · 오전 또는 오후" },
+        { key: "video", label: "영상", when: "11월 중 · 영상은 따로 공유" },
+        { key: "f2f", label: "대면 교육", when: "11월 19일 (목)" },
+        { key: "out", label: "대상 아님", when: "이번 4대 교육 대상이 아니에요" }
+      ],
       ways: {
         title: "4대 교육, 나는 어떻게 들어요?",
         items: [
@@ -226,6 +233,118 @@
         + '</div>';
     }).join("") + '</div>';
   }
+  /* ---------- 대상자 (스낵앤가든사업팀 · 크루 명단 edu_crews) ---------- */
+  var PARTS = ["가든", "스낵", "총무지원"];
+  var PART_LABEL = { "가든": "가든", "스낵": "스낵큐레이션", "총무지원": "총무지원" };
+  function shortName(n) { return String(n || "").replace(/\s*\(.*\)\s*$/, ""); }
+  function loadCrews() {
+    if (!canDb()) return Promise.resolve({ crews: [], missing: true });
+    return sb().from("edu_crews").select("name,grp,role,status").then(function (r) {
+      if (r.error) return { crews: [], missing: true };
+      var list = (r.data || []).filter(function (c) { return c.status === "재직"; });
+      list.sort(function (a, b) { var pa = PARTS.indexOf(a.grp), pb = PARTS.indexOf(b.grp); return (pa < 0 ? 9 : pa) - (pb < 0 ? 9 : pb) || shortName(a.name).localeCompare(shortName(b.name), "ko"); });
+      return { crews: list };
+    }).catch(function () { return { crews: [], missing: true }; });
+  }
+  function wayOf(Y, k) { return Y.targetWays.filter(function (w) { return w.key === k; })[0]; }
+  function countTargets(Y, T, crews) {
+    var c = { none: 0 }; Y.targetWays.forEach(function (w) { c[w.key] = 0; });
+    crews.forEach(function (x) { var k = T[x.name]; if (k && c[k] != null) c[k]++; else c.none++; });
+    return c;
+  }
+  function tgBarHtml(Y, T, crews, admin) {
+    var has = Object.keys(T || {}).length > 0, c = countTargets(Y, T || {}, crews);
+    return '<div class="lg-tg"><div class="lg-tg__txt"><b>스낵앤가든사업팀 대상자</b>'
+      + (has ? '<span>' + Y.targetWays.filter(function (w) { return c[w.key]; }).map(function (w) { return esc(w.label) + ' <em>' + c[w.key] + '명</em>'; }).join(" · ") + (c.none ? ' · 미정 <em>' + c.none + '명</em>' : "") + '</span>'
+             : '<span>' + (admin ? "아직 대상자를 정하지 않았어요. '대상자 설정'에서 정해 주세요." : "대상자를 곧 알려 드릴게요.") + '</span>')
+      + '</div><div class="lg-tg__acts">'
+      + '<button type="button" class="lg-b is-pri" id="lgTgCheck"' + (has ? "" : " disabled") + '>대상자 확인</button>'
+      + (admin ? '<button type="button" class="lg-b" id="lgTgSet">대상자 설정</button>' : "")
+      + '</div></div>';
+  }
+  function modal(title, body, wide) {
+    var wrap = document.createElement("div");
+    wrap.className = "modal lg-modal";
+    wrap.innerHTML = '<div class="modal__backdrop" data-close></div>'
+      + '<div class="modal__card' + (wide ? " modal__card--wide" : "") + '" role="dialog" aria-modal="true" aria-label="' + esc(title) + '">'
+      + '<div class="modal__head"><h3>' + esc(title) + '</h3><button class="modal__x" data-close aria-label="닫기">×</button></div>'
+      + '<div class="lg-m">' + body + '</div></div>';
+    document.body.appendChild(wrap);
+    function close() { wrap.remove(); document.removeEventListener("keydown", onKey); }
+    function onKey(e) { if (e.key === "Escape") close(); }
+    document.addEventListener("keydown", onKey);
+    wrap.querySelectorAll("[data-close]").forEach(function (x) { x.onclick = close; });
+    return { el: wrap, close: close };
+  }
+  // 크루: 대상자 확인 — 내 이름 찾기 + 방법별 명단
+  function openCheck(Y, T, crews) {
+    var groups = Y.targetWays.filter(function (w) { return w.key !== "out"; }).map(function (w) {
+      return { w: w, names: crews.filter(function (c) { return T[c.name] === w.key; }) };
+    }).filter(function (g) { return g.names.length; });
+    var m = modal("4대 교육 대상자 확인", '<label class="lg-m__find"><span>내 이름 찾기</span><input type="search" id="lgFind" placeholder="예: 엘리" autocomplete="off" /></label>'
+      + '<div class="lg-m__me" id="lgMe" aria-live="polite"></div>'
+      + groups.map(function (g) {
+          return '<section class="lg-m__g"><div class="lg-m__gh"><b>' + esc(g.w.label) + '</b><span>' + esc(g.w.when) + '</span><em>' + g.names.length + '명</em></div>'
+            + '<div class="lg-m__chips">' + g.names.map(function (c) { return '<span data-n="' + esc(shortName(c.name)) + '">' + esc(shortName(c.name)) + '</span>'; }).join("") + '</div></section>';
+        }).join("")
+      + '<p class="lg-m__foot">개인정보보호교육은 모든 크루가 11월 30일까지 들어요.</p>', true);
+    var inp = m.el.querySelector("#lgFind"), me = m.el.querySelector("#lgMe");
+    inp.oninput = function () {
+      var q = inp.value.trim();
+      m.el.querySelectorAll("[data-n]").forEach(function (x) { x.classList.toggle("is-hit", !!q && x.dataset.n.indexOf(q) > -1); });
+      if (!q) { me.innerHTML = ""; return; }
+      var hits = crews.filter(function (c) { return shortName(c.name).indexOf(q) > -1; });
+      me.innerHTML = hits.length ? hits.slice(0, 4).map(function (c) {
+        var w = wayOf(Y, T[c.name]);
+        return '<div class="lg-m__hit"><b>' + esc(shortName(c.name)) + '</b><span>' + (w ? esc(w.label) + ' · ' + esc(w.when) : "아직 정해지지 않았어요") + '</span></div>';
+      }).join("") : '<div class="lg-m__hit is-none">이름을 찾지 못했어요. 리더에게 물어봐 주세요.</div>';
+    };
+    setTimeout(function () { inp.focus(); }, 50);
+  }
+  // 관리자: 대상자 설정 — 크루마다 방법 고르기
+  function openSet(Y, y, L, crews, opts, done) {
+    var T = Object.assign({}, L.targets || {});
+    function rowsHtml() {
+      return PARTS.concat(["기타"]).map(function (part) {
+        var list = crews.filter(function (c) { return part === "기타" ? PARTS.indexOf(c.grp) < 0 : c.grp === part; });
+        if (!list.length) return "";
+        return '<section class="lg-m__g"><div class="lg-m__gh"><b>' + esc(PART_LABEL[part] || part) + '</b><em>' + list.length + '명</em></div>'
+          + list.map(function (c) {
+              return '<div class="lg-set"><div class="lg-set__n"><b>' + esc(shortName(c.name)) + '</b><small>' + esc(c.role || "") + '</small></div>'
+                + '<div class="lg-seg" role="radiogroup" aria-label="' + esc(shortName(c.name)) + '">' + Y.targetWays.map(function (w) {
+                    return '<button type="button" role="radio" data-c="' + esc(c.name) + '" data-w="' + w.key + '" aria-checked="' + (T[c.name] === w.key) + '">' + esc(w.label) + '</button>';
+                  }).join("") + '</div></div>';
+            }).join("") + '</section>';
+      }).join("");
+    }
+    var m = modal(y + "년 4대 교육 대상자 설정", '<p class="lg-m__hint">크루 명단(재직)마다 듣는 방법을 골라 주세요. 고르지 않은 크루는 &lsquo;미정&rsquo;으로 보여요.</p>'
+      + '<div class="lg-m__bulk"><span>미정인 크루 모두</span>' + Y.targetWays.filter(function (w) { return w.key !== "out"; }).map(function (w) { return '<button type="button" class="lg-copy" data-bulk="' + w.key + '">' + esc(w.label) + '</button>'; }).join("") + '</div>'
+      + '<div id="lgSetRows">' + rowsHtml() + '</div>'
+      + '<div class="modal__foot lg-m__save"><span class="hint" id="lgSetCount"></span><div class="modal__spacer"></div><button type="button" class="btn" data-close>취소</button><button type="button" class="btn btn--primary" id="lgSetSave">저장</button></div>', true);
+    var box = m.el.querySelector("#lgSetRows"), cnt = m.el.querySelector("#lgSetCount");
+    function paintCount() { var c = countTargets(Y, T, crews); cnt.textContent = Y.targetWays.map(function (w) { return w.label + " " + c[w.key]; }).join(" · ") + " · 미정 " + c.none; }
+    function bind() {
+      box.querySelectorAll("[data-w]").forEach(function (b) {
+        b.onclick = function () {
+          var n = b.dataset.c;
+          if (T[n] === b.dataset.w) delete T[n]; else T[n] = b.dataset.w;
+          b.parentNode.querySelectorAll("[data-w]").forEach(function (x) { x.setAttribute("aria-checked", T[n] === x.dataset.w); });
+          paintCount();
+        };
+      });
+    }
+    m.el.querySelectorAll("[data-bulk]").forEach(function (b) {
+      b.onclick = function () { crews.forEach(function (c) { if (!T[c.name]) T[c.name] = b.dataset.bulk; }); box.innerHTML = rowsHtml(); bind(); paintCount(); };
+    });
+    bind(); paintCount();
+    m.el.querySelector("#lgSetSave").onclick = function () {
+      var b = this; b.disabled = true; b.textContent = "저장 중…";
+      var out = Object.assign({}, L, { targets: T });
+      saveLinks(y, out, opts.by).then(function () { toast("대상자를 저장했어요"); m.close(); done(); })
+        .catch(function (err) { b.disabled = false; b.textContent = "저장"; toast("저장하지 못했어요: " + (err && err.message || err)); });
+    };
+  }
+
   function regHtml(P) {
     return '<dl class="lg-reg">' + P.reg.map(function (r) {
       return '<div><dt>' + esc(r.k) + '</dt><dd><b>' + esc(r.v) + '</b>' + (r.ex ? '<small>' + esc(r.ex) + '</small>' : "")
@@ -281,6 +400,7 @@
       + (Y.notice ? '<aside class="lg-alert" role="note"><span class="lg-alert__tag">꼭 확인</span><p class="lg-alert__t">' + esc(Y.notice.t) + '</p>'
           + (Y.notice.d ? '<p class="lg-alert__d">' + esc(Y.notice.d) + '</p>' : "") + '</aside>' : "")
       + '<div id="lgWays">' + waysHtml(Y.ways, Y.links) + '</div>'
+      + '<div id="lgTgBox"></div>'
 
       // 2) 교육 6가지 — 누르면 아래 상세
       + '<h3 class="lg-sec">교육 6가지 <small>눌러서 자세히 보기</small></h3>'
@@ -342,6 +462,16 @@
       if (a) a.innerHTML = safeUrl(L.agit) ? btn(L.agit, "아지트 공지 원문 보기", false, IC.doc) : (opts.pub ? "" : '<span class="lg-b is-off">아지트 공지 · 링크 넣기로 추가</span>');
       paintDetail(false);
       var w = document.getElementById("lgWays"); if (w) w.innerHTML = waysHtml(Y.ways, L);
+      if (Y.targetWays) loadCrews().then(function (cr) {
+        var tb = document.getElementById("lgTgBox"); if (!tb) return;
+        var T = L.targets || {}, admin = !opts.pub && opts.admin && !st.missing;
+        tb.innerHTML = tgBarHtml(Y, T, cr.crews, admin);
+        var cb = document.getElementById("lgTgCheck"); if (cb) cb.onclick = function () { openCheck(Y, T, cr.crews); };
+        var sbtn = document.getElementById("lgTgSet"); if (sbtn) sbtn.onclick = function () {
+          if (!cr.crews.length) { toast("크루 명단을 불러오지 못했어요"); return; }
+          openSet(Y, y, L, cr.crews, opts, function () { render(view, opts); });
+        };
+      });
       var h = document.getElementById("lgDbHint");
       if (h) h.textContent = st.missing ? "링크 저장 표가 아직 없어요 — supabase/legal.sql 을 실행하면 '링크 넣기'로 넣은 링크가 크루 화면에도 보여요."
         : st.updatedAt ? "링크 마지막 수정: " + String(st.updatedAt).slice(0, 16).replace("T", " ") + (st.updatedBy ? " · " + st.updatedBy : "") : "";
@@ -379,5 +509,5 @@
   // 홈 카드용 요약
   function summary() { var Y = YEARS[0]; return { year: Y.year, dateLabel: Y.dateLabel, dday: dday(Y.date) }; }
 
-  window.EduLegal = { render: render, summary: summary, years: years };
+  window.EduLegal = { render: render, summary: summary, years: years, _check: function (T, crews) { openCheck(YEARS[0], T, crews); } };
 })();
