@@ -19,12 +19,12 @@
       lede: "모든 크루가 꼭 들어야 하는 교육이에요. 회사와 크루 모두의 권리와 의무를 지키기 위한 교육이니 일정을 미리 확인해 주세요.",
       // 한눈에 보기 — 누가 · 언제까지 · 무엇을. 이 페이지의 요약은 여기 하나만 (아래에서 반복하지 않음)
       tiles: [
-        { who: "구글 계정이 있는 크루", big: "11월 12일 (목)", what: "구글 미트로 4대 교육 듣기", sub: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30 중 한 번", go: "harass", tg: { field: "targets", only: "meet" } },
-        { who: "구글 계정이 없는 4·6·8시간 크루", big: "12월 31일까지", what: "4대 교육 영상 시청", sub: "11월 중 교육 영상을 받아서 12월 31일까지 시청하면 돼요.", hot: true, video: true, tg: { field: "targets", only: "video" } },
+        { who: "구글 계정이 있는 크루", big: "11월 12일 (목)", what: "직장 내 괴롭힘 · 직장 내 성희롱 · 장애인 인식개선 · 산업안전보건", label: "구글 미트 교육", sub: "구글 미트로 들어요 · 오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30 중 한 번", go: "harass", tg: { field: "targets", only: "meet" } },
+        { who: "구글 계정이 없는 4·6·8시간 크루", big: "12월 31일까지", what: "직장 내 괴롭힘 · 직장 내 성희롱 · 장애인 인식개선 · 산업안전보건", label: "교육 영상", sub: "11월 중 교육 영상을 받아서 12월 31일까지 시청하면 돼요.", hot: true, video: true, tg: { field: "targets", only: "video" } },
         { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy", tg: { field: "t_privacy" } },
         { who: "모든 크루", big: "아지트 자료", what: "퇴직연금교육", sub: "아지트 안내 자료를 읽으면 돼요", go: "pension", tg: { field: "t_pension" } }
       ],
-      // 올해 입사자 — 4대 교육 모두 제외 (2026-11-11 인사 안내)
+      // 올해 입사자 — 괴롭힘 · 성희롱 · 장애인 인식개선 · 산업안전보건 모두 제외 (2026-11-11 인사 안내)
       //  · 괴롭힘 · 성희롱 · 장애인 인식개선 = 입사 OT 때 들음 / 산업안전 = 복지 부서 월별 안전교육으로 갈음
       //  · 개인정보 · 퇴직연금은 들어요
       newHires: {
@@ -38,7 +38,7 @@
       targetWays: [
         { key: "meet", label: "구글 미트", when: "11월 12일 (목) · 오전 또는 오후" },
         { key: "video", label: "영상", when: "11월 중 영상 받아서 12월 31일까지 시청" },
-        { key: "out", label: "대상 아님", when: "이번 4대 교육 대상이 아니에요" }
+        { key: "out", label: "대상 아님", when: "이번 구글 미트 · 영상 교육 대상이 아니에요" }
       ],
       meets: {
         am: { label: "1타임", when: "오전", time: "10:00 ~ 12:30", url: "https://meet.google.com/boj-nody-gvo" },
@@ -99,7 +99,7 @@
   var LINK_META = [
     { key: "agit", label: "아지트 공지 원문", hint: "2026년 법정의무교육 안내 글 링크" },
     { key: "pension", label: "퇴직연금교육 아지트 자료", hint: "아지트 안내 자료 링크" },
-    { key: "video", label: "4대 교육 영상 (구글 계정 없는 크루)", hint: "11월 중 볼 교육 영상 링크 — 공유되면 넣어요" }
+    { key: "video", label: "교육 영상 (구글 계정 없는 크루)", hint: "11월 중 볼 교육 영상 링크 — 공유되면 넣어요" }
   ];
 
   var DEMO = /[?&]demo=1(&|$)/.test(location.search);
@@ -172,7 +172,7 @@
 
   /* ---------- 교육 카드 (6가지) ---------- */
   function eduMeta(Y, e) {
-    if (e.kind === "meet") return { tag: "4대 교육", line: Y.dateLabel + " · " + e.min + "분" };
+    if (e.kind === "meet") return { tag: "구글 미트", line: Y.dateLabel + " · " + e.min + "분" };
     if (e.kind === "privacy") return { tag: e.tag, line: e.whenShort + " · 15분 30초" };
     return { tag: e.tag, line: "읽기만 하면 돼요" };
   }
@@ -259,7 +259,7 @@
   function isNewHire(Y, name) { return !!(Y.newHires && Y.newHires.names.indexOf(name) > -1); }
   function skipsFor(Y, key) { return !!(Y.newHires && Y.newHires.skip.indexOf(key) > -1); }
   function nhNote(Y, key) { var N = Y.newHires; return (N.notes && N.notes[key]) || N.note; }
-  // 4대 교육(구글 미트 · 영상)을 입사자가 모두 제외하면 그 칸 대상자에서 뺌
+  // 구글 미트 · 영상 교육(괴롭힘 · 성희롱 · 장애인 인식개선 · 산업안전보건)을 입사자가 모두 제외하면 그 칸 대상자에서 뺌
   function nhSkipsAll4(Y) { return !!Y.newHires && Y.edus.filter(function (e) { return e.kind === "meet"; }).every(function (e) { return skipsFor(Y, e.key); }); }
   function tileTgHtml(t, L, crews, admin) {
     if (!t.tg) return "";
@@ -278,7 +278,7 @@
     var NH = Y.newHires, old = names.filter(function (c) { return !isNewHire(Y, c.name); }), neu = names.filter(function (c) { return isNewHire(Y, c.name); });
     var is4 = t.tg.field === "targets", all4 = is4 && nhSkipsAll4(Y);
     function chips(list) { return '<div class="lg-m__chips">' + list.map(function (c) { return '<span>' + esc(shortName(c.name)) + '</span>'; }).join("") + '</div>'; }
-    modal(t.what + " 대상자", '<p class="lg-m__hint">' + esc(t.who) + ' · ' + esc(t.big) + '</p>'
+    modal((t.label || t.what) + " 대상자", '<p class="lg-m__hint">' + esc(t.who) + ' · ' + esc(t.big) + '</p>'
       + '<section class="lg-m__g"><div class="lg-m__gh"><b>대상자</b><em>' + old.length + '명</em></div>' + chips(old) + '</section>'
       + (neu.length ? '<section class="lg-m__g lg-m__nh"><div class="lg-m__gh"><b>' + esc(NH.label) + (all4 ? " · 제외" : "") + '</b><em>' + neu.length + '명</em></div>'
           + '<p class="lg-m__nhnote">' + (all4
@@ -320,7 +320,7 @@
             }).join("") + '</section>';
       }).join("");
     }
-    var m = modal(y + "년 " + (title || "4대 교육") + " 대상자 설정", '<p class="lg-m__hint">' + (isIn ? "기본은 모든 크루가 대상이에요. 빼야 하는 크루만 &lsquo;대상 아님&rsquo;을 눌러 주세요." : "크루 명단(재직)마다 듣는 방법을 골라 주세요. 고르지 않은 크루는 &lsquo;미정&rsquo;으로 보여요.") + '</p>'
+    var m = modal(y + "년 " + (title || "구글 미트 · 영상 교육") + " 대상자 설정", '<p class="lg-m__hint">' + (isIn ? "기본은 모든 크루가 대상이에요. 빼야 하는 크루만 &lsquo;대상 아님&rsquo;을 눌러 주세요." : "크루 명단(재직)마다 듣는 방법을 골라 주세요. 고르지 않은 크루는 &lsquo;미정&rsquo;으로 보여요.") + '</p>'
       + (isIn ? "" : '<div class="lg-m__bulk"><span>미정인 크루 모두</span>' + WAYS.filter(function (w) { return w.key !== "out"; }).map(function (w) { return '<button type="button" class="lg-copy" data-bulk="' + w.key + '">' + esc(w.label) + '</button>'; }).join("") + '</div>')
       + '<div id="lgSetRows">' + rowsHtml() + '</div>'
       + '<div class="modal__foot lg-m__save"><span class="hint" id="lgSetCount"></span><div class="modal__spacer"></div><button type="button" class="btn" data-close>취소</button><button type="button" class="btn btn--primary" id="lgSetSave">저장</button></div>', true);
@@ -367,7 +367,7 @@
   function tilesHtml(Y, L) {
     return '<div class="lg-tiles">' + Y.tiles.map(function (t, i) {
       // 서명 버튼은 맨 아래(교육 상세 끝)에만 — 한눈에 보기 칸에는 넣지 않음 (Jamie)
-      var act = t.video ? (safeUrl(L.video) ? btn(L.video, "4대 교육 영상 보기", true, IC.cam) : waitBtn("4대 교육 영상"))
+      var act = t.video ? (safeUrl(L.video) ? btn(L.video, "교육 영상 보기", true, IC.cam) : waitBtn("교육 영상"))
         : (t.go ? '<button type="button" class="lg-tile__go" data-go="' + t.go + '">자세히 보기 →</button>' : "");
       return '<div class="lg-tile' + (t.hot ? " is-hot" : "") + '">'
         + '<span class="lg-tile__who">' + esc(t.who) + '</span>'
@@ -562,7 +562,7 @@
           var cb = box.querySelector("[data-tgcheck]"); if (cb) cb.onclick = function () { openTileCheck(Y, t, L, cr.crews); };
           var sb2 = box.querySelector("[data-tgset]"); if (sb2) sb2.onclick = function () {
             if (!cr.crews.length) { toast("크루 명단을 불러오지 못했어요"); return; }
-            openSet(Y, y, L, cr.crews, opts, function () { render(view, opts); }, t.tg.field, t.tg.field === "targets" ? "4대 교육" : t.what);
+            openSet(Y, y, L, cr.crews, opts, function () { render(view, opts); }, t.tg.field, t.tg.field === "targets" ? "구글 미트 · 영상 교육" : t.what);
           };
         });
       });

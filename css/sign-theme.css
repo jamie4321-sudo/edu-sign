@@ -186,7 +186,7 @@ button, select, input { font-family: inherit; }
 .sw-btn--no { width: auto; min-width: 200px; margin: 12px auto 0; padding: 13px 26px; font-size: 15px; background: #ff8a00; border-color: #ff8a00; color: #14160a; box-shadow: 0 6px 16px rgba(255,138,0,.28); }
 .sw-btn--no[disabled] { opacity: .5; }
 
-/* 교육 체크 — 타임라인 (sessions.meta.checks, 예: 4대 법정의무교육) */
+/* 교육 체크 — 타임라인 (sessions.meta.checks, 예: 법정의무교육) */
 .sw-chk__h { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .sw-chk__h h3 { margin: 0; }
 .sw-chk__all { font: inherit; font-size: 14px; font-weight: 800; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--sw-accent); background: var(--sw-accent); color: var(--sw-accent-ink); cursor: pointer; }

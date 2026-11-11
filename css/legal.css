@@ -57,7 +57,7 @@
 .lg-brief__v b { display: block; font-size: 17px; font-weight: 800; line-height: 1.45; }
 .lg-brief__v small { display: block; font-size: 14.5px; color: var(--ink-2); margin-top: 2px; }
 
-/* 4대 교육, 나는 어떻게 들어요? (구글 계정 있음 / 없음) */
+/* 구글 미트 · 영상 교육, 나는 어떻게 들어요? (구글 계정 있음 / 없음) */
 .lg-ways { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .lg-way { display: grid; gap: 10px; align-content: start; background: var(--panel); border: 2px solid var(--lg-line); border-radius: 18px; padding: 18px 20px; }
 .lg-way__h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
