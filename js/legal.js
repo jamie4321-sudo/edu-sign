@@ -90,7 +90,7 @@
       // 교육을 마친 뒤 크루가 서명으로 '완료'를 알려 주는 곳 — 교육 서명 관리(#/sign)의 세션 id
       // 서명 하나로 6가지 — 서명 화면에서 들은 교육을 체크 (sessions.meta.checks), 나중에 다시 들어와 체크 추가 가능
       signs: {
-        all: { id: "idmwbemuoqqncb", label: "법정의무교육 완료 서명하기", msg: "교육을 하나 들을 때마다 들어와서 체크하면 바로 저장돼요. 모두 마치면 마지막에 서명해 주세요." }
+        all: { id: "idmwbemuoqqncb", label: "법정의무교육 완료 서명하기", msg: "교육을 하나 들을 때마다 들어와서 체크하면 바로 저장돼요." }
       },
       links: { agit: "", pension: "", video: "" }
     }
@@ -206,7 +206,7 @@
               + '<p class="lg-slot__time">' + esc(e[k]) + '</p><p class="lg-slot__sub">' + e.min + '분 · ' + esc(M.when) + ' 미트는 ' + esc(M.time) + ' 동안 열려요</p>'
               + btn(M.url, M.when + " 구글 미트 들어가기", true, IC.cam) + '</div>';
           }).join("") + '</div>'
-        + signBox(Y.signs && Y.signs.all, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
+        + signBox(Y.signs && Y.signs.all, "완료한 뒤에 아래에 체크해 주세요");
     } else if (e.kind === "privacy") {
       var P = Y.privacy, tg = privacyTag(P);
       h += '<dt>언제까지?</dt><dd>' + esc(P.period) + ' <span class="lg-dday lg-dday--' + tg.state + '">' + tg.txt + '</span></dd>'
@@ -219,11 +219,11 @@
               + '</div></li>';
           }).join("") + '</ol>'
         + '<h4 class="lg-h4">알아 두세요</h4><ul class="lg-notes">' + P.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join("") + '</ul>'
-        + signBox(Y.signs && Y.signs.all, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
+        + signBox(Y.signs && Y.signs.all, "완료한 뒤에 아래에 체크해 주세요");
     } else {
       h += '<dt>어떻게 해요?</dt><dd>아지트에 올라온 퇴직연금 안내 자료를 끝까지 읽어요.</dd></dl>'
         + '<div class="lg-acts">' + btn(L.pension, "아지트 자료 보기", true, IC.doc) + '</div>'
-        + signBox(Y.signs && Y.signs.all, "완료한 뒤엔 아래 버튼으로 서명해 주세요");
+        + signBox(Y.signs && Y.signs.all, "완료한 뒤에 아래에 체크해 주세요");
     }
     return h;
   }
