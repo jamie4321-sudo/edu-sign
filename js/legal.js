@@ -24,10 +24,15 @@
         { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy", tg: { field: "t_privacy" } },
         { who: "모든 크루", big: "아지트 자료", what: "퇴직연금교육", sub: "아지트 안내 자료를 읽으면 돼요", go: "pension", tg: { field: "t_pension" } }
       ],
-      // 올해 입사자 — 입사 때 괴롭힘 · 성희롱 · 장애인 인식개선 교육을 들어서 이번에는 그 3개 제외 (산업안전 · 개인정보 · 퇴직연금은 들어요)
+      // 올해 입사자 — 4대 교육 모두 제외 (2026-11-11 인사 안내)
+      //  · 괴롭힘 · 성희롱 · 장애인 인식개선 = 입사 OT 때 들음 / 산업안전 = 복지 부서 월별 안전교육으로 갈음
+      //  · 개인정보 · 퇴직연금은 들어요
       newHires: {
-        label: "2026년 입사자", short: "26년 입사자", skip: ["harass", "sexual", "disab"],
+        label: "2026년 입사자", short: "26년 입사자", skip: ["harass", "sexual", "disab", "safety"],
         note: "입사할 때 이미 들어서 이번에는 제외예요",
+        notes: { safety: "복지 부서의 월별 안전교육으로 대신해서 이번에는 제외예요" },
+        // 장애 크루는 복지(세라 · 로라)가 할 '장애 크루 대상 법정의무교육'을 원하면 중복으로 들어도 됨
+        dup: "장애가 있는 크루는 나중에 복지에서 하는 '장애 크루 법정의무교육'을 같이 들어도 돼요. 업무 일정을 보고 따로 알려 드려요.",
         // OPS 크루 목록 입사일 2026년 (2026-11-11 확인)
         names: ["토리(tori.15)", "클로버(clover.j)", "니아(nia.11)", "루카(luca.74)", "베라(vera.31)", "엘라(ella.1024)", "에릭(eric.0228)"]
       },
@@ -191,7 +196,8 @@
     var m = eduMeta(Y, e), idx = Y.edus.indexOf(e) + 1;
     var h = '<div class="lg-d__head"><div class="lg-d__tags"><span class="lg-badge is-acc">' + ("0" + idx).slice(-2) + ' / 0' + Y.edus.length + '</span><span class="lg-badge">' + esc(m.tag) + '</span></div>'
       + '<h3 class="lg-d__name">' + esc(e.name) + '</h3></div>'
-      + (skipsFor(Y, e.key) ? '<div class="lg-nh"><b>' + esc(Y.newHires.label) + ' 제외</b><p>' + esc(Y.newHires.note) + '.</p>'
+      + (skipsFor(Y, e.key) ? '<div class="lg-nh"><b>' + esc(Y.newHires.label) + ' 제외</b><p>' + esc(nhNote(Y, e.key)) + '.</p>'
+          + (e.kind === "meet" && Y.newHires.dup ? '<p>' + esc(Y.newHires.dup) + '</p>' : "")
           + '<div class="lg-m__chips">' + Y.newHires.names.map(function (n) { return '<span>' + esc(shortName(n)) + '</span>'; }).join("") + '</div></div>' : "")
       + '<dl class="lg-easy"><dt>무엇을 배워요?</dt><dd>' + esc(e.what) + '</dd><dt>왜 들어요?</dt><dd>' + esc(e.why) + '</dd>';
     if (e.kind === "meet") {
@@ -255,28 +261,33 @@
   }
   function isNewHire(Y, name) { return !!(Y.newHires && Y.newHires.names.indexOf(name) > -1); }
   function skipsFor(Y, key) { return !!(Y.newHires && Y.newHires.skip.indexOf(key) > -1); }
+  function nhNote(Y, key) { var N = Y.newHires; return (N.notes && N.notes[key]) || N.note; }
+  // 4대 교육(구글 미트 · 영상)을 입사자가 모두 제외하면 그 칸 대상자에서 뺌
+  function nhSkipsAll4(Y) { return !!Y.newHires && Y.edus.filter(function (e) { return e.kind === "meet"; }).every(function (e) { return skipsFor(Y, e.key); }); }
   function tileTgHtml(t, L, crews, admin) {
     if (!t.tg) return "";
-    var mem = membersOf(t.tg, L, crews), n = mem.length, set = t.tg.field !== "targets" || Object.keys(L.targets || {}).length > 0;
+    var mem = membersOf(t.tg, L, crews), set = t.tg.field !== "targets" || Object.keys(L.targets || {}).length > 0;
     var Y = YEARS[0], nh = mem.filter(function (c) { return isNewHire(Y, c.name); }).length;
+    var out = t.tg.field === "targets" && nhSkipsAll4(Y), n = out ? mem.length - nh : mem.length;
     return '<span class="lg-tile__tgn">대상자 <b>' + (crews.length ? (set ? n + "명" : "미정") : "–") + '</b>'
-      + (nh ? '<i class="lg-nh-pill">' + esc(Y.newHires.short) + ' ' + nh + '명 포함</i>' : "") + '</span>'
+      + (nh ? '<i class="lg-nh-pill">' + esc(Y.newHires.short) + ' ' + nh + '명 ' + (out ? "제외" : "포함") + '</i>' : "") + '</span>'
       + '<span class="lg-tile__tgacts">'
-      + '<button type="button" class="lg-tile__tgbtn" data-tgcheck' + (n ? "" : " disabled") + '>대상자 확인</button>'
+      + '<button type="button" class="lg-tile__tgbtn" data-tgcheck' + (mem.length ? "" : " disabled") + '>대상자 확인</button>'
       + (admin ? '<button type="button" class="lg-tile__tgbtn is-set" data-tgset>설정</button>' : "")
       + '</span>';
   }
   function openTileCheck(Y, t, L, crews) {
     var names = membersOf(t.tg, L, crews);
     var NH = Y.newHires, old = names.filter(function (c) { return !isNewHire(Y, c.name); }), neu = names.filter(function (c) { return isNewHire(Y, c.name); });
-    var is4 = t.tg.field === "targets";
+    var is4 = t.tg.field === "targets", all4 = is4 && nhSkipsAll4(Y);
     function chips(list) { return '<div class="lg-m__chips">' + list.map(function (c) { return '<span>' + esc(shortName(c.name)) + '</span>'; }).join("") + '</div>'; }
     modal(t.what + " 대상자", '<p class="lg-m__hint">' + esc(t.who) + ' · ' + esc(t.big) + '</p>'
       + '<section class="lg-m__g"><div class="lg-m__gh"><b>대상자</b><em>' + old.length + '명</em></div>' + chips(old) + '</section>'
-      + (neu.length ? '<section class="lg-m__g lg-m__nh"><div class="lg-m__gh"><b>' + esc(NH.label) + '</b><em>' + neu.length + '명</em></div>'
-          + '<p class="lg-m__nhnote">' + (is4
-              ? "<b>산업안전보건교육만 들어요.</b> 괴롭힘 · 성희롱 · 장애인 인식개선 교육은 " + esc(NH.note)
-              : "이 교육은 <b>들어요.</b> 입사 때 들은 교육은 괴롭힘 · 성희롱 · 장애인 인식개선 3가지예요.") + '</p>'
+      + (neu.length ? '<section class="lg-m__g lg-m__nh"><div class="lg-m__gh"><b>' + esc(NH.label) + (all4 ? " · 제외" : "") + '</b><em>' + neu.length + '명</em></div>'
+          + '<p class="lg-m__nhnote">' + (all4
+              ? "<b>" + (t.video ? "이번 교육 영상은 보지 않아도 돼요." : "이번 11월 12일 교육은 듣지 않아도 돼요.") + "</b> 직장 내 괴롭힘 · 직장 내 성희롱 · 장애인 인식개선은 입사 때 들었고, 산업안전보건은 복지 부서의 월별 안전교육으로 대신해요." + (NH.dup ? "<br>" + esc(NH.dup) : "")
+              : is4 ? "<b>산업안전보건교육만 들어요.</b> 괴롭힘 · 성희롱 · 장애인 인식개선 교육은 " + esc(NH.note)
+              : "이 교육은 <b>들어요.</b> 직장 내 괴롭힘 · 직장 내 성희롱 · 장애인 인식개선 · 산업안전보건만 제외예요.") + '</p>'
           + chips(neu) + '</section>' : ""), true);
   }
   function modal(title, body, wide) {
