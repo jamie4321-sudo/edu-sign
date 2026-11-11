@@ -74,14 +74,13 @@
           { k: "사번", v: "본인 LDAP", ex: "예: may.15" }
         ],
         notes: [
-          "수료증은 내지 않아도 돼요. 관리자가 교육을 마쳤는지 확인할 수 있어요.",
           "진행하다가 잘 모르겠다면, 언제든지 제이미, 헤이든에게 문의해 주세요."
         ],
       },
       // 교육을 마친 뒤 크루가 서명으로 '완료'를 알려 주는 곳 — 교육 서명 관리(#/sign)의 세션 id
       signs: {
-        meet4: { id: "idmwbemuoqqncb", label: "4대 교육 완료 서명하기", msg: "11월 12일 교육을 듣거나 영상을 다 본 뒤, 아래 버튼을 눌러 서명으로 완료했다고 알려 주세요." },
-        privacy: { id: "idmwalp33rhwa7sv", label: "개인정보보호교육 완료 서명하기", msg: "교육을 다 들은 뒤, 아래 버튼을 눌러 서명으로 완료했다고 알려 주세요." }
+        meet4: { id: "idmwbemuoqqncb", label: "4대 교육 완료 서명하기", msg: "11월 12일 교육을 듣거나 영상을 다 본 뒤 서명해 주세요." },
+        privacy: { id: "idmwalp33rhwa7sv", label: "개인정보보호교육 완료 서명하기", msg: "" }
       },
       links: { agit: "", pension: "", video: "" }
     }
@@ -194,7 +193,7 @@
               + '<p class="lg-slot__time">' + esc(e[k]) + '</p><p class="lg-slot__sub">' + e.min + '분 · ' + esc(M.when) + ' 미트는 ' + esc(M.time) + ' 동안 열려요</p>'
               + btn(M.url, M.when + " 구글 미트 들어가기", true, IC.cam) + '</div>';
           }).join("") + '</div>'
-        + signBox(Y.signs && Y.signs.meet4, "다 들었으면 서명해 주세요");
+        + signBox(Y.signs && Y.signs.meet4, "완료 후, 서명은 아래 버튼으로 부탁드려요~");
     } else if (e.kind === "privacy") {
       var P = Y.privacy, tg = privacyTag(P);
       h += '<dt>언제까지?</dt><dd>' + esc(P.period) + ' <span class="lg-dday lg-dday--' + tg.state + '">' + tg.txt + '</span></dd>'
@@ -207,7 +206,7 @@
               + '</div></li>';
           }).join("") + '</ol>'
         + '<h4 class="lg-h4">알아 두세요</h4><ul class="lg-notes">' + P.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join("") + '</ul>'
-        + signBox(Y.signs && Y.signs.privacy, "그래도 우리 크루는 서명을 받고 있어요.");
+        + signBox(Y.signs && Y.signs.privacy, "완료 후, 서명은 아래 버튼으로 부탁드려요~");
     } else {
       h += '<dt>어떻게 해요?</dt><dd>아지트에 올라온 퇴직연금 안내 자료를 끝까지 읽어요.</dd></dl>'
         + '<div class="lg-acts">' + btn(L.pension, "아지트 자료 보기", true, IC.doc) + '</div>';
@@ -333,7 +332,7 @@
   }
   function signBox(sg, title) {
     if (!sg) return "";
-    return '<div class="lg-signbox"><div><b>' + esc(title) + '</b><p>' + esc(sg.msg) + '</p></div>' + signBtn(sg) + '</div>';
+    return '<div class="lg-signbox"><div><b>' + esc(title) + '</b>' + (sg.msg ? '<p>' + esc(sg.msg) + '</p>' : "") + '</div>' + signBtn(sg) + '</div>';
   }
 
   function tilesHtml(Y, L) {
