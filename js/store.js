@@ -105,6 +105,11 @@ window.Store = (function () {
     backend: function () { return SUPA ? "supabase" : (LIVE ? "gas" : "demo"); },
 
     /* ---------- 세션 목록 ---------- */
+    // 세션 설정(meta)만 — sessions_with_counts 보기에는 meta 가 없어서 따로 읽음 (교육 체크 등)
+    sessionMetas: function () {
+      if (SUPA) return sb().from("sessions").select("id,meta").then(must).then(function (rows) { var o = {}; (rows || []).forEach(function (r) { o[r.id] = r.meta || {}; }); return o; }).catch(function () { return {}; });
+      return Promise.resolve({});
+    },
     listSessions: function () {
       if (SUPA) {
         return sb().from("sessions_with_counts").select("*").order("date", { ascending: false })

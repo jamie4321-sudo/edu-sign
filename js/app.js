@@ -580,7 +580,8 @@
       var s = d.session, roster = d.roster || [];
       var signed = roster.filter(function (r) { return !!r.signature; }).length;
       var url = signUrl();
-      var consent = Consent.isConsent(s), cCols = consent ? Consent.cols(s) : [];
+      var consent = Consent.isConsent(s), cCols = consent ? Consent.cols(s)
+        : ((s.meta && Array.isArray(s.meta.checks)) ? s.meta.checks.map(function (c) { return { key: c.key, label: c.short || c.label, sub: c.label }; }) : []);
       var refused = consent ? roster.filter(Consent.isRefused).length : 0;
       // 동의서는 전용 링크 — 이 명단 이름만 보이고 공용 서명 링크에는 안 나옴
       if (consent) url += (url.indexOf("?") < 0 ? "?" : "&") + "s=" + encodeURIComponent(s.id);

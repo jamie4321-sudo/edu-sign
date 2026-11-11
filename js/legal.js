@@ -341,9 +341,9 @@
 
   function tilesHtml(Y, L) {
     return '<div class="lg-tiles">' + Y.tiles.map(function (t) {
-      var sg = t.sign && Y.signs ? Y.signs[t.sign] : null;
-      var act = t.video ? (safeUrl(L.video) ? btn(L.video, "4대 교육 영상 보기", true, IC.cam) + signBtn(sg, false) : waitBtn("4대 교육 영상"))
-        : (sg ? signBtn(sg, false) : "") + (t.go ? '<button type="button" class="lg-tile__go" data-go="' + t.go + '">자세히 보기 →</button>' : "");
+      // 서명 버튼은 맨 아래(교육 상세 끝)에만 — 한눈에 보기 칸에는 넣지 않음 (Jamie)
+      var act = t.video ? (safeUrl(L.video) ? btn(L.video, "4대 교육 영상 보기", true, IC.cam) : waitBtn("4대 교육 영상"))
+        : (t.go ? '<button type="button" class="lg-tile__go" data-go="' + t.go + '">자세히 보기 →</button>' : "");
       return '<div class="lg-tile' + (t.hot ? " is-hot" : "") + '">'
         + '<span class="lg-tile__who">' + esc(t.who) + '</span>'
         + '<b class="lg-tile__big">' + esc(t.big) + '</b>'
