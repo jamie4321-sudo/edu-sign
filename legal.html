@@ -22,13 +22,13 @@
   <link rel="preload" href="./fonts/KakaoBigSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="./fonts/KakaoBigSans-ExtraBold.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="./css/styles.css?v=16" />
-  <link rel="stylesheet" href="./css/legal.css?v=3" />
+  <link rel="stylesheet" href="./css/legal.css?v=4" />
   <style>
-    .pub-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 1040px; margin: 0 auto; padding: 22px 28px 0; }
+    .pub-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 920px; margin: 0 auto; padding: 22px 28px 0; }
     .pub-top b { font-size: 15px; font-weight: 800; letter-spacing: .2px; }
     .pub-top b em { font-style: normal; color: var(--accent, #ff8a00); }
     .pub-tag { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid currentColor; opacity: .7; white-space: nowrap; }
-    .pub-foot { max-width: 1040px; margin: 0 auto; padding: 0 28px 40px; font-size: 13px; opacity: .6; }
+    .pub-foot { max-width: 920px; margin: 0 auto; padding: 0 28px 40px; font-size: 13px; opacity: .6; }
     @media (max-width: 600px) { .pub-top { padding: 16px 16px 0; } .pub-foot { padding: 0 16px 32px; } }
   </style>
 </head>
@@ -39,13 +39,9 @@
 
   <script src="./js/config.js?v=9"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <script src="./js/legal.js?v=3"></script>
+  <script src="./js/legal.js?v=4"></script>
   <script>
-    EduLegal.render(document.getElementById("view"), {
-      pub: true,
-      head: '<div class="page-head"><div><p class="eyebrow">EDU · 법정의무교육</p><h2>법정의무교육 안내</h2>'
-        + '<p class="sub">모든 크루가 꼭 들어야 하는 교육이에요. 날짜와 시간을 확인해 주세요.</p></div></div>'
-    });
+    EduLegal.render(document.getElementById("view"), { pub: true });
   </script>
 </body>
 </html>
