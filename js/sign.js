@@ -123,7 +123,7 @@
     root.innerHTML = '<div class="sw-brand">SNACK<em>&amp;</em>GARDEN</div>'
       + '<div class="sw-mark">' + MARK_SVG + '</div>'
       + '<h1 class="sw-title">' + (INTERN ? "중증장애인턴제 출석" : "") + esc(INTERN ? "" : onlySession && isConsent(onlySession) ? Consent.doc.docTitle : (onlySession ? (onlySession.title || "서명") : "서명")) + '</h1>'
-      + '<p class="sw-sub">' + (INTERN ? "이름을 고르면 바로 오늘 출석 · 서명해요" : onlySession ? esc(isConsent(onlySession) ? Consent.event(onlySession) : (onlySession.category || "")) + ' · 이름을 고르면 바로 서명해요' : "이름으로 로그인해주세요") + '</p>'
+      + '<p class="sw-sub">' + (INTERN ? "이름을 고르면 바로 오늘 출석 · 서명해요" : onlySession ? esc(isConsent(onlySession) ? Consent.event(onlySession) : (onlySession.category || "")) + (checkList(onlySession).length ? ' · 이름을 고르면 바로 체크해요' : ' · 이름을 고르면 바로 서명해요') : "이름으로 로그인해주세요") + '</p>'
       + '<p class="sw-fld-label">이름을 선택하세요</p>'
       + '<div class="sw-select-wrap"><button type="button" class="sw-select is-placeholder" id="nameTrigger">이름 선택</button></div>'
       + '<div class="sw-spacer"></div>'
@@ -181,12 +181,14 @@
       list.innerHTML = (ip ? internCardHtml(ip) : "") + sessions.map(function (s) {
         var row = rosterRowFor(s.id, name);
         var done = !!(row && row.signature);
-        var consent = isConsent(s);   // 동의서는 교육이 아니라 '촬영 및 초상권 활용 동의서' 로 보이게
+        var consent = isConsent(s);
+        var ck = checkProgress(s, row);   // 동의서는 교육이 아니라 '촬영 및 초상권 활용 동의서' 로 보이게
         return '<div class="sw-session-card" data-id="' + esc(s.id) + '">'
           + '<div><div class="sw-session-card__date">' + esc(s.date || "") + '</div>'
           + '<div class="sw-session-card__title">' + esc(consent ? Consent.doc.docTitle : (s.title || s.category || "교육")) + '</div>'
           + '<div class="sw-session-card__cat">' + esc(consent ? Consent.event(s) : (s.category || "")) + '</div></div>'
-          + '<span class="sw-session-card__badge ' + (done ? "is-done" : "is-todo") + '">' + (done ? "서명완료" : "서명하기") + '</span>'
+          + (ck ? '<span class="sw-session-card__badge ' + (ck.n >= ck.t ? "is-done" : "is-todo") + '">' + (ck.n >= ck.t ? "체크 완료" : "체크하기 " + ck.n + "/" + ck.t) + '</span>'
+            : '<span class="sw-session-card__badge ' + (done ? "is-done" : "is-todo") + '">' + (done ? "서명완료" : "서명하기") + '</span>')
           + '</div>';
       }).join("");
       var ic = list.querySelector("[data-intern]");
@@ -264,7 +266,8 @@
     var openDoc = document.getElementById("openDocBtn");
     if (openDoc) openDoc.addEventListener("click", function () { openConsentPaper(session, rosterRowFor(session.id, name) || row); });
 
-    if (row.signature) renderDoneCard(session, row, name);
+    if (checkList(session).length && !isConsent(session)) renderCheckOnly(session, row);
+    else if (row.signature) renderDoneCard(session, row, name);
     else if (isConsent(session) && Consent.isRefused(row)) renderRefusedCard(session, row, name);
     else if (session.locked) renderLockedCard();
     else renderSignCard(session, row, name);
@@ -368,7 +371,7 @@
       + '<div class="sw-chk__bar" aria-hidden="true"><i style="width:' + (A.length ? Math.round(n / A.length * 100) : 0) + '%"></i></div>'
       + '<ol class="sw-tl">' + L.map(function (c, i) {
           if (skipped(row, c.key)) return '<li class="sw-tl__i is-skip"><div class="sw-tl__b" aria-disabled="true">'
-            + '<span class="sw-tl__dot">–</span><span class="sw-tl__t"><b>' + esc(c.label) + '</b><small>입사 때 들어서 이번에는 제외예요</small></span>'
+            + '<span class="sw-tl__dot">–</span><span class="sw-tl__t"><b>' + esc(c.label) + '</b><small>' + (c.key === "safety" ? "복지 부서 월별 안전교육으로 대신해요" : "입사 때 들어서 이번에는 제외예요") + '</small></span>'
             + '<span class="sw-tl__skip">제외</span></div></li>';
           var on = isDone(row, c.key), when = on ? fmtWhen(x["at_" + c.key]) : "";
           var sub = c.am || c.pm ? (c.am ? "오전 " + c.am : "") + (c.am && c.pm ? " · " : "") + (c.pm ? "오후 " + c.pm : "") : (c.when || "");
@@ -380,6 +383,17 @@
         }).join("") + '</ol>'
       + '<p class="sw-chk__n">' + n + ' / ' + A.length + '개 완료' + (A.length < L.length ? ' · ' + (L.length - A.length) + '개 제외' : "") + '</p>'
       + '</div>';
+  }
+  // 체크만 받는 세션 (2026 법정의무교육 — 서명은 교육 부서가 QR로 따로 받음)
+  function renderCheckOnly(session, row) {
+    document.getElementById("signArea").innerHTML = '<div id="chkArea"></div>'
+      + (session.locked ? '<div class="sw-card"><h3>체크가 마감되었습니다</h3><p class="hint">담당자에게 문의해주세요.</p></div>' : "");
+    liveChecks(session, row, !session.locked);
+  }
+  function checkProgress(session, row) {
+    var L = checkList(session); if (!L.length || isConsent(session)) return null;
+    var A = L.filter(function (c) { return !skipped(row, c.key); });
+    return { n: A.filter(function (c) { return isDone(row, c.key); }).length, t: A.length };
   }
   // 체크 칸 — 누르면 바로 저장 (서명과 상관없이)
   function liveChecks(session, row, editable) {

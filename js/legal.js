@@ -90,7 +90,7 @@
       // 교육을 마친 뒤 크루가 서명으로 '완료'를 알려 주는 곳 — 교육 서명 관리(#/sign)의 세션 id
       // 서명 하나로 6가지 — 서명 화면에서 들은 교육을 체크 (sessions.meta.checks), 나중에 다시 들어와 체크 추가 가능
       signs: {
-        all: { id: "idmwbemuoqqncb", label: "법정의무교육 완료 서명하기", msg: "교육을 하나 들을 때마다 들어와서 체크하면 바로 저장돼요." }
+        all: { id: "idmwbemuoqqncb", label: "법정의무교육 체크하기", msg: "교육을 하나 들을 때마다 들어와서 체크하면 바로 저장돼요." }
       },
       links: { agit: "", pension: "", video: "" }
     }

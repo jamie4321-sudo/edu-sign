@@ -8,8 +8,8 @@ const PREVIEW = {
   },
   // 2026 법정의무교육 — 교육을 마친 뒤 완료 서명 (legal.js YEARS.signs)
   "idmwbemuoqqncb": {
-    title: "2026 법정의무교육 완료 서명",
-    desc: "연결의 시작 · 들은 교육을 체크하고 서명해 주세요"
+    title: "2026 법정의무교육 체크",
+    desc: "연결의 시작 · 들은 교육을 하나씩 체크해 주세요"
   }
 };
 
