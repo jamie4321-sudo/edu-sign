@@ -147,12 +147,13 @@
     return '<a class="lg-b' + (primary ? " is-pri" : "") + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + (icon || "") + '<span>' + esc(label) + '</span>' + IC.ext + '</a>';
   }
 
-  // 아직 링크가 없을 때 — 물 주는 페피가 버튼 옆에 서서 "조금만 기다려 주세요"
+  // 아직 링크가 없을 때 — 버튼 양쪽에 페피(물뿌리개) · 두두(모종삽)가 작게 서서 "조금만 기다려 주세요"
   var PEEK_SRC = (function () { var sc = document.currentScript && document.currentScript.src; return sc ? sc.replace(/js\/legal\.js.*$/, "img/pepi-water.png") : "img/pepi-water.png"; })();
   function waitBtn(what) {
-    return '<span class="lg-waitbox"><img class="lg-wait__pepi" src="' + PEEK_SRC + '" alt="" width="46" height="71" />'
+    return '<span class="lg-waitbox"><img class="lg-wait__ch is-l" src="' + PEEK_SRC + '" alt="" width="34" height="52" />'
       + '<button type="button" class="lg-wait" data-wait="' + esc(what) + '">'
-      + '<span class="lg-wait__t">' + esc(what) + '<b>준비 중이에요, 조금만 기다려 주세요!</b></span></button></span>';
+      + '<span class="lg-wait__t">' + esc(what) + '<b>준비 중이에요, 조금만 기다려 주세요!</b></span></button>'
+      + '<img class="lg-wait__ch is-r" src="' + PEEK_SRC.replace("pepi-water", "dudu-plant") + '" alt="" width="40" height="52" /></span>';
   }
 
   /* ---------- 교육 카드 (6가지) ---------- */

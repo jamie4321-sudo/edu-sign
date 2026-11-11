@@ -206,18 +206,21 @@
   .lg-seg { justify-content: flex-start; }
 }
 
-/* 영상 준비 중 — 물 주는 페피가 버튼 옆에 작게 */
-.lg-waitbox { display: inline-flex; align-items: flex-end; gap: 8px; max-width: 100%; }
-.lg-wait__pepi { flex: none; width: 46px; height: auto; transform-origin: 50% 100%; animation: lgSway 3s ease-in-out infinite; }
-.lg-wait { font: inherit; text-align: left; cursor: pointer; display: inline-flex; align-items: center; min-height: 56px; padding: 10px 18px; border-radius: 16px; border: 2px dashed var(--accent-text); background: color-mix(in srgb, var(--accent) 16%, var(--panel)); color: var(--ink); min-width: 0; }
-.lg-wait__t { display: grid; gap: 1px; font-size: 14px; font-weight: 700; color: var(--ink-2); }
-.lg-wait__t b { font-size: 16px; font-weight: 800; color: var(--ink); }
+/* 영상 준비 중 — 버튼 양쪽에 페피 · 두두 작게 */
+.lg-waitbox { display: inline-flex; align-items: flex-end; gap: 6px; max-width: 100%; }
+.lg-wait__ch { flex: none; height: 52px; width: auto; transform-origin: 50% 100%; animation: lgSway 3s ease-in-out infinite; }
+.lg-wait__ch.is-r { animation-delay: -1.5s; }
+.lg-wait { font: inherit; text-align: center; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 10px 16px; border-radius: 16px; border: 2px dashed var(--accent-text); background: color-mix(in srgb, var(--accent) 16%, var(--panel)); color: var(--ink); min-width: 0; flex: 0 1 auto; }
+.lg-wait__t { display: grid; gap: 1px; font-size: 13.5px; font-weight: 700; color: var(--ink-2); }
+.lg-wait__t b { font-size: 15.5px; font-weight: 800; color: var(--ink); }
 .lg-wait:hover { border-style: solid; }
 .lg-wait:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 2px; }
-.lg-waitbox.is-wiggle .lg-wait__pepi { animation: lgHop .5s ease-out; }
-@keyframes lgSway { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-4deg); } }
+.lg-waitbox.is-wiggle .lg-wait__ch { animation: lgHop .5s ease-out; }
+.lg-waitbox.is-wiggle .lg-wait__ch.is-r { animation-delay: .08s; }
+@keyframes lgSway { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-5deg); } }
 @keyframes lgHop { 0% { transform: translateY(0); } 40% { transform: translateY(-10px) rotate(-6deg); } 100% { transform: translateY(0); } }
-@media (prefers-reduced-motion: reduce) { .lg-wait__pepi, .lg-waitbox.is-wiggle .lg-wait__pepi { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .lg-wait__ch, .lg-waitbox.is-wiggle .lg-wait__ch { animation: none; } }
+@media (max-width: 760px) { .lg-waitbox { width: 100%; } .lg-wait { flex: 1 1 auto; } .lg-wait__ch { height: 44px; } }
 
 /* 한눈에 보기 — 4칸 (누가 · 언제까지 · 무엇을) */
 .lg-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
