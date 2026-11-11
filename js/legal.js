@@ -17,31 +17,19 @@
       title: "2026년 법정의무교육",
       date: "2026-11-12", dateLabel: "11월 12일 (목)",
       lede: "모든 크루가 꼭 들어야 하는 교육이에요. 회사와 크루 모두의 권리와 의무를 지키기 위한 교육이니 일정을 미리 확인해 주세요.",
-      brief: [
-        { k: "11월 12일 (목)", v: "구글 계정이 있는 크루는 구글 미트로 4대 교육을 들어요.", s: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30" },
-        { k: "12월 31일까지", v: "구글 계정이 없는 크루는 4대 교육 영상을 봐요.", s: "영상은 11월 중 전달 예정 · 엘리는 11월 19일 (목) 대면 교육" },
-        { k: "11월 30일까지", v: "개인정보보호교육은 모든 크루가 한 명씩 온라인으로 들어요.", s: "11월 9일 (월)부터 · 개인정보배움터 · 15분 30초" },
-        { k: "아지트 자료", v: "퇴직연금교육은 아지트 안내 자료를 읽어요.", s: "따로 모이지 않아요" }
+      // 한눈에 보기 — 누가 · 언제까지 · 무엇을. 이 페이지의 요약은 여기 하나만 (아래에서 반복하지 않음)
+      tiles: [
+        { who: "구글 계정이 있는 크루", big: "11월 12일 (목)", what: "구글 미트로 4대 교육 듣기", sub: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30 중 한 번", go: "harass" },
+        { who: "구글 계정이 없는 4·6·8시간 크루", big: "12월 31일까지", what: "4대 교육 영상 시청", sub: "11월 중 교육 영상을 받아서 12월 31일까지 시청하면 돼요.", hot: true, video: true },
+        { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy" },
+        { who: "모든 크루", big: "아지트 자료", what: "퇴직연금교육", sub: "아지트 안내 자료를 읽으면 돼요", go: "pension" }
       ],
-      // 4대 교육(괴롭힘·성희롱·장애인 인식개선·산업안전) — 구글 계정 있고 없음에 따라 듣는 방법이 달라요
       // 대상자 설정(관리자) — 크루 명단(edu_crews 재직)마다 아래 중 하나. 저장: edu_legal.links.targets { "이름(ldap)": key }
       targetWays: [
         { key: "meet", label: "구글 미트", when: "11월 12일 (목) · 오전 또는 오후" },
-        { key: "video", label: "영상", when: "11월 중 전달 · 12월 31일까지 시청" },
-        { key: "f2f", label: "대면 교육", when: "11월 19일 (목)" },
+        { key: "video", label: "영상", when: "11월 중 영상 받아서 12월 31일까지 시청" },
         { key: "out", label: "대상 아님", when: "이번 4대 교육 대상이 아니에요" }
       ],
-      ways: {
-        title: "4대 교육, 나는 어떻게 들어요?",
-        items: [
-          { who: "구글 계정이 있어요", tag: "구글 미트", main: "11월 12일 (목) 구글 미트로 들어요",
-            sub: "오전(1타임) 10:00 ~ 12:30 또는 오후(2타임) 14:00 ~ 16:30 중 편한 시간" },
-          { who: "구글 계정이 없어요", tag: "4·6·8시간 크루", rows: [
-            { name: "엘리", main: "11월 19일 (목) 대면 교육에 참석해요" },
-            { name: "엘리 말고 모두", main: "12월 31일까지 교육 영상을 봐요", sub: "11월 중 교육 영상을 전달 드릴 예정이고 12월 31일까지 시청하면 돼요.", link: "video", btn: "4대 교육 영상 보기", wait: true }
-          ] }
-        ]
-      },
       meets: {
         am: { label: "1타임", when: "오전", time: "10:00 ~ 12:30", url: "https://meet.google.com/boj-nody-gvo" },
         pm: { label: "2타임", when: "오후", time: "14:00 ~ 16:30", url: "https://meet.google.com/nso-saon-emd" }
@@ -91,13 +79,6 @@
         ],
         guide: "https://kko.to/dYGDUOsk-i"
       },
-      checks: [
-        { t: "모든 크루가 꼭 들어요", d: "법정의무교육은 빠짐없이 모두 들어야 해요." },
-        { t: "구글 미트 교육은 구글 계정이 있는 크루", d: "11월 12일 (목) 오전이나 오후에 시간을 비워 두세요. 계정이 없으면 12월 31일까지 영상을 봐요 (엘리는 11월 19일 대면 교육)." },
-        { t: "개인정보보호교육은 모두 11월 30일까지", d: "11월 9일부터 열려 있어요. 한 명씩 온라인으로 들어요. 15분 30초면 끝나요." },
-        { t: "퇴직연금교육은 아지트 자료", d: "아지트에 올라온 안내 자료를 읽어요." }
-      ],
-      notice: { t: "복지큐레이션센터 크루 중 구글 계정이 없는 4·6·8시간 크루는 따로 교육할 예정이에요." },
       links: { agit: "", pension: "", video: "" }
     }
   ];
@@ -166,17 +147,17 @@
     return '<a class="lg-b' + (primary ? " is-pri" : "") + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + (icon || "") + '<span>' + esc(label) + '</span>' + IC.ext + '</a>';
   }
 
-  // 아직 링크가 없을 때 — 페피가 버튼 위로 얼굴을 반쯤 내밀고 "조금만 기다려 주세요"
-  var PEEK_SRC = (function () { var sc = document.currentScript && document.currentScript.src; return sc ? sc.replace(/js\/legal\.js.*$/, "img/pepi-peek.png") : "img/pepi-peek.png"; })();
+  // 아직 링크가 없을 때 — 물 주는 페피가 버튼 옆에 서서 "조금만 기다려 주세요"
+  var PEEK_SRC = (function () { var sc = document.currentScript && document.currentScript.src; return sc ? sc.replace(/js\/legal\.js.*$/, "img/pepi-water.png") : "img/pepi-water.png"; })();
   function waitBtn(what) {
-    return '<button type="button" class="lg-wait" data-wait="' + esc(what) + '">'
-      + '<img class="lg-wait__pepi" src="' + PEEK_SRC + '" alt="" width="92" height="64" />'
-      + '<span class="lg-wait__t">' + esc(what) + '<b>준비 중이에요, 조금만 기다려 주세요!</b></span></button>';
+    return '<span class="lg-waitbox"><img class="lg-wait__pepi" src="' + PEEK_SRC + '" alt="" width="46" height="71" />'
+      + '<button type="button" class="lg-wait" data-wait="' + esc(what) + '">'
+      + '<span class="lg-wait__t">' + esc(what) + '<b>준비 중이에요, 조금만 기다려 주세요!</b></span></button></span>';
   }
 
   /* ---------- 교육 카드 (6가지) ---------- */
   function eduMeta(Y, e) {
-    if (e.kind === "meet") return { tag: "4대 교육", line: "구글 미트 " + Y.dateLabel.replace(/ \(.\)$/, "") + " · 영상 11월 중" };
+    if (e.kind === "meet") return { tag: "4대 교육", line: Y.dateLabel + " · " + e.min + "분" };
     if (e.kind === "privacy") return { tag: e.tag, line: e.whenShort + " · 15분 30초" };
     return { tag: e.tag, line: "읽기만 하면 돼요" };
   }
@@ -199,16 +180,14 @@
       + '<h3 class="lg-d__name">' + esc(e.name) + '</h3></div>'
       + '<dl class="lg-easy"><dt>무엇을 배워요?</dt><dd>' + esc(e.what) + '</dd><dt>왜 들어요?</dt><dd>' + esc(e.why) + '</dd>';
     if (e.kind === "meet") {
-      h += '<dt>구글 계정이 있으면</dt><dd>' + esc(Y.dateLabel) + ' 구글 미트 · ' + MEET_EASY_WHEN + '</dd>'
-        + '<dt>구글 계정이 없으면</dt><dd>11월 중 교육 영상을 전달 드릴 예정이고 12월 31일까지 시청하면 돼요.</dd></dl>'
-        + '<h4 class="lg-h4">구글 계정이 있으면 · 시간과 구글 미트</h4><div class="lg-slots">'
+      h += '<dt>언제 들어요?</dt><dd>' + esc(Y.dateLabel) + ' 구글 미트 · ' + MEET_EASY_WHEN + '</dd></dl>'
+        + '<h4 class="lg-h4">시간과 구글 미트</h4><div class="lg-slots">'
         + ["am", "pm"].map(function (k) {
             var M = Y.meets[k];
             return '<div class="lg-slot"><div class="lg-slot__h"><span class="lg-badge is-acc">' + esc(M.label) + '</span><b>' + esc(M.when) + '</b></div>'
               + '<p class="lg-slot__time">' + esc(e[k]) + '</p><p class="lg-slot__sub">' + e.min + '분 · ' + esc(M.when) + ' 미트는 ' + esc(M.time) + ' 동안 열려요</p>'
               + btn(M.url, M.when + " 구글 미트 들어가기", true, IC.cam) + '</div>';
-          }).join("") + '</div>'
-        + '<div class="lg-acts">' + (safeUrl(L.video) ? btn(L.video, "구글 계정이 없으면 · 4대 교육 영상 보기", false, IC.cam) : waitBtn("구글 계정이 없으면 · 4대 교육 영상")) + '</div>';
+          }).join("") + '</div>';
     } else if (e.kind === "privacy") {
       var P = Y.privacy, tg = privacyTag(P);
       h += '<dt>언제까지?</dt><dd>' + esc(P.period) + ' <span class="lg-dday lg-dday--' + tg.state + '">' + tg.txt + '</span></dd>'
@@ -227,18 +206,6 @@
         + '<div class="lg-acts">' + btn(L.pension, "아지트 자료 보기", true, IC.doc) + '</div>';
     }
     return h;
-  }
-  function waysHtml(W, L) {
-    if (!W) return "";
-    return '<h3 class="lg-sec">' + esc(W.title) + '</h3><div class="lg-ways">' + W.items.map(function (it) {
-      return '<div class="lg-way"><div class="lg-way__h"><b>' + esc(it.who) + '</b><span class="lg-badge">' + esc(it.tag) + '</span></div>'
-        + (it.rows ? '<ul class="lg-way__rows">' + it.rows.map(function (r) {
-            return '<li><span class="lg-way__who">' + esc(r.name) + '</span><div><b>' + esc(r.main) + '</b>' + (r.sub ? '<small>' + esc(r.sub) + '</small>' : "")
-              + (r.link ? '<div class="lg-acts">' + (r.wait && !safeUrl(L[r.link]) ? waitBtn(r.btn.replace(/ 보기$/, "")) : btn(L[r.link], r.btn, false, IC.cam)) + '</div>' : "") + '</div></li>';
-          }).join("") + '</ul>'
-          : '<p class="lg-way__main">' + esc(it.main) + '</p><p class="lg-way__sub">' + esc(it.sub) + '</p>')
-        + '</div>';
-    }).join("") + '</div>';
   }
   /* ---------- 대상자 (스낵앤가든사업팀 · 크루 명단 edu_crews) ---------- */
   var PARTS = ["가든", "스낵", "총무지원"];
@@ -352,6 +319,20 @@
     };
   }
 
+  function tilesHtml(Y, L) {
+    return '<div class="lg-tiles">' + Y.tiles.map(function (t) {
+      var act = t.video ? (safeUrl(L.video) ? btn(L.video, "4대 교육 영상 보기", true, IC.cam) : waitBtn("4대 교육 영상"))
+        : t.go ? '<button type="button" class="lg-tile__go" data-go="' + t.go + '">자세히 보기 →</button>' : "";
+      return '<div class="lg-tile' + (t.hot ? " is-hot" : "") + '">'
+        + '<span class="lg-tile__who">' + esc(t.who) + '</span>'
+        + '<b class="lg-tile__big">' + esc(t.big) + '</b>'
+        + '<span class="lg-tile__what">' + esc(t.what) + '</span>'
+        + '<span class="lg-tile__sub">' + esc(t.sub) + '</span>'
+        + (act ? '<div class="lg-tile__act">' + act + '</div>' : "")
+        + '</div>';
+    }).join("") + '</div>';
+  }
+
   function regHtml(P) {
     return '<dl class="lg-reg">' + P.reg.map(function (r) {
       return '<div><dt>' + esc(r.k) + '</dt><dd><b>' + esc(r.v) + '</b>' + (r.ex ? '<small>' + esc(r.ex) + '</small>' : "")
@@ -360,7 +341,7 @@
   }
 
   document.addEventListener("click", function (e) {
-    var b = e.target.closest && e.target.closest(".lg-wait");
+    var b = e.target.closest && e.target.closest(".lg-waitbox");
     if (!b) return;
     b.classList.remove("is-wiggle"); void b.offsetWidth; b.classList.add("is-wiggle");
     toast("영상이 올라오면 이 버튼에서 바로 볼 수 있어요. 조금만 기다려 주세요!");
@@ -400,33 +381,19 @@
       + '<header class="lg-top"><p class="lg-eyebrow">' + y + ' · 법정의무교육</p>'
         + '<h2 class="lg-h1">' + esc(Y.title) + '</h2>'
         + '<p class="lg-lede">' + esc(Y.lede) + '</p>'
-        + '<p class="lg-facts"><span>대상 <b>모든 크루 (필수)</b></span><span>교육 <b>6가지</b></span><span>구글 미트 <b>' + esc(Y.dateLabel) + '</b> <i class="lg-dday lg-dday--' + dd.state + '">' + dd.txt + '</i></span></p>'
+        + '<p class="lg-facts"><span>대상 <b>모든 크루 (필수)</b></span><span>교육 <b>6가지</b></span></p>'
       + '</header>'
 
-      // 1) 한눈에 보기 — 간단히 전달
-      + '<section class="lg-brief" aria-label="한눈에 보기"><h3 class="lg-sec">한눈에 보기</h3>'
-        + '<ol class="lg-brief__list">' + Y.brief.map(function (b) {
-            return '<li><span class="lg-brief__k">' + esc(b.k) + '</span><span class="lg-brief__v"><b>' + esc(b.v) + '</b><small>' + esc(b.s) + '</small></span></li>';
-          }).join("") + '</ol>'
-        + '<div class="lg-acts" id="lgAgit"></div>'
-      + '</section>'
-
-      + (Y.notice ? '<aside class="lg-alert" role="note"><span class="lg-alert__tag">꼭 확인</span><p class="lg-alert__t">' + esc(Y.notice.t) + '</p>'
-          + (Y.notice.d ? '<p class="lg-alert__d">' + esc(Y.notice.d) + '</p>' : "") + '</aside>' : "")
-      + '<div id="lgWays">' + waysHtml(Y.ways, Y.links) + '</div>'
+      // 1) 한눈에 보기 — 4칸 (요약은 여기 하나)
+      + '<h3 class="lg-sec">한눈에 보기</h3>'
+      + '<div id="lgTiles">' + tilesHtml(Y, Y.links) + '</div>'
+      + '<div class="lg-acts" id="lgAgit"></div>'
       + '<div id="lgTgBox"></div>'
 
       // 2) 교육 6가지 — 누르면 아래 상세
       + '<h3 class="lg-sec">교육 6가지 <small>눌러서 자세히 보기</small></h3>'
       + cardsHtml(Y, sel)
       + '<section class="lg-d" id="lgDetail" role="tabpanel" aria-live="polite"></section>'
-
-      // 3) 꼭 확인해 주세요
-      + '<h3 class="lg-sec">꼭 확인해 주세요</h3>'
-      + '<ol class="lg-checks">' + Y.checks.map(function (c, i) {
-          return '<li><span class="lg-checks__n">' + (i + 1) + '</span><div><b>' + esc(c.t) + '</b><p>' + esc(c.d) + '</p></div></li>';
-        }).join("") + '</ol>'
-
 
       + (opts.pub ? "" : '<div class="sec-h"><h3>크루에게 공유</h3>' + (opts.admin ? '<button class="btn btn--sm" id="lgEditLinks">링크 넣기</button>' : "") + '</div>'
           + '<div class="share-box"><div style="flex:1;min-width:200px"><p class="hint" style="margin:0 0 6px">크루용 보기 페이지 (로그인 없이 보기만)</p>'
@@ -468,6 +435,12 @@
       (navigator.clipboard ? navigator.clipboard.writeText(input.value) : Promise.reject()).then(function () { toast("링크를 복사했습니다"); })
         .catch(function () { input.select(); document.execCommand("copy"); toast("링크를 복사했습니다"); });
     };
+    function bindGo() {
+      root.querySelectorAll("[data-go]").forEach(function (g) {
+        g.onclick = function () { var c = root.querySelector('.lg-card[data-edu="' + g.dataset.go + '"]'); if (c) c.click(); };
+      });
+    }
+    bindGo();
     paintDetail(false);
 
     loadLinks(y).then(function (st) {
@@ -475,7 +448,7 @@
       var a = document.getElementById("lgAgit");
       if (a) a.innerHTML = safeUrl(L.agit) ? btn(L.agit, "아지트 공지 원문 보기", false, IC.doc) : (opts.pub ? "" : '<span class="lg-b is-off">아지트 공지 · 링크 넣기로 추가</span>');
       paintDetail(false);
-      var w = document.getElementById("lgWays"); if (w) w.innerHTML = waysHtml(Y.ways, L);
+      var tl = document.getElementById("lgTiles"); if (tl) { tl.innerHTML = tilesHtml(Y, L); bindGo(); }
       if (Y.targetWays) loadCrews().then(function (cr) {
         var tb = document.getElementById("lgTgBox"); if (!tb) return;
         var T = L.targets || {}, admin = !opts.pub && opts.admin && !st.missing;
