@@ -24,6 +24,13 @@
         { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy", tg: { field: "t_privacy" } },
         { who: "모든 크루", big: "아지트 자료", what: "퇴직연금교육", sub: "아지트 안내 자료를 읽으면 돼요", go: "pension", tg: { field: "t_pension" } }
       ],
+      // 올해 입사자 — 입사 때 괴롭힘 · 성희롱 · 장애인 인식개선 교육을 들어서 이번에는 그 3개 제외 (산업안전 · 개인정보 · 퇴직연금은 들어요)
+      newHires: {
+        label: "2026년 입사자", short: "26년 입사자", skip: ["harass", "sexual", "disab"],
+        note: "입사할 때 이미 들어서 이번에는 제외예요",
+        // OPS 크루 목록 입사일 2026년 (2026-11-11 확인)
+        names: ["토리(tori.15)", "클로버(clover.j)", "니아(nia.11)", "루카(luca.74)", "베라(vera.31)", "엘라(ella.1024)", "에릭(eric.0228)"]
+      },
       // 대상자 설정(관리자) — 크루 명단(edu_crews 재직)마다 아래 중 하나. 저장: edu_legal.links.targets { "이름(ldap)": key }
       targetWays: [
         { key: "meet", label: "구글 미트", when: "11월 12일 (목) · 오전 또는 오후" },
@@ -174,6 +181,7 @@
         + '<b class="lg-card__name">' + esc(e.name) + '</b>'
         + '<span class="lg-card__tag">' + esc(m.tag) + '</span>'
         + '<span class="lg-card__line">' + esc(m.line) + '</span>'
+        + (skipsFor(Y, e.key) ? '<span class="lg-card__nh">' + esc(Y.newHires.short) + ' 제외</span>' : "")
         + '</button>';
     }).join("") + '</div>';
   }
@@ -183,6 +191,8 @@
     var m = eduMeta(Y, e), idx = Y.edus.indexOf(e) + 1;
     var h = '<div class="lg-d__head"><div class="lg-d__tags"><span class="lg-badge is-acc">' + ("0" + idx).slice(-2) + ' / 0' + Y.edus.length + '</span><span class="lg-badge">' + esc(m.tag) + '</span></div>'
       + '<h3 class="lg-d__name">' + esc(e.name) + '</h3></div>'
+      + (skipsFor(Y, e.key) ? '<div class="lg-nh"><b>' + esc(Y.newHires.label) + ' 제외</b><p>' + esc(Y.newHires.note) + '.</p>'
+          + '<div class="lg-m__chips">' + Y.newHires.names.map(function (n) { return '<span>' + esc(shortName(n)) + '</span>'; }).join("") + '</div></div>' : "")
       + '<dl class="lg-easy"><dt>무엇을 배워요?</dt><dd>' + esc(e.what) + '</dd><dt>왜 들어요?</dt><dd>' + esc(e.why) + '</dd>';
     if (e.kind === "meet") {
       h += '<dt>언제 들어요?</dt><dd>' + esc(Y.dateLabel) + ' 구글 미트 · ' + MEET_EASY_WHEN + '</dd></dl>'
@@ -243,47 +253,31 @@
     crews.forEach(function (x) { var k = T[x.name]; if (k && c[k] != null) c[k]++; else c.none++; });
     return c;
   }
+  function isNewHire(Y, name) { return !!(Y.newHires && Y.newHires.names.indexOf(name) > -1); }
+  function skipsFor(Y, key) { return !!(Y.newHires && Y.newHires.skip.indexOf(key) > -1); }
   function tileTgHtml(t, L, crews, admin) {
     if (!t.tg) return "";
-    var n = membersOf(t.tg, L, crews).length, set = t.tg.field !== "targets" || Object.keys(L.targets || {}).length > 0;
-    return '<span class="lg-tile__tgn">대상자 <b>' + (crews.length ? (set ? n + "명" : "미정") : "–") + '</b></span>'
+    var mem = membersOf(t.tg, L, crews), n = mem.length, set = t.tg.field !== "targets" || Object.keys(L.targets || {}).length > 0;
+    var Y = YEARS[0], nh = mem.filter(function (c) { return isNewHire(Y, c.name); }).length;
+    return '<span class="lg-tile__tgn">대상자 <b>' + (crews.length ? (set ? n + "명" : "미정") : "–") + '</b>'
+      + (nh ? '<i class="lg-nh-pill">' + esc(Y.newHires.short) + ' ' + nh + '명 포함</i>' : "") + '</span>'
       + '<span class="lg-tile__tgacts">'
       + '<button type="button" class="lg-tile__tgbtn" data-tgcheck' + (n ? "" : " disabled") + '>대상자 확인</button>'
       + (admin ? '<button type="button" class="lg-tile__tgbtn is-set" data-tgset>설정</button>' : "")
       + '</span>';
   }
   function openTileCheck(Y, t, L, crews) {
-    var names = membersOf(t.tg, L, crews), field = t.tg.field, T = L[field] || {};
-    var m = modal(t.what + " 대상자", '<p class="lg-m__hint">' + esc(t.who) + ' · ' + esc(t.big) + '</p>'
-      + '<label class="lg-m__find"><span>내 이름 찾기</span><input type="search" id="lgFind" placeholder="이름을 써 주세요" autocomplete="off" /></label>'
-      + '<div class="lg-m__me" id="lgMe" aria-live="polite"></div>'
-      + '<section class="lg-m__g"><div class="lg-m__gh"><b>대상자</b><em>' + names.length + '명</em></div>'
-      + '<div class="lg-m__chips">' + names.map(function (c) { return '<span data-n="' + esc(shortName(c.name)) + '">' + esc(shortName(c.name)) + '</span>'; }).join("") + '</div></section>', true);
-    var inp = m.el.querySelector("#lgFind"), me = m.el.querySelector("#lgMe");
-    inp.oninput = function () {
-      var q = inp.value.trim();
-      m.el.querySelectorAll("[data-n]").forEach(function (x) { x.classList.toggle("is-hit", !!q && x.dataset.n.indexOf(q) > -1); });
-      if (!q) { me.innerHTML = ""; return; }
-      var hits = crews.filter(function (c) { return shortName(c.name).indexOf(q) > -1; });
-      me.innerHTML = hits.length ? hits.slice(0, 4).map(function (c) {
-        var mine = names.indexOf(c) > -1, w = wayOf(Y, T[c.name], field);
-        var txt = mine ? "이 교육 대상이에요 · " + t.big
-          : field === "targets" && w && w.key !== "out" ? "이 칸이 아니에요 — " + w.label + " (" + w.when + ")"
-          : "이 교육 대상이 아니에요";
-        return '<div class="lg-m__hit' + (mine ? "" : " is-none") + '"><b>' + esc(shortName(c.name)) + '</b><span>' + esc(txt) + '</span></div>';
-      }).join("") : '<div class="lg-m__hit is-none">이름을 찾지 못했어요. 리더에게 물어봐 주세요.</div>';
-    };
-    setTimeout(function () { inp.focus(); }, 50);
-  }
-  function tgBarHtml(Y, T, crews, admin) {
-    var has = Object.keys(T || {}).length > 0, c = countTargets(Y, T || {}, crews);
-    return '<div class="lg-tg"><div class="lg-tg__txt"><b>스낵앤가든사업팀 대상자</b>'
-      + (has ? '<span>' + Y.targetWays.filter(function (w) { return c[w.key]; }).map(function (w) { return esc(w.label) + ' <em>' + c[w.key] + '명</em>'; }).join(" · ") + (c.none ? ' · 미정 <em>' + c.none + '명</em>' : "") + '</span>'
-             : '<span>' + (admin ? "아직 대상자를 정하지 않았어요. '대상자 설정'에서 정해 주세요." : "대상자를 곧 알려 드릴게요.") + '</span>')
-      + '</div><div class="lg-tg__acts">'
-      + '<button type="button" class="lg-b is-pri" id="lgTgCheck"' + (has ? "" : " disabled") + '>대상자 확인</button>'
-      + (admin ? '<button type="button" class="lg-b" id="lgTgSet">대상자 설정</button>' : "")
-      + '</div></div>';
+    var names = membersOf(t.tg, L, crews);
+    var NH = Y.newHires, old = names.filter(function (c) { return !isNewHire(Y, c.name); }), neu = names.filter(function (c) { return isNewHire(Y, c.name); });
+    var is4 = t.tg.field === "targets";
+    function chips(list) { return '<div class="lg-m__chips">' + list.map(function (c) { return '<span>' + esc(shortName(c.name)) + '</span>'; }).join("") + '</div>'; }
+    modal(t.what + " 대상자", '<p class="lg-m__hint">' + esc(t.who) + ' · ' + esc(t.big) + '</p>'
+      + '<section class="lg-m__g"><div class="lg-m__gh"><b>대상자</b><em>' + old.length + '명</em></div>' + chips(old) + '</section>'
+      + (neu.length ? '<section class="lg-m__g lg-m__nh"><div class="lg-m__gh"><b>' + esc(NH.label) + '</b><em>' + neu.length + '명</em></div>'
+          + '<p class="lg-m__nhnote">' + (is4
+              ? "<b>산업안전보건교육만 들어요.</b> 괴롭힘 · 성희롱 · 장애인 인식개선 교육은 " + esc(NH.note)
+              : "이 교육은 <b>들어요.</b> 입사 때 들은 교육은 괴롭힘 · 성희롱 · 장애인 인식개선 3가지예요.") + '</p>'
+          + chips(neu) + '</section>' : ""), true);
   }
   function modal(title, body, wide) {
     var wrap = document.createElement("div");
@@ -298,31 +292,6 @@
     document.addEventListener("keydown", onKey);
     wrap.querySelectorAll("[data-close]").forEach(function (x) { x.onclick = close; });
     return { el: wrap, close: close };
-  }
-  // 크루: 대상자 확인 — 내 이름 찾기 + 방법별 명단
-  function openCheck(Y, T, crews) {
-    var groups = Y.targetWays.filter(function (w) { return w.key !== "out"; }).map(function (w) {
-      return { w: w, names: crews.filter(function (c) { return T[c.name] === w.key; }) };
-    }).filter(function (g) { return g.names.length; });
-    var m = modal("4대 교육 대상자 확인", '<label class="lg-m__find"><span>내 이름 찾기</span><input type="search" id="lgFind" placeholder="이름을 써 주세요" autocomplete="off" /></label>'
-      + '<div class="lg-m__me" id="lgMe" aria-live="polite"></div>'
-      + groups.map(function (g) {
-          return '<section class="lg-m__g"><div class="lg-m__gh"><b>' + esc(g.w.label) + '</b><span>' + esc(g.w.when) + '</span><em>' + g.names.length + '명</em></div>'
-            + '<div class="lg-m__chips">' + g.names.map(function (c) { return '<span data-n="' + esc(shortName(c.name)) + '">' + esc(shortName(c.name)) + '</span>'; }).join("") + '</div></section>';
-        }).join("")
-      + '<p class="lg-m__foot">개인정보보호교육은 모든 크루가 11월 30일까지 들어요.</p>', true);
-    var inp = m.el.querySelector("#lgFind"), me = m.el.querySelector("#lgMe");
-    inp.oninput = function () {
-      var q = inp.value.trim();
-      m.el.querySelectorAll("[data-n]").forEach(function (x) { x.classList.toggle("is-hit", !!q && x.dataset.n.indexOf(q) > -1); });
-      if (!q) { me.innerHTML = ""; return; }
-      var hits = crews.filter(function (c) { return shortName(c.name).indexOf(q) > -1; });
-      me.innerHTML = hits.length ? hits.slice(0, 4).map(function (c) {
-        var w = wayOf(Y, T[c.name]);
-        return '<div class="lg-m__hit"><b>' + esc(shortName(c.name)) + '</b><span>' + (w ? esc(w.label) + ' · ' + esc(w.when) : "아직 정해지지 않았어요") + '</span></div>';
-      }).join("") : '<div class="lg-m__hit is-none">이름을 찾지 못했어요. 리더에게 물어봐 주세요.</div>';
-    };
-    setTimeout(function () { inp.focus(); }, 50);
   }
   // 관리자: 대상자 설정 — 크루마다 방법 고르기
   function openSet(Y, y, L, crews, opts, done, field, title) {
@@ -570,5 +539,5 @@
   // 홈 카드용 요약
   function summary() { var Y = YEARS[0]; return { year: Y.year, dateLabel: Y.dateLabel, dday: dday(Y.date) }; }
 
-  window.EduLegal = { render: render, summary: summary, years: years, _check: function (T, crews) { openCheck(YEARS[0], T, crews); } };
+  window.EduLegal = { render: render, summary: summary, years: years };
 })();

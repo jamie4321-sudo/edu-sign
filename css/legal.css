@@ -288,3 +288,17 @@
 .lg-tile.is-hot .lg-tile__tgbtn { background: #c6ff2e; border-color: #c6ff2e; color: #14160a; }
 .lg-tile.is-hot .lg-tile__tgbtn.is-set { background: transparent; color: #f4f4f5; border-color: #55554d; }
 @media (max-width: 760px) { .lg-tiles { grid-auto-rows: auto; } .lg-tile { min-height: 0; } }
+
+/* 2026년 입사자 — 입사 때 들은 3개 교육 제외 표시 */
+.lg-nh-pill { font-style: normal; display: inline-block; margin-left: 8px; font-size: 12.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, #ff8a00 16%, var(--panel)); color: #b85e00; vertical-align: 2px; }
+.lg-tile.is-hot .lg-nh-pill { background: #3a2a10; color: #ffb054; }
+.lg-card__nh { justify-self: start; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, #ff8a00 16%, var(--panel)); color: #b85e00; }
+.lg-nh { margin: 0 0 16px; padding: 14px 16px; border-radius: 14px; background: color-mix(in srgb, #ff8a00 9%, var(--panel)); border: 2px dashed #ff8a00; display: grid; gap: 6px; }
+.lg-nh b { font-size: 16px; font-weight: 800; color: #b85e00; }
+.lg-nh p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.lg-m__nh { border-top-style: dashed; }
+.lg-m__nh .lg-m__gh b { color: #b85e00; }
+.lg-m__nhnote { margin: 0; font-size: 15px; color: var(--ink-2); line-height: 1.55; }
+.lg-m__nhnote b { color: var(--ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lg-nh b, :root:not([data-theme="light"]) .lg-card__nh, :root:not([data-theme="light"]) .lg-nh-pill, :root:not([data-theme="light"]) .lg-m__nh .lg-m__gh b { color: #ffb054; } }
+:root[data-theme="dark"] .lg-nh b, :root[data-theme="dark"] .lg-card__nh, :root[data-theme="dark"] .lg-nh-pill, :root[data-theme="dark"] .lg-m__nh .lg-m__gh b { color: #ffb054; }

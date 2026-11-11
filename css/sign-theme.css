@@ -205,3 +205,7 @@ button, select, input { font-family: inherit; }
 .sw-tl__i.is-on .sw-tl__box::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; font-weight: 900; font-size: 18px; color: var(--sw-accent-ink); }
 .sw-tl__b:focus-visible { outline: 3px solid var(--sw-ink); outline-offset: 2px; }
 .sw-chk__n { margin: 12px 0 0; font-size: 15px; font-weight: 800; color: var(--sw-ink-2); text-align: right; }
+.sw-tl__i.is-skip .sw-tl__b { cursor: default; opacity: .75; }
+.sw-tl__i.is-skip .sw-tl__dot { background: var(--sw-card-2); border-style: dashed; }
+.sw-tl__i.is-skip .sw-tl__t b { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--sw-ink-2); }
+.sw-tl__skip { flex: none; font-size: 13px; font-weight: 800; padding: 5px 10px; border-radius: 999px; background: var(--sw-card-2); color: var(--sw-ink-2); }

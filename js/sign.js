@@ -305,7 +305,7 @@
           Store.updateRosterExtra(row.id, next).then(function () { row.extra = next; toast("체크를 저장했어요"); })
             .catch(function () { toast("저장하지 못했어요. 다시 눌러 주세요."); });
         }, 400);
-      });
+      }, row);
     }
     var resignBtn = document.getElementById("resignBtn");
     if (resignBtn) resignBtn.addEventListener("click", function () {
@@ -357,22 +357,28 @@
 
   /* 교육 체크 (sessions.meta.checks) — 예: 4대 법정의무교육. 들은 교육만 체크하고 서명 → roster.extra[key] = "O" */
   function checkList(session) { return (session.meta && Array.isArray(session.meta.checks)) ? session.meta.checks : []; }
-  function checksHtml(session, picked, editable) {
+  // roster.extra[key] === "-" → 이 크루는 그 교육 제외 (예: 올해 입사자 — 입사 때 들음)
+  function skipped(row, key) { return !!(row && row.extra && row.extra[key] === "-"); }
+  function checksHtml(session, picked, editable, row) {
     var L = checkList(session); if (!L.length) return "";
-    var m = session.meta || {}, n = L.filter(function (c) { return picked[c.key]; }).length;
+    var A = L.filter(function (c) { return !skipped(row, c.key); });
+    var m = session.meta || {}, n = A.filter(function (c) { return picked[c.key]; }).length;
     return '<div class="sw-card sw-chk">'
       + '<div class="sw-chk__h"><h3>' + esc(m.checkTitle || "들은 교육을 골라 주세요") + '</h3>'
-      + (editable ? '<button type="button" class="sw-chk__all" id="chkAll">' + (n === L.length ? "모두 해제" : "다 들었어요 · 모두 체크") + '</button>' : "") + '</div>'
+      + (editable ? '<button type="button" class="sw-chk__all" id="chkAll">' + (n === A.length ? "모두 해제" : "다 들었어요 · 모두 체크") + '</button>' : "") + '</div>'
       + (m.checkHint ? '<p class="hint">' + esc(m.checkHint) + '</p>' : "")
       + '<ol class="sw-tl">' + L.map(function (c, i) {
           var on = !!picked[c.key];
+          if (skipped(row, c.key)) return '<li class="sw-tl__i is-skip"><div class="sw-tl__b" aria-disabled="true">'
+            + '<span class="sw-tl__dot">–</span><span class="sw-tl__t"><b>' + esc(c.label) + '</b><small>입사 때 들어서 이번에는 제외예요</small></span>'
+            + '<span class="sw-tl__skip">제외</span></div></li>';
           return '<li class="sw-tl__i' + (on ? " is-on" : "") + '"><button type="button" class="sw-tl__b" data-chk="' + esc(c.key) + '" aria-pressed="' + on + '"' + (editable ? "" : " disabled") + '>'
             + '<span class="sw-tl__dot">' + (on ? "✓" : (i + 1)) + '</span>'
             + '<span class="sw-tl__t"><b>' + esc(c.label) + '</b>'
             + (c.am || c.pm ? '<small>' + (c.am ? "오전 " + esc(c.am) : "") + (c.am && c.pm ? " · " : "") + (c.pm ? "오후 " + esc(c.pm) : "") + '</small>' : (c.when ? '<small>' + esc(c.when) + '</small>' : ""))
             + '</span><span class="sw-tl__box" aria-hidden="true"></span></button></li>';
         }).join("") + '</ol>'
-      + '<p class="sw-chk__n" id="chkCount">' + n + ' / ' + L.length + '개 체크</p>'
+      + '<p class="sw-chk__n" id="chkCount">' + n + ' / ' + A.length + '개 체크' + (A.length < L.length ? ' · ' + (L.length - A.length) + '개 제외' : "") + '</p>'
       + '</div>';
   }
   function pickedFrom(session, row) {
@@ -382,23 +388,23 @@
   }
   function extraWith(session, row, picked) {
     var next = Object.assign({}, (row && row.extra) || {});
-    checkList(session).forEach(function (c) { if (picked[c.key]) next[c.key] = "O"; else delete next[c.key]; });
+    checkList(session).forEach(function (c) { if (next[c.key] === "-") return; if (picked[c.key]) next[c.key] = "O"; else delete next[c.key]; });
     return next;
   }
   // 체크 칸 그리기 + 누르기. onChange(picked) 는 바뀔 때마다
-  function mountChecks(session, picked, editable, onChange) {
+  function mountChecks(session, picked, editable, onChange, row) {
     var box = document.getElementById("chkArea"); if (!box) return;
-    box.innerHTML = checksHtml(session, picked, editable);
+    box.innerHTML = checksHtml(session, picked, editable, row);
     if (!editable) return;
-    var L = checkList(session);
+    var L = checkList(session).filter(function (c) { return !skipped(row, c.key); });
     box.querySelectorAll("[data-chk]").forEach(function (b) {
-      b.addEventListener("click", function () { picked[b.dataset.chk] = !picked[b.dataset.chk]; if (!picked[b.dataset.chk]) delete picked[b.dataset.chk]; mountChecks(session, picked, editable, onChange); onChange && onChange(picked); });
+      b.addEventListener("click", function () { picked[b.dataset.chk] = !picked[b.dataset.chk]; if (!picked[b.dataset.chk]) delete picked[b.dataset.chk]; mountChecks(session, picked, editable, onChange, row); onChange && onChange(picked); });
     });
     var all = document.getElementById("chkAll");
     if (all) all.addEventListener("click", function () {
       var full = L.every(function (c) { return picked[c.key]; });
       L.forEach(function (c) { if (full) delete picked[c.key]; else picked[c.key] = true; });
-      mountChecks(session, picked, editable, onChange); onChange && onChange(picked);
+      mountChecks(session, picked, editable, onChange, row); onChange && onChange(picked);
     });
   }
 
@@ -414,7 +420,7 @@
       + '<button class="sw-btn sw-btn--primary" id="sigSave">' + (consent ? "동의하고 서명 완료" : "서명 완료") + '</button>'
       + (consent ? '<button class="sw-btn sw-btn--no" id="noConsentBtn">동의하지 않아요</button>' : "");
 
-    if (hasChecks) mountChecks(session, picked, !session.locked);
+    if (hasChecks) mountChecks(session, picked, !session.locked, null, row);
     var noBtn = document.getElementById("noConsentBtn");
     if (noBtn) noBtn.addEventListener("click", function () {
       if (!confirm("촬영·초상권 활용에 동의하지 않는 것으로 기록할까요?" + (row.signature ? " 지금 있는 서명은 지워져요." : ""))) return;
@@ -480,7 +486,7 @@
     });
 
     document.getElementById("sigSave").addEventListener("click", function () {
-      if (hasChecks && !checkList(session).some(function (c) { return picked[c.key]; })) {
+      if (hasChecks && !checkList(session).some(function (c) { return picked[c.key] && !skipped(row, c.key); })) {
         toast("들은 교육을 하나 이상 체크해 주세요");
         var ca = document.getElementById("chkArea"); if (ca) ca.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
