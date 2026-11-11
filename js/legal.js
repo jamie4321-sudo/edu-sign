@@ -31,7 +31,6 @@
         label: "2026년 입사자", short: "26년 입사자", skip: ["harass", "sexual", "disab", "safety"],
         note: "입사할 때 이미 들어서 이번에는 제외예요",
         notes: { safety: "복지 부서의 월별 안전교육으로 대신해서 이번에는 제외예요" },
-        dup: "일정을 보고 따로 알려 드려요.",
         // OPS 크루 목록 입사일 2026년 (2026-11-11 확인)
         names: ["토리(tori.15)", "클로버(clover.j)", "니아(nia.11)", "루카(luca.74)", "베라(vera.31)", "엘라(ella.1024)", "에릭(eric.0228)"]
       },
@@ -196,7 +195,6 @@
     var h = '<div class="lg-d__head"><div class="lg-d__tags"><span class="lg-badge is-acc">' + ("0" + idx).slice(-2) + ' / 0' + Y.edus.length + '</span><span class="lg-badge">' + esc(m.tag) + '</span></div>'
       + '<h3 class="lg-d__name">' + esc(e.name) + '</h3></div>'
       + (skipsFor(Y, e.key) ? '<div class="lg-nh"><b>' + esc(Y.newHires.label) + ' 제외</b><p>' + esc(nhNote(Y, e.key)) + '.</p>'
-          + (e.kind === "meet" && Y.newHires.dup ? '<p>' + esc(Y.newHires.dup) + '</p>' : "")
           + '<div class="lg-m__chips">' + Y.newHires.names.map(function (n) { return '<span>' + esc(shortName(n)) + '</span>'; }).join("") + '</div></div>' : "")
       + '<dl class="lg-easy"><dt>무엇을 배워요?</dt><dd>' + esc(e.what) + '</dd><dt>왜 들어요?</dt><dd>' + esc(e.why) + '</dd>';
     if (e.kind === "meet") {
@@ -284,7 +282,7 @@
       + '<section class="lg-m__g"><div class="lg-m__gh"><b>대상자</b><em>' + old.length + '명</em></div>' + chips(old) + '</section>'
       + (neu.length ? '<section class="lg-m__g lg-m__nh"><div class="lg-m__gh"><b>' + esc(NH.label) + (all4 ? " · 제외" : "") + '</b><em>' + neu.length + '명</em></div>'
           + '<p class="lg-m__nhnote">' + (all4
-              ? "<b>" + (t.video ? "이번 교육 영상은 보지 않아도 돼요." : "이번 11월 12일 교육은 듣지 않아도 돼요.") + "</b> 직장 내 괴롭힘 · 직장 내 성희롱 · 장애인 인식개선은 입사 때 들었고, 산업안전보건은 복지 부서의 월별 안전교육으로 대신해요." + (NH.dup ? "<br>" + esc(NH.dup) : "")
+              ? "<b>" + (t.video ? "이번 교육 영상은 보지 않아도 돼요." : "이번 11월 12일 교육은 듣지 않아도 돼요.") + "</b> 직장 내 괴롭힘 · 직장 내 성희롱 · 장애인 인식개선은 입사 때 들었고, 산업안전보건은 복지 부서의 월별 안전교육으로 대신해요."
               : is4 ? "<b>산업안전보건교육만 들어요.</b> 괴롭힘 · 성희롱 · 장애인 인식개선 교육은 " + esc(NH.note)
               : "이 교육은 <b>들어요.</b> 직장 내 괴롭힘 · 직장 내 성희롱 · 장애인 인식개선 · 산업안전보건만 제외예요.") + '</p>'
           + chips(neu) + '</section>' : ""), true);
