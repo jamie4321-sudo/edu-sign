@@ -57,6 +57,21 @@
 .lg-brief__v b { display: block; font-size: 17px; font-weight: 800; line-height: 1.45; }
 .lg-brief__v small { display: block; font-size: 14.5px; color: var(--ink-2); margin-top: 2px; }
 
+/* 4대 교육, 나는 어떻게 들어요? (구글 계정 있음 / 없음) */
+.lg-ways { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.lg-way { display: grid; gap: 10px; align-content: start; background: var(--panel); border: 2px solid var(--lg-line); border-radius: 18px; padding: 18px 20px; }
+.lg-way__h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lg-way__h b { font-size: 19px; font-weight: 800; }
+.lg-way__main { margin: 0; font-size: 18px; font-weight: 800; line-height: 1.45; }
+.lg-way__sub { margin: 0; font-size: 15px; color: var(--ink-2); }
+.lg-way__rows { list-style: none; margin: 0; padding: 0; display: grid; }
+.lg-way__rows li { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; padding: 10px 0; }
+.lg-way__rows li + li { border-top: 2px solid var(--lg-line); }
+.lg-way__who { font-size: 15px; font-weight: 800; color: var(--accent-text); padding-top: 2px; }
+.lg-way__rows b { display: block; font-size: 17px; font-weight: 800; line-height: 1.45; }
+.lg-way__rows small { display: block; font-size: 14.5px; color: var(--ink-2); margin-top: 2px; }
+.lg-way__rows .lg-acts { margin-top: 10px; }
+
 /* 2) 교육 6가지 카드 */
 .lg-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .lg-card { font: inherit; color: var(--ink); text-align: left; cursor: pointer; display: grid; grid-template-rows: auto 1fr auto auto; gap: 6px; padding: 16px 18px; min-height: 150px; background: var(--panel); border: 2px solid var(--lg-line); border-radius: 18px; transition: border-color .15s ease, background-color .15s ease, transform .15s ease; }
@@ -127,10 +142,18 @@
   .lg-d { padding: 20px 18px 22px; }
   .lg-easy { grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 14px 16px; }
   .lg-easy dd + dt { margin-top: 10px; }
-  .lg-slots, .lg-checks { grid-template-columns: minmax(0, 1fr); }
+  .lg-slots, .lg-checks, .lg-ways { grid-template-columns: minmax(0, 1fr); }
+  .lg-way__rows li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .lg-reg > div { grid-template-columns: 96px minmax(0, 1fr); }
   .lg-reg dd { font-size: 16.5px; }
   .lg-steps li { grid-template-columns: 36px minmax(0, 1fr); gap: 12px; }
   .lg-steps__n { width: 32px; height: 32px; font-size: 15px; }
   .lg-b { width: 100%; justify-content: center; }
 }
+
+/* 튀게 보이는 안내 (GWS 계정 없는 크루) — 진한 바탕 + 라임 글씨, 색 바 없음 */
+.lg-alert { margin-top: 14px; background: #16160f; color: #f4f4f5; border: 2px solid #c6ff2e; border-radius: 20px; padding: 20px 24px; display: grid; gap: 8px; }
+.lg-alert__tag { justify-self: start; font-size: 13px; font-weight: 800; padding: 4px 12px; border-radius: 999px; background: #c6ff2e; color: #14160a; }
+.lg-alert__t { margin: 0; font-size: 20px; font-weight: 800; line-height: 1.5; color: #c6ff2e; }
+.lg-alert__d { margin: 0; font-size: 16px; line-height: 1.6; opacity: .88; }
+@media (max-width: 760px) { .lg-alert { padding: 18px; } .lg-alert__t { font-size: 18px; } }
