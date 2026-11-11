@@ -256,7 +256,7 @@
     var groups = Y.targetWays.filter(function (w) { return w.key !== "out"; }).map(function (w) {
       return { w: w, names: crews.filter(function (c) { return T[c.name] === w.key; }) };
     }).filter(function (g) { return g.names.length; });
-    var m = modal("4대 교육 대상자 확인", '<label class="lg-m__find"><span>내 이름 찾기</span><input type="search" id="lgFind" placeholder="예: 엘리" autocomplete="off" /></label>'
+    var m = modal("4대 교육 대상자 확인", '<label class="lg-m__find"><span>내 이름 찾기</span><input type="search" id="lgFind" placeholder="이름을 써 주세요" autocomplete="off" /></label>'
       + '<div class="lg-m__me" id="lgMe" aria-live="polite"></div>'
       + groups.map(function (g) {
           return '<section class="lg-m__g"><div class="lg-m__gh"><b>' + esc(g.w.label) + '</b><span>' + esc(g.w.when) + '</span><em>' + g.names.length + '명</em></div>'
