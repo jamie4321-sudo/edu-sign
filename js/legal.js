@@ -87,7 +87,7 @@
       // 교육을 마친 뒤 크루가 서명으로 '완료'를 알려 주는 곳 — 교육 서명 관리(#/sign)의 세션 id
       // 서명 하나로 6가지 — 서명 화면에서 들은 교육을 체크 (sessions.meta.checks), 나중에 다시 들어와 체크 추가 가능
       signs: {
-        all: { id: "idmwbemuoqqncb", label: "법정의무교육 완료 서명하기", msg: "서명 화면에서 들은 교육을 체크하고 서명해요. 나머지 교육은 듣고 나서 다시 들어와 체크하면 돼요." }
+        all: { id: "idmwbemuoqqncb", label: "법정의무교육 완료 서명하기", msg: "교육을 하나 들을 때마다 들어와서 체크하면 바로 저장돼요. 모두 마치면 마지막에 서명해 주세요." }
       },
       links: { agit: "", pension: "", video: "" }
     }
@@ -372,6 +372,62 @@
     }).join("") + '</div>';
   }
 
+  /* ---------- 관리자: 크루별 이수 현황 (서명 세션 roster.extra) ---------- */
+  var SHORT = { harass: "괴롭힘", sexual: "성희롱", disab: "장애인 인식", safety: "산업안전", privacy: "개인정보", pension: "퇴직연금" };
+  function loadBoard(sid) {
+    if (!canDb()) return Promise.resolve(null);
+    return sb().from("roster").select("seq,dept,name,extra,signed_at").eq("session_id", sid).order("seq", { ascending: true })
+      .then(function (r) { return r.error ? null : (r.data || []); }).catch(function () { return null; });
+  }
+  function shortWhen(iso) {
+    var d = new Date(iso); if (!iso || isNaN(d)) return "";
+    var p = function (n) { return ("0" + n).slice(-2); };
+    return (d.getMonth() + 1) + "/" + d.getDate() + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  function boardHtml(Y, rows, onlyLeft) {
+    var keys = Y.edus.map(function (e) { return e.key; });
+    function done(r, k) { return (r.extra || {})[k] === "O"; }
+    function skip(r, k) { return (r.extra || {})[k] === "-"; }
+    function left(r) { return keys.filter(function (k) { return !skip(r, k) && !done(r, k); }).length; }
+    var tot = {}; keys.forEach(function (k) { tot[k] = { d: 0, n: 0 }; });
+    rows.forEach(function (r) { keys.forEach(function (k) { if (!skip(r, k)) { tot[k].n++; if (done(r, k)) tot[k].d++; } }); });
+    var all = rows.filter(function (r) { return left(r) === 0; }).length, signed = rows.filter(function (r) { return r.signed_at; }).length;
+    var list = onlyLeft ? rows.filter(function (r) { return left(r) > 0; }) : rows;
+    var parts = ["가든", "스낵", "총무지원"], groups = parts.map(function (pt) { return { pt: pt, rows: list.filter(function (r) { return r.dept === pt; }) }; })
+      .concat([{ pt: "기타", rows: list.filter(function (r) { return parts.indexOf(r.dept) < 0; }) }]).filter(function (g) { return g.rows.length; });
+    return '<div class="lg-bd__top"><p><b>' + all + '</b> / ' + rows.length + '명 모두 완료 · 서명 <b>' + signed + '</b>명</p>'
+      + '<label class="lg-bd__only"><input type="checkbox" id="lgBdOnly"' + (onlyLeft ? " checked" : "") + ' /> 아직 남은 크루만 보기</label></div>'
+      + '<div class="lg-bd__wrap"><table class="lg-bd"><thead><tr><th scope="col">크루</th>'
+      + keys.map(function (k) { return '<th scope="col">' + esc(SHORT[k] || k) + '<small>' + tot[k].d + ' / ' + tot[k].n + '</small></th>'; }).join("")
+      + '<th scope="col">서명</th></tr></thead><tbody>'
+      + (groups.length ? groups.map(function (g) {
+          return '<tr class="lg-bd__part"><th colspan="' + (keys.length + 2) + '">' + esc(g.pt === "스낵" ? "스낵큐레이션" : g.pt) + ' · ' + g.rows.length + '명</th></tr>'
+            + g.rows.map(function (r) {
+                var nh = isNewHire(Y, r.name);
+                return '<tr' + (left(r) === 0 ? ' class="is-all"' : "") + '><th scope="row">' + esc(shortName(r.name)) + (nh ? '<i>' + esc(Y.newHires.short) + '</i>' : "") + '</th>'
+                  + keys.map(function (k) {
+                      if (skip(r, k)) return '<td class="is-skip">제외</td>';
+                      if (done(r, k)) return '<td class="is-done"><b>✓</b><small>' + esc(shortWhen((r.extra || {})["at_" + k])) + '</small></td>';
+                      return '<td class="is-none">–</td>';
+                    }).join("")
+                  + '<td class="' + (r.signed_at ? "is-done" : "is-none") + '">' + (r.signed_at ? '<b>✓</b><small>' + esc(shortWhen(r.signed_at)) + '</small>' : "–") + '</td></tr>';
+              }).join("");
+        }).join("") : '<tr><td colspan="' + (keys.length + 2) + '" class="is-none">모든 크루가 교육을 마쳤어요</td></tr>')
+      + '</tbody></table></div>';
+  }
+  function mountBoard(Y) {
+    var box = document.getElementById("lgBoard"); if (!box || !Y.signs) return;
+    loadBoard(Y.signs.all.id).then(function (rows) {
+      if (!rows) { box.innerHTML = '<p class="hint">이수 현황을 불러오지 못했어요.</p>'; return; }
+      var only = false;
+      function paint() {
+        box.innerHTML = boardHtml(Y, rows, only);
+        var c = document.getElementById("lgBdOnly"); if (c) c.onchange = function () { only = c.checked; paint(); };
+      }
+      paint();
+    });
+  }
+
   function regHtml(P) {
     return '<dl class="lg-reg">' + P.reg.map(function (r) {
       return '<div><dt>' + esc(r.k) + '</dt><dd><b>' + esc(r.v) + '</b>' + (r.ex ? '<small>' + esc(r.ex) + '</small>' : "")
@@ -434,6 +490,7 @@
       + cardsHtml(Y, sel)
       + '<section class="lg-d" id="lgDetail" role="tabpanel" aria-live="polite"></section>'
 
+      + (opts.pub || !Y.signs ? "" : '<div class="sec-h"><h3>크루별 이수 현황</h3><span class="ss-sub">크루가 체크한 교육 · 체크한 시간</span></div><div id="lgBoard"><p class="hint">불러오는 중…</p></div>')
       + (opts.pub ? "" : '<div class="sec-h"><h3>크루에게 공유</h3>' + (opts.admin ? '<button class="btn btn--sm" id="lgEditLinks">링크 넣기</button>' : "") + '</div>'
           + '<div class="share-box"><div style="flex:1;min-width:200px"><p class="hint" style="margin:0 0 6px">크루용 보기 페이지 (로그인 없이 보기만)</p>'
           + '<input type="text" readonly value="' + esc(opts.shareUrl || "") + '" id="lgUrl" /></div>'
@@ -481,6 +538,7 @@
     }
     bindGo();
     paintDetail(false);
+    if (!opts.pub) mountBoard(Y);
 
     loadLinks(y).then(function (st) {
       L = st.links;

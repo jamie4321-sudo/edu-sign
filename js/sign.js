@@ -288,25 +288,14 @@
   }
 
   function renderDoneCard(session, row, name) {
-    document.getElementById("signArea").innerHTML = '<div class="sw-card">'
+    document.getElementById("signArea").innerHTML = (checkList(session).length ? '<div id="chkArea"></div>' : "") + '<div class="sw-card">'
       + '<div class="sw-done-badge"><span class="ok">✓</span><div><h3>' + (isConsent(session) ? "동의 서명 완료" : "서명 완료") + '</h3><p class="hint">' + esc(fmtDateTime(row.signedAt)) + '에 서명했어요</p></div></div>'
       + '<div class="sw-done-img"><img src="' + row.signature + '" alt="서명" /></div>'
       + '</div>'
-      + (checkList(session).length ? '<div id="chkArea"></div>' : "")
       + askHtml(session, row)
       + (session.locked ? "" : '<button class="sw-btn sw-btn--ghost" id="resignBtn">다시 서명하기</button>');
     bindAsk(session, row);
-    if (checkList(session).length) {
-      var dPicked = pickedFrom(session, row), saveT = null;
-      mountChecks(session, dPicked, !session.locked, function (p) {
-        clearTimeout(saveT);
-        saveT = setTimeout(function () {
-          var next = extraWith(session, row, p);
-          Store.updateRosterExtra(row.id, next).then(function () { row.extra = next; toast("체크를 저장했어요"); })
-            .catch(function () { toast("저장하지 못했어요. 다시 눌러 주세요."); });
-        }, 400);
-      }, row);
-    }
+    liveChecks(session, row, !session.locked);
     var resignBtn = document.getElementById("resignBtn");
     if (resignBtn) resignBtn.addEventListener("click", function () {
       if (!confirm("기존 서명을 지우고 다시 서명하시겠습니까?")) return;
@@ -355,72 +344,86 @@
     });
   }
 
-  /* 교육 체크 (sessions.meta.checks) — 예: 4대 법정의무교육. 들은 교육만 체크하고 서명 → roster.extra[key] = "O" */
+  /* 교육 체크 (sessions.meta.checks) — 예: 2026 법정의무교육.
+     교육을 들을 때마다 하나씩 체크 → 바로 저장 + 체크한 시각 (roster.extra[key] = "O", extra["at_" + key] = ISO)
+     roster.extra[key] === "-" → 이 크루는 그 교육 제외 (예: 올해 입사자 — 입사 때 들음) */
   function checkList(session) { return (session.meta && Array.isArray(session.meta.checks)) ? session.meta.checks : []; }
-  // roster.extra[key] === "-" → 이 크루는 그 교육 제외 (예: 올해 입사자 — 입사 때 들음)
   function skipped(row, key) { return !!(row && row.extra && row.extra[key] === "-"); }
-  function checksHtml(session, picked, editable, row) {
+  function isDone(row, key) { return !!(row && row.extra && row.extra[key] === "O"); }
+  function fmtWhen(iso) {
+    if (!iso) return "";
+    var d = new Date(iso); if (isNaN(d)) return "";
+    var w = "일월화수목금토".charAt(d.getDay()), p = function (n) { return ("0" + n).slice(-2); };
+    return (d.getMonth() + 1) + "월 " + d.getDate() + "일 (" + w + ") " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  function checksHtml(session, row, editable) {
     var L = checkList(session); if (!L.length) return "";
     var A = L.filter(function (c) { return !skipped(row, c.key); });
-    var m = session.meta || {}, n = A.filter(function (c) { return picked[c.key]; }).length;
+    var n = A.filter(function (c) { return isDone(row, c.key); }).length;
+    var x = (row && row.extra) || {};
     return '<div class="sw-card sw-chk">'
-      + '<div class="sw-chk__h"><h3>' + esc(m.checkTitle || "들은 교육을 골라 주세요") + '</h3>'
-      + (editable ? '<button type="button" class="sw-chk__all" id="chkAll">' + (n === A.length ? "모두 해제" : "다 들었어요 · 모두 체크") + '</button>' : "") + '</div>'
-      + (m.checkHint ? '<p class="hint">' + esc(m.checkHint) + '</p>' : "")
+      + '<div class="sw-chk__h"><h3>교육을 들을 때마다 체크해 주세요</h3>'
+      + (editable && n < A.length ? '<button type="button" class="sw-chk__all" id="chkAll">다 들었어요 · 모두 체크</button>' : "") + '</div>'
+      + '<p class="hint">체크하면 바로 저장되고 체크한 시간이 남아요. 한꺼번에 하지 않아도, 들은 것부터 하나씩 체크하면 돼요.</p>'
+      + '<div class="sw-chk__bar" aria-hidden="true"><i style="width:' + (A.length ? Math.round(n / A.length * 100) : 0) + '%"></i></div>'
       + '<ol class="sw-tl">' + L.map(function (c, i) {
-          var on = !!picked[c.key];
           if (skipped(row, c.key)) return '<li class="sw-tl__i is-skip"><div class="sw-tl__b" aria-disabled="true">'
             + '<span class="sw-tl__dot">–</span><span class="sw-tl__t"><b>' + esc(c.label) + '</b><small>입사 때 들어서 이번에는 제외예요</small></span>'
             + '<span class="sw-tl__skip">제외</span></div></li>';
+          var on = isDone(row, c.key), when = on ? fmtWhen(x["at_" + c.key]) : "";
+          var sub = c.am || c.pm ? (c.am ? "오전 " + c.am : "") + (c.am && c.pm ? " · " : "") + (c.pm ? "오후 " + c.pm : "") : (c.when || "");
           return '<li class="sw-tl__i' + (on ? " is-on" : "") + '"><button type="button" class="sw-tl__b" data-chk="' + esc(c.key) + '" aria-pressed="' + on + '"' + (editable ? "" : " disabled") + '>'
             + '<span class="sw-tl__dot">' + (on ? "✓" : (i + 1)) + '</span>'
             + '<span class="sw-tl__t"><b>' + esc(c.label) + '</b>'
-            + (c.am || c.pm ? '<small>' + (c.am ? "오전 " + esc(c.am) : "") + (c.am && c.pm ? " · " : "") + (c.pm ? "오후 " + esc(c.pm) : "") + '</small>' : (c.when ? '<small>' + esc(c.when) + '</small>' : ""))
+            + (on ? '<small class="sw-tl__when">' + (when ? esc(when) + ' 체크했어요' : "체크했어요") + '</small>' : (sub ? '<small>' + esc(sub) + '</small>' : ""))
             + '</span><span class="sw-tl__box" aria-hidden="true"></span></button></li>';
         }).join("") + '</ol>'
-      + '<p class="sw-chk__n" id="chkCount">' + n + ' / ' + A.length + '개 체크' + (A.length < L.length ? ' · ' + (L.length - A.length) + '개 제외' : "") + '</p>'
+      + '<p class="sw-chk__n">' + n + ' / ' + A.length + '개 완료' + (A.length < L.length ? ' · ' + (L.length - A.length) + '개 제외' : "") + '</p>'
       + '</div>';
   }
-  function pickedFrom(session, row) {
-    var x = (row && row.extra) || {}, o = {};
-    checkList(session).forEach(function (c) { if (x[c.key] === "O") o[c.key] = true; });
-    return o;
-  }
-  function extraWith(session, row, picked) {
-    var next = Object.assign({}, (row && row.extra) || {});
-    checkList(session).forEach(function (c) { if (next[c.key] === "-") return; if (picked[c.key]) next[c.key] = "O"; else delete next[c.key]; });
-    return next;
-  }
-  // 체크 칸 그리기 + 누르기. onChange(picked) 는 바뀔 때마다
-  function mountChecks(session, picked, editable, onChange, row) {
-    var box = document.getElementById("chkArea"); if (!box) return;
-    box.innerHTML = checksHtml(session, picked, editable, row);
-    if (!editable) return;
-    var L = checkList(session).filter(function (c) { return !skipped(row, c.key); });
-    box.querySelectorAll("[data-chk]").forEach(function (b) {
-      b.addEventListener("click", function () { picked[b.dataset.chk] = !picked[b.dataset.chk]; if (!picked[b.dataset.chk]) delete picked[b.dataset.chk]; mountChecks(session, picked, editable, onChange, row); onChange && onChange(picked); });
-    });
-    var all = document.getElementById("chkAll");
-    if (all) all.addEventListener("click", function () {
-      var full = L.every(function (c) { return picked[c.key]; });
-      L.forEach(function (c) { if (full) delete picked[c.key]; else picked[c.key] = true; });
-      mountChecks(session, picked, editable, onChange, row); onChange && onChange(picked);
-    });
+  // 체크 칸 — 누르면 바로 저장 (서명과 상관없이)
+  function liveChecks(session, row, editable) {
+    var box = document.getElementById("chkArea"); if (!box || !checkList(session).length) return;
+    function paint() {
+      box.innerHTML = checksHtml(session, row, editable);
+      if (!editable) return;
+      box.querySelectorAll("[data-chk]").forEach(function (b) {
+        b.addEventListener("click", function () { save([b.dataset.chk], !isDone(row, b.dataset.chk)); });
+      });
+      var all = document.getElementById("chkAll");
+      if (all) all.addEventListener("click", function () {
+        save(checkList(session).filter(function (c) { return !skipped(row, c.key) && !isDone(row, c.key); }).map(function (c) { return c.key; }), true);
+      });
+    }
+    function save(keys, on) {
+      if (!keys.length) return;
+      if (!on && !confirm("체크를 지울까요? 체크한 시간도 함께 지워져요.")) return;
+      var next = Object.assign({}, row.extra || {}), now = new Date().toISOString();
+      keys.forEach(function (k) { if (on) { next[k] = "O"; next["at_" + k] = now; } else { delete next[k]; delete next["at_" + k]; } });
+      box.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+      Store.updateRosterExtra(row.id, next).then(function () {
+        row.extra = next;
+        var hit = allRoster.filter(function (r) { return r.id === row.id; })[0]; if (hit) hit.extra = next;
+        paint();
+        toast(on ? fmtWhen(now) + " 체크했어요" : "체크를 지웠어요");
+      }).catch(function () { paint(); toast("저장하지 못했어요. 다시 눌러 주세요."); });
+    }
+    paint();
   }
 
   function renderSignCard(session, row, name) {
     var consent = isConsent(session);
-    var picked = pickedFrom(session, row), hasChecks = checkList(session).length > 0;
+    var hasChecks = checkList(session).length > 0;
     document.getElementById("signArea").innerHTML = (hasChecks ? '<div id="chkArea"></div>' : "")
       + '<div class="sw-card">'
-      + '<h3>' + (consent ? "동의하면 여기에 서명해주세요" : hasChecks ? "체크한 다음 여기에 서명해 주세요" : "여기에 서명해주세요") + '</h3><p class="hint">손가락으로 이름을 적어주세요</p>'
+      + '<h3>' + (consent ? "동의하면 여기에 서명해주세요" : hasChecks ? "교육을 모두 마치면 마지막에 한 번 서명해 주세요" : "여기에 서명해주세요") + '</h3><p class="hint">손가락으로 이름을 적어주세요</p>'
       + '<canvas class="sw-sigpad" id="sigPad"></canvas>'
       + '<div class="sw-sig-actions"><button type="button" id="sigClear">다시 쓰기</button></div>'
       + '</div>'
       + '<button class="sw-btn sw-btn--primary" id="sigSave">' + (consent ? "동의하고 서명 완료" : "서명 완료") + '</button>'
       + (consent ? '<button class="sw-btn sw-btn--no" id="noConsentBtn">동의하지 않아요</button>' : "");
 
-    if (hasChecks) mountChecks(session, picked, !session.locked, null, row);
+    if (hasChecks) liveChecks(session, row, !session.locked);
     var noBtn = document.getElementById("noConsentBtn");
     if (noBtn) noBtn.addEventListener("click", function () {
       if (!confirm("촬영·초상권 활용에 동의하지 않는 것으로 기록할까요?" + (row.signature ? " 지금 있는 서명은 지워져요." : ""))) return;
@@ -486,11 +489,6 @@
     });
 
     document.getElementById("sigSave").addEventListener("click", function () {
-      if (hasChecks && !checkList(session).some(function (c) { return picked[c.key] && !skipped(row, c.key); })) {
-        toast("들은 교육을 하나 이상 체크해 주세요");
-        var ca = document.getElementById("chkArea"); if (ca) ca.scrollIntoView({ behavior: "smooth", block: "start" });
-        return;
-      }
       if (!drawn) { toast("서명을 먼저 입력해주세요"); return; }
       var out = document.createElement("canvas");
       out.width = 300; out.height = 165;
@@ -499,8 +497,6 @@
       octx.drawImage(canvas, 0, 0, out.width, out.height);
       var dataUrl = out.toDataURL("image/png");
       Store.signRoster(row.id, dataUrl).then(function () {
-        if (hasChecks) return Store.updateRosterExtra(row.id, extraWith(session, row, picked)).catch(function () { toast("체크를 저장하지 못했어요. 서명 뒤 다시 눌러 주세요."); });
-      }).then(function () {
         toast("서명이 저장되었습니다");
         if (row.extra && row.extra.refusedAt) {
           var next = Object.assign({}, row.extra); delete next.refusedAt;

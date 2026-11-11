@@ -209,3 +209,6 @@ button, select, input { font-family: inherit; }
 .sw-tl__i.is-skip .sw-tl__dot { background: var(--sw-card-2); border-style: dashed; }
 .sw-tl__i.is-skip .sw-tl__t b { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--sw-ink-2); }
 .sw-tl__skip { flex: none; font-size: 13px; font-weight: 800; padding: 5px 10px; border-radius: 999px; background: var(--sw-card-2); color: var(--sw-ink-2); }
+.sw-chk__bar { height: 10px; border-radius: 999px; background: var(--sw-card-2); overflow: hidden; margin-top: 12px; }
+.sw-chk__bar i { display: block; height: 100%; background: var(--sw-accent); border-radius: 999px; transition: width .3s ease; }
+.sw-tl__when { color: var(--sw-ink) !important; font-weight: 700; }
