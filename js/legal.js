@@ -19,9 +19,9 @@
       lede: "모든 크루가 꼭 들어야 하는 교육이에요. 회사와 크루 모두의 권리와 의무를 지키기 위한 교육이니 일정을 미리 확인해 주세요.",
       // 한눈에 보기 — 누가 · 언제까지 · 무엇을. 이 페이지의 요약은 여기 하나만 (아래에서 반복하지 않음)
       tiles: [
-        { who: "구글 계정이 있는 크루", big: "11월 12일 (목)", what: "구글 미트로 4대 교육 듣기", sub: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30 중 한 번", go: "harass" },
-        { who: "구글 계정이 없는 4·6·8시간 크루", big: "12월 31일까지", what: "4대 교육 영상 시청", sub: "11월 중 교육 영상을 받아서 12월 31일까지 시청하면 돼요.", hot: true, video: true },
-        { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy" },
+        { who: "구글 계정이 있는 크루", big: "11월 12일 (목)", what: "구글 미트로 4대 교육 듣기", sub: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30 중 한 번", go: "harass", sign: "meet4" },
+        { who: "구글 계정이 없는 4·6·8시간 크루", big: "12월 31일까지", what: "4대 교육 영상 시청", sub: "11월 중 교육 영상을 받아서 12월 31일까지 시청하면 돼요.", hot: true, video: true, sign: "meet4" },
+        { who: "모든 크루", big: "11월 30일까지", what: "개인정보보호교육 (온라인)", sub: "개인정보배움터 · 15분 30초", go: "privacy", sign: "privacy" },
         { who: "모든 크루", big: "아지트 자료", what: "퇴직연금교육", sub: "아지트 안내 자료를 읽으면 돼요", go: "pension" }
       ],
       // 대상자 설정(관리자) — 크루 명단(edu_crews 재직)마다 아래 중 하나. 저장: edu_legal.links.targets { "이름(ldap)": key }
@@ -77,7 +77,11 @@
           "수료증은 내지 않아도 돼요. 관리자가 교육을 마쳤는지 확인할 수 있어요.",
           "진행하다가 잘 모르겠다면, 언제든지 제이미, 헤이든에게 문의해 주세요."
         ],
-        guide: "https://kko.to/dYGDUOsk-i"
+      },
+      // 교육을 마친 뒤 크루가 서명으로 '완료'를 알려 주는 곳 — 교육 서명 관리(#/sign)의 세션 id
+      signs: {
+        meet4: { id: "idmwbemuoqqncb", label: "4대 교육 완료 서명하기", msg: "11월 12일 교육을 듣거나 영상을 다 본 뒤, 아래 버튼을 눌러 서명으로 완료했다고 알려 주세요." },
+        privacy: { id: "idmwalp33rhwa7sv", label: "개인정보보호교육 완료 서명하기", msg: "교육을 다 들은 뒤, 아래 버튼을 눌러 서명으로 완료했다고 알려 주세요." }
       },
       links: { agit: "", pension: "", video: "" }
     }
@@ -103,7 +107,8 @@
     cam: svg('<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/>'),
     web: svg('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/>'),
     doc: svg('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>'),
-    info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>')
+    info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>'),
+    pen: svg('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/>')
   };
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -188,7 +193,8 @@
             return '<div class="lg-slot"><div class="lg-slot__h"><span class="lg-badge is-acc">' + esc(M.label) + '</span><b>' + esc(M.when) + '</b></div>'
               + '<p class="lg-slot__time">' + esc(e[k]) + '</p><p class="lg-slot__sub">' + e.min + '분 · ' + esc(M.when) + ' 미트는 ' + esc(M.time) + ' 동안 열려요</p>'
               + btn(M.url, M.when + " 구글 미트 들어가기", true, IC.cam) + '</div>';
-          }).join("") + '</div>';
+          }).join("") + '</div>'
+        + signBox(Y.signs && Y.signs.meet4, "다 들었으면 서명해 주세요");
     } else if (e.kind === "privacy") {
       var P = Y.privacy, tg = privacyTag(P);
       h += '<dt>언제까지?</dt><dd>' + esc(P.period) + ' <span class="lg-dday lg-dday--' + tg.state + '">' + tg.txt + '</span></dd>'
@@ -201,7 +207,7 @@
               + '</div></li>';
           }).join("") + '</ol>'
         + '<h4 class="lg-h4">알아 두세요</h4><ul class="lg-notes">' + P.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join("") + '</ul>'
-        + '<div class="lg-acts">' + btn(P.guide, "수강 안내 (텍스트) 보기", false, IC.doc) + '</div>';
+        + signBox(Y.signs && Y.signs.privacy, "그래도 우리 크루는 서명을 받고 있어요.");
     } else {
       h += '<dt>어떻게 해요?</dt><dd>아지트에 올라온 퇴직연금 안내 자료를 끝까지 읽어요.</dd></dl>'
         + '<div class="lg-acts">' + btn(L.pension, "아지트 자료 보기", true, IC.doc) + '</div>';
@@ -320,10 +326,21 @@
     };
   }
 
+  function signUrl(id) { return (location.hostname === "localhost" || location.hostname === "127.0.0.1" ? "sign.html" : "/sign") + "?s=" + encodeURIComponent(id); }
+  function signBtn(sg, primary) {
+    if (!sg) return "";
+    return '<a class="lg-b lg-sign' + (primary === false ? "" : " is-pri") + '" href="' + signUrl(sg.id) + '">' + IC.pen + '<span>' + esc(sg.label) + '</span></a>';
+  }
+  function signBox(sg, title) {
+    if (!sg) return "";
+    return '<div class="lg-signbox"><div><b>' + esc(title) + '</b><p>' + esc(sg.msg) + '</p></div>' + signBtn(sg) + '</div>';
+  }
+
   function tilesHtml(Y, L) {
     return '<div class="lg-tiles">' + Y.tiles.map(function (t) {
-      var act = t.video ? (safeUrl(L.video) ? btn(L.video, "4대 교육 영상 보기", true, IC.cam) : waitBtn("4대 교육 영상"))
-        : t.go ? '<button type="button" class="lg-tile__go" data-go="' + t.go + '">자세히 보기 →</button>' : "";
+      var sg = t.sign && Y.signs ? Y.signs[t.sign] : null;
+      var act = t.video ? (safeUrl(L.video) ? btn(L.video, "4대 교육 영상 보기", true, IC.cam) + signBtn(sg, false) : waitBtn("4대 교육 영상"))
+        : (sg ? signBtn(sg, false) : "") + (t.go ? '<button type="button" class="lg-tile__go" data-go="' + t.go + '">자세히 보기 →</button>' : "");
       return '<div class="lg-tile' + (t.hot ? " is-hot" : "") + '">'
         + '<span class="lg-tile__who">' + esc(t.who) + '</span>'
         + '<b class="lg-tile__big">' + esc(t.big) + '</b>'

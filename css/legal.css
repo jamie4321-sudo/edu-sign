@@ -243,3 +243,13 @@
 .lg-tile.is-hot .lg-wait__t b { color: #f4f4f5; }
 #lgAgit { margin-top: 12px; }
 @media (max-width: 760px) { .lg-tiles { grid-template-columns: minmax(0, 1fr); } .lg-tile { padding: 18px; } }
+
+/* 완료 서명 */
+.lg-signbox { margin-top: 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 18px 20px; border-radius: 16px; background: var(--lg-soft); border: 2px solid var(--accent); }
+.lg-signbox b { display: block; font-size: 17px; font-weight: 800; }
+.lg-signbox p { margin: 2px 0 0; font-size: 15px; color: var(--ink-2); max-width: 46ch; }
+.lg-sign { white-space: nowrap; }
+.lg-tile__act { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.lg-tile__act .lg-sign { min-height: 44px; font-size: 15px; padding: 8px 14px; }
+.lg-tile.is-hot .lg-sign:not(.is-pri) { background: transparent; border-color: #c6ff2e; color: #c6ff2e; }
+@media (max-width: 760px) { .lg-signbox .lg-b { width: 100%; justify-content: center; } }

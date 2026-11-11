@@ -5,6 +5,15 @@ const PREVIEW = {
   "c37c0fcf-4135-4bcc-815e-d621df9f489b": {
     title: "오티즘 레이스 서명",
     desc: "연결의 시작 · 촬영 및 초상권 활용 동의서"
+  },
+  // 2026 법정의무교육 — 교육을 마친 뒤 완료 서명 (legal.js YEARS.signs)
+  "idmwbemuoqqncb": {
+    title: "4대 법정의무교육 완료 서명",
+    desc: "연결의 시작 · 교육을 다 들었으면 서명해 주세요"
+  },
+  "idmwalp33rhwa7sv": {
+    title: "개인정보보호교육 완료 서명",
+    desc: "연결의 시작 · 교육을 다 들었으면 서명해 주세요"
   }
 };
 
