@@ -19,7 +19,7 @@
       lede: "모든 크루가 꼭 들어야 하는 교육이에요. 회사와 크루 모두의 권리와 의무를 지키기 위한 교육이니 일정을 미리 확인해 주세요.",
       brief: [
         { k: "11월 12일 (목)", v: "구글 계정이 있는 크루는 구글 미트로 4대 교육을 들어요.", s: "오전 10:00 ~ 12:30 또는 오후 14:00 ~ 16:30" },
-        { k: "11월 중", v: "구글 계정이 없는 크루는 4대 교육 영상을 봐요.", s: "영상은 따로 공유할 예정 · 엘리는 11월 19일 (목) 대면 교육" },
+        { k: "12월 31일까지", v: "구글 계정이 없는 크루는 4대 교육 영상을 봐요.", s: "영상은 11월 중 전달 예정 · 엘리는 11월 19일 (목) 대면 교육" },
         { k: "11월 30일까지", v: "개인정보보호교육은 모든 크루가 한 명씩 온라인으로 들어요.", s: "11월 9일 (월)부터 · 개인정보배움터 · 15분 30초" },
         { k: "아지트 자료", v: "퇴직연금교육은 아지트 안내 자료를 읽어요.", s: "따로 모이지 않아요" }
       ],
@@ -27,7 +27,7 @@
       // 대상자 설정(관리자) — 크루 명단(edu_crews 재직)마다 아래 중 하나. 저장: edu_legal.links.targets { "이름(ldap)": key }
       targetWays: [
         { key: "meet", label: "구글 미트", when: "11월 12일 (목) · 오전 또는 오후" },
-        { key: "video", label: "영상", when: "11월 중 · 영상은 따로 공유" },
+        { key: "video", label: "영상", when: "11월 중 전달 · 12월 31일까지 시청" },
         { key: "f2f", label: "대면 교육", when: "11월 19일 (목)" },
         { key: "out", label: "대상 아님", when: "이번 4대 교육 대상이 아니에요" }
       ],
@@ -38,7 +38,7 @@
             sub: "오전(1타임) 10:00 ~ 12:30 또는 오후(2타임) 14:00 ~ 16:30 중 편한 시간" },
           { who: "구글 계정이 없어요", tag: "4·6·8시간 크루", rows: [
             { name: "엘리", main: "11월 19일 (목) 대면 교육에 참석해요" },
-            { name: "엘리 말고 모두", main: "11월 중 교육 영상을 봐요", sub: "영상은 따로 공유할 예정이에요", link: "video", btn: "4대 교육 영상 보기" }
+            { name: "엘리 말고 모두", main: "12월 31일까지 교육 영상을 봐요", sub: "11월 중 교육 영상을 전달 드릴 예정이고 12월 31일까지 시청하면 돼요.", link: "video", btn: "4대 교육 영상 보기", wait: true }
           ] }
         ]
       },
@@ -93,7 +93,7 @@
       },
       checks: [
         { t: "모든 크루가 꼭 들어요", d: "법정의무교육은 빠짐없이 모두 들어야 해요." },
-        { t: "구글 미트 교육은 구글 계정이 있는 크루", d: "11월 12일 (목) 오전이나 오후에 시간을 비워 두세요. 계정이 없으면 11월 중 영상을 봐요 (엘리는 11월 19일 대면 교육)." },
+        { t: "구글 미트 교육은 구글 계정이 있는 크루", d: "11월 12일 (목) 오전이나 오후에 시간을 비워 두세요. 계정이 없으면 12월 31일까지 영상을 봐요 (엘리는 11월 19일 대면 교육)." },
         { t: "개인정보보호교육은 모두 11월 30일까지", d: "11월 9일부터 열려 있어요. 한 명씩 온라인으로 들어요. 15분 30초면 끝나요." },
         { t: "퇴직연금교육은 아지트 자료", d: "아지트에 올라온 안내 자료를 읽어요." }
       ],
@@ -166,6 +166,14 @@
     return '<a class="lg-b' + (primary ? " is-pri" : "") + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + (icon || "") + '<span>' + esc(label) + '</span>' + IC.ext + '</a>';
   }
 
+  // 아직 링크가 없을 때 — 페피가 버튼 위로 얼굴을 반쯤 내밀고 "조금만 기다려 주세요"
+  var PEEK_SRC = (function () { var sc = document.currentScript && document.currentScript.src; return sc ? sc.replace(/js\/legal\.js.*$/, "img/pepi-peek.png") : "img/pepi-peek.png"; })();
+  function waitBtn(what) {
+    return '<button type="button" class="lg-wait" data-wait="' + esc(what) + '">'
+      + '<img class="lg-wait__pepi" src="' + PEEK_SRC + '" alt="" width="92" height="64" />'
+      + '<span class="lg-wait__t">' + esc(what) + '<b>준비 중이에요, 조금만 기다려 주세요!</b></span></button>';
+  }
+
   /* ---------- 교육 카드 (6가지) ---------- */
   function eduMeta(Y, e) {
     if (e.kind === "meet") return { tag: "4대 교육", line: "구글 미트 " + Y.dateLabel.replace(/ \(.\)$/, "") + " · 영상 11월 중" };
@@ -192,7 +200,7 @@
       + '<dl class="lg-easy"><dt>무엇을 배워요?</dt><dd>' + esc(e.what) + '</dd><dt>왜 들어요?</dt><dd>' + esc(e.why) + '</dd>';
     if (e.kind === "meet") {
       h += '<dt>구글 계정이 있으면</dt><dd>' + esc(Y.dateLabel) + ' 구글 미트 · ' + MEET_EASY_WHEN + '</dd>'
-        + '<dt>구글 계정이 없으면</dt><dd>11월 중 교육 영상을 봐요. 엘리는 11월 19일 (목) 대면 교육에 참석해요.</dd></dl>'
+        + '<dt>구글 계정이 없으면</dt><dd>11월 중 교육 영상을 전달 드릴 예정이고 12월 31일까지 시청하면 돼요.</dd></dl>'
         + '<h4 class="lg-h4">구글 계정이 있으면 · 시간과 구글 미트</h4><div class="lg-slots">'
         + ["am", "pm"].map(function (k) {
             var M = Y.meets[k];
@@ -200,7 +208,7 @@
               + '<p class="lg-slot__time">' + esc(e[k]) + '</p><p class="lg-slot__sub">' + e.min + '분 · ' + esc(M.when) + ' 미트는 ' + esc(M.time) + ' 동안 열려요</p>'
               + btn(M.url, M.when + " 구글 미트 들어가기", true, IC.cam) + '</div>';
           }).join("") + '</div>'
-        + '<div class="lg-acts">' + btn(L.video, "구글 계정이 없으면 · 4대 교육 영상 보기", false, IC.cam) + '</div>';
+        + '<div class="lg-acts">' + (safeUrl(L.video) ? btn(L.video, "구글 계정이 없으면 · 4대 교육 영상 보기", false, IC.cam) : waitBtn("구글 계정이 없으면 · 4대 교육 영상")) + '</div>';
     } else if (e.kind === "privacy") {
       var P = Y.privacy, tg = privacyTag(P);
       h += '<dt>언제까지?</dt><dd>' + esc(P.period) + ' <span class="lg-dday lg-dday--' + tg.state + '">' + tg.txt + '</span></dd>'
@@ -226,7 +234,7 @@
       return '<div class="lg-way"><div class="lg-way__h"><b>' + esc(it.who) + '</b><span class="lg-badge">' + esc(it.tag) + '</span></div>'
         + (it.rows ? '<ul class="lg-way__rows">' + it.rows.map(function (r) {
             return '<li><span class="lg-way__who">' + esc(r.name) + '</span><div><b>' + esc(r.main) + '</b>' + (r.sub ? '<small>' + esc(r.sub) + '</small>' : "")
-              + (r.link ? '<div class="lg-acts">' + btn(L[r.link], r.btn, false, IC.cam) + '</div>' : "") + '</div></li>';
+              + (r.link ? '<div class="lg-acts">' + (r.wait && !safeUrl(L[r.link]) ? waitBtn(r.btn.replace(/ 보기$/, "")) : btn(L[r.link], r.btn, false, IC.cam)) + '</div>' : "") + '</div></li>';
           }).join("") + '</ul>'
           : '<p class="lg-way__main">' + esc(it.main) + '</p><p class="lg-way__sub">' + esc(it.sub) + '</p>')
         + '</div>';
@@ -350,6 +358,13 @@
         + (r.ex ? "" : '<button type="button" class="lg-copy" data-copy="' + esc(r.v) + '">복사</button>') + '</dd></div>';
     }).join("") + '</dl>';
   }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".lg-wait");
+    if (!b) return;
+    b.classList.remove("is-wiggle"); void b.offsetWidth; b.classList.add("is-wiggle");
+    toast("영상이 올라오면 이 버튼에서 바로 볼 수 있어요. 조금만 기다려 주세요!");
+  });
 
   /* opts: { pub, admin, by, head(html), shareUrl, year, sel } */
   function render(view, opts) {
