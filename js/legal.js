@@ -27,15 +27,37 @@
         { label: "2타임", when: "오후", time: "14:00~16:30", meet: "https://meet.google.com/nso-saon-emd" }
       ],
       others: [
-        { name: "개인정보보호교육", how: "온라인 교육", note: "별도 안내 예정", link: "privacy" },
+        { name: "개인정보보호교육", how: "온라인 교육", note: "11월 9일 ~ 11월 30일 · 개인정보배움터 단체교육", link: "privacy", url: "https://kko.to/dYGDUOsk-i", btn: "수강 안내 (텍스트) 보기" },
         { name: "퇴직연금교육", how: "아지트 안내 자료로 대체", note: "아지트 자료를 읽으면 돼요", link: "pension" }
       ],
       checks: [
         { t: "모든 크루 필수", d: "법정의무교육은 빠짐없이 모두 들어야 해요." },
         { t: "11월 12일 (목) · 구글 미트", d: "같은 교육이 오전(1타임)과 오후(2타임)에 한 번씩 열려요. 시간표를 보고 미리 일정을 비워 두세요." },
-        { t: "개인정보보호교육은 온라인", d: "따로 안내가 나가요. 안내가 오면 기간 안에 꼭 들어 주세요." },
+        { t: "개인정보보호교육은 11월 30일까지 온라인", d: "개인정보배움터에서 단체교육으로 신청해서 들어요. 아래 '개인정보보호교육 수강 방법'을 꼭 확인해 주세요." },
         { t: "퇴직연금교육은 아지트 자료로", d: "아지트에 올라온 안내 자료를 읽으면 교육을 대신해요." }
       ],
+      privacy: {
+        target: "링키지랩 크루 전체 (성수 · 판교 모든 크루)",
+        start: "2026-11-09", end: "2026-11-30", period: "11월 9일 (월) ~ 11월 30일 (월)",
+        course: "AI와 함께하는 생활, 현명한 사용법",
+        steps: [
+          { t: "개인정보배움터 회원가입 · 로그인", d: "개인정보배움터 사이트에 들어가 회원가입하고 로그인해요." },
+          { t: "단체수강 신청", d: "정보주체 → 온라인 단체교육 → 단체수강 신청 순서로 눌러요." },
+          { t: "교육생 등록", d: "'교육생 등록 정보'에 적힌 내용을 그대로 넣어요." },
+          { t: "교육 듣기", d: "「AI와 함께하는 생활, 현명한 사용법」을 끝까지 들어요." }
+        ],
+        reg: [
+          { k: "기업·기관명", v: "링키지랩" },
+          { k: "사업자번호", v: "2358800278" },
+          { k: "사번", v: "본인 LDAP", ex: "예: may.15" }
+        ],
+        notes: [
+          "'단체교육' 신청 과정이 있어요. 수강 안내 자료를 꼭 확인해 주세요.",
+          "관리자가 교육 완료 여부를 확인할 수 있어서 수료증은 따로 내지 않아도 돼요.",
+          "수강 지원은 접근성팀 리더분들과 협의한 뒤 안내할 예정이에요."
+        ],
+        guide: "https://kko.to/dYGDUOsk-i"
+      },
       notice: "복지큐레이션센터 크루 중 구글 워크스페이스(GWS) 계정이 없는 4·6·8시간 크루는 따로 교육할 예정이에요.",
       links: { agit: "", privacy: "", pension: "" }
     }
@@ -43,7 +65,7 @@
 
   var LINK_META = [
     { key: "agit", label: "아지트 공지 원문", hint: "2026년 법정의무교육 안내 글 링크" },
-    { key: "privacy", label: "개인정보보호교육 (온라인)", hint: "온라인 교육 안내 · 수강 링크" },
+    { key: "privacy", label: "개인정보배움터 사이트", hint: "개인정보보호교육 수강 사이트 주소" },
     { key: "pension", label: "퇴직연금교육 아지트 자료", hint: "아지트 안내 자료 링크" }
   ];
 
@@ -81,6 +103,33 @@
   function saveLinks(y, links, by) {
     return sb().from("edu_legal").upsert({ year: y, links: links, updated_at: new Date().toISOString(), updated_by: by || null })
       .then(function (r) { if (r.error) throw r.error; });
+  }
+
+  function privacyHtml(P) {
+    if (!P) return "";
+    var left = dday(P.end), st0 = dday(P.start);
+    var tag = left.state === "done" ? { txt: "기간 끝", state: "done" }
+      : st0.state === "soon" ? { txt: "시작 " + st0.txt, state: "soon" }
+      : { txt: left.state === "today" ? "오늘 마감" : "마감 " + left.txt, state: "soon" };
+    return '<div class="sec-h"><h3>개인정보보호교육 수강 방법</h3><span class="ss-sub">온라인 · 개인정보배움터</span></div>'
+      + '<section class="lg-pv">'
+      + '<dl class="lg-pv__facts">'
+        + '<div><dt>교육 기간</dt><dd>' + esc(P.period) + ' <span class="lg-dday lg-dday--' + tag.state + '">' + tag.txt + '</span></dd></div>'
+        + '<div><dt>교육명</dt><dd>' + esc(P.course) + '</dd></div>'
+        + '<div><dt>대상</dt><dd>' + esc(P.target) + '</dd></div>'
+      + '</dl>'
+      + '<div class="lg-pv__body">'
+        + '<div><h4>이렇게 들어요</h4><ol class="lg-steps">' + P.steps.map(function (st, i) {
+            return '<li><span class="lg-checks__n">' + (i + 1) + '</span><div><b>' + esc(st.t) + '</b><p>' + esc(st.d) + '</p></div></li>';
+          }).join("") + '</ol></div>'
+        + '<div><h4>교육생 등록 정보</h4><dl class="lg-reg">' + P.reg.map(function (r) {
+            return '<div><dt>' + esc(r.k) + '</dt><dd><b>' + esc(r.v) + '</b>' + (r.ex ? '<small>' + esc(r.ex) + '</small>' : "")
+              + (r.ex ? "" : '<button type="button" class="btn btn--sm lg-copy" data-copy="' + esc(r.v) + '">복사</button>') + '</dd></div>';
+          }).join("") + '</dl>'
+          + '<h4>알아 두세요</h4><ul class="lg-notes">' + P.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join("") + '</ul>'
+          + '<div class="lg-acts">' + linkBtn(P.guide, "수강 안내 (텍스트) 보기", true) + '<span id="lgPrivacySite"></span></div>'
+        + '</div>'
+      + '</div></section>';
   }
 
   function dday(dateStr) {
@@ -138,6 +187,7 @@
       + '<p class="lg-tip">' + IC.info + '<span>같은 교육이 오전과 오후에 한 번씩 열려요.</span></p>'
       + '<div class="sec-h"><h3>따로 하는 교육</h3></div>'
       + '<div class="quick-grid lg-others" id="lgOthers"></div>'
+      + privacyHtml(Y.privacy)
       + '<div class="lg-notice">' + IC.info + '<p>' + esc(Y.notice) + '</p></div>'
       + (opts.pub ? "" : '<div class="sec-h"><h3>크루에게 공유</h3>' + (opts.admin ? '<button class="btn btn--sm" id="lgEditLinks">링크 넣기</button>' : "") + '</div>'
           + '<div class="share-box"><div style="flex:1;min-width:200px"><p class="hint" style="margin:0 0 6px">크루용 보기 페이지 (로그인 없이 보기만)</p>'
@@ -150,6 +200,12 @@
     view.querySelectorAll(".lg-years [data-year]").forEach(function (b) {
       b.onclick = function () { opts.year = +b.dataset.year; render(view, opts); };
     });
+    view.querySelectorAll("[data-copy]").forEach(function (b) {
+      b.onclick = function () {
+        var v = b.dataset.copy;
+        (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject()).then(function () { toast(v + " 복사했어요"); }).catch(function () { toast(v); });
+      };
+    });
     var cp = document.getElementById("lgCopy");
     if (cp) cp.onclick = function () {
       var input = document.getElementById("lgUrl");
@@ -161,10 +217,12 @@
       var L = st.links;
       var acts = document.getElementById("lgActs");
       if (acts) acts.innerHTML = linkBtn(L.agit, "아지트 공지 보기", true);
+      var pv = document.getElementById("lgPrivacySite");
+      if (pv) pv.innerHTML = safeUrl(L.privacy) ? linkBtn(L.privacy, "개인정보배움터 바로가기") : "";
       var oth = document.getElementById("lgOthers");
       if (oth) oth.innerHTML = Y.others.map(function (o) {
         return '<div class="quick"><div class="quick__h">' + IC.chk + '<b>' + esc(o.name) + '</b><span class="pill">' + esc(o.how) + '</span></div>'
-          + '<p>' + esc(o.note) + '</p><div>' + linkBtn(L[o.link], o.link === "pension" ? "아지트 자료 보기" : "교육 안내 보기") + '</div></div>';
+          + '<p>' + esc(o.note) + '</p><div>' + linkBtn(o.url || L[o.link], o.btn || (o.link === "pension" ? "아지트 자료 보기" : "교육 안내 보기")) + '</div></div>';
       }).join("");
       var h = document.getElementById("lgDbHint");
       if (h) h.textContent = st.missing ? "링크 저장 표가 아직 없어요 — supabase/legal.sql 을 실행하면 '링크 넣기'로 넣은 링크가 크루 화면에도 보여요."

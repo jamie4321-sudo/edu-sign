@@ -61,3 +61,32 @@
 .lg-meet__addr { margin: 0; font-size: 13px; color: var(--ink-3); word-break: break-all; }
 .lg-meet__acts { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 760px) { .lg-meets { grid-template-columns: minmax(0, 1fr); } }
+
+/* 개인정보보호교육 수강 방법 */
+.lg-pv { background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--r-lg); overflow: hidden; }
+.lg-pv__facts { margin: 0; display: grid; grid-template-columns: 1.1fr 1.2fr 1fr; background: var(--panel-2); border-bottom: 1px solid var(--line-soft); }
+.lg-pv__facts > div { padding: 14px 20px; display: flex; flex-direction: column; gap: 3px; }
+.lg-pv__facts > div + div { border-left: 1px solid var(--line-soft); }
+.lg-pv__facts dt { font-size: 12px; color: var(--ink-3); }
+.lg-pv__facts dd { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lg-pv__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; padding: 20px 22px 22px; }
+.lg-pv h4 { margin: 0 0 10px; font-size: 14px; font-weight: 800; }
+.lg-reg + h4, .lg-notes + .lg-acts { margin-top: 18px; }
+.lg-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.lg-steps li { display: flex; gap: 12px; align-items: flex-start; }
+.lg-steps b { display: block; font-size: 14.5px; font-weight: 800; }
+.lg-steps p { margin: 3px 0 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+.lg-reg { margin: 0; border: 1px solid var(--line-soft); border-radius: var(--r); overflow: hidden; }
+.lg-reg > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); }
+.lg-reg > div + div { border-top: 1px solid var(--line-soft); }
+.lg-reg dt { padding: 11px 14px; font-size: 12.5px; color: var(--ink-3); background: var(--panel-2); display: flex; align-items: center; }
+.lg-reg dd { margin: 0; padding: 8px 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 15px; font-variant-numeric: tabular-nums; }
+.lg-reg dd small { font-size: 12.5px; color: var(--ink-3); }
+.lg-copy { margin-left: auto; padding: 4px 10px; }
+.lg-notes { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+@media (max-width: 760px) {
+  .lg-pv__facts { grid-template-columns: minmax(0, 1fr); }
+  .lg-pv__facts > div + div { border-left: 0; border-top: 1px solid var(--line-soft); }
+  .lg-pv__body { grid-template-columns: minmax(0, 1fr); gap: 22px; padding: 18px; }
+  .lg-reg > div { grid-template-columns: 100px minmax(0, 1fr); }
+}
