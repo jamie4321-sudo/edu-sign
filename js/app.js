@@ -643,7 +643,9 @@
   function renderDetail(id) {
     setCrumb("EDU · 교육 서명 관리");
     view.innerHTML = '<div class="wrap"><div class="empty">불러오는 중…</div></div>';
-    Store.getSession(id).then(function (d) {
+    // 실명(영문) 표시용 — 저장된 목록이 있으면 바로, 처음이면 최대 4초 기다림
+    var realP = window.RealName ? Promise.race([RealName.load(), new Promise(function (r) { setTimeout(r, 4000); })]) : Promise.resolve();
+    Promise.all([Store.getSession(id), realP]).then(function (arr) { return arr[0]; }).then(function (d) {
       if (!d || !d.session) { view.innerHTML = '<div class="wrap"><div class="empty">세션을 찾을 수 없습니다. <a href="' + SIGN + '">목록으로</a></div></div>'; return; }
       var s = d.session, roster = d.roster || [];
       var signed = roster.filter(function (r) { return !!r.signature; }).length;
@@ -710,7 +712,7 @@
       document.getElementById("printBtn").addEventListener("click", function () { window.open("print.html?id=" + encodeURIComponent(s.id), "_blank"); });
       document.getElementById("excelBtn").addEventListener("click", function () {
         var rows = roster.map(function (r, i) {
-          var o = { 연번: i + 1, 부서: r.dept || "", 성명: consent ? Consent.printName(r) : (r.name || ""), 서명여부: consent && Consent.isRefused(r) ? "미동의" : sigStatus_(r), 서명시각: fmtDateTime(r.signedAt) };
+          var o = { 연번: i + 1, 부서: r.dept || "", 성명: consent ? Consent.printName(r) : (window.RealName ? RealName.display(r.name) : (r.name || "")), 서명여부: consent && Consent.isRefused(r) ? "미동의" : sigStatus_(r), 서명시각: fmtDateTime(r.signedAt) };
           cCols.forEach(function (c) { o[c.label] = (r.extra || {})[c.key] || ""; });
           return o;
         });
@@ -897,7 +899,7 @@
     return '<tr>'
       + '<td class="seq-cell mono">' + esc(displayNo) + '</td>'
       + '<td>' + esc(r.dept) + '</td>'
-      + '<td><b>' + esc(r.name) + '</b></td>'
+      + '<td><b>' + esc(window.RealName ? RealName.display(r.name) : r.name) + '</b></td>'
       + '<td>' + sig + '</td>'
       + (cCols || []).map(function (c) {
           var v = x[c.key] || "";

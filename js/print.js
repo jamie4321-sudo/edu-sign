@@ -24,10 +24,13 @@
 
   if (!ids.length) { document.getElementById("sheets").innerHTML = '<div style="padding:40px;text-align:center;color:#888">잘못된 접근입니다</div>'; return; }
 
+  var realP = window.RealName ? RealName.load() : Promise.resolve({});
   Promise.all(ids.map(function (sid) {
     return Promise.all([Store.getSession(sid), Store.listPhotos(sid).catch(function () { return []; })])
       .then(function (arr) { return arr[0] && arr[0].session ? { session: arr[0].session, roster: arr[0].roster || [], photos: (arr[1] || []).slice().reverse() } : null; });
   })).then(function (list) {
+    return realP.then(function () { return list; });
+  }).then(function (list) {
     loaded = list.filter(Boolean).sort(function (a, b) { return a.session.date < b.session.date ? -1 : a.session.date > b.session.date ? 1 : 0; });
     if (!loaded.length) { document.getElementById("sheets").innerHTML = '<div style="padding:40px;text-align:center;color:#888">세션을 찾을 수 없습니다</div>'; return; }
     paint(loaded);
@@ -79,7 +82,12 @@
   var DOW = "일월화수목금토";
   var PART_ORDER = ["가든", "스낵", "총무지원"];
   function dow(d) { var x = new Date(String(d) + "T00:00:00"); return isNaN(x) ? "" : DOW[x.getDay()]; }
-  function shortName(n) { return String(n || "").split("(")[0]; }
+  // 실명(영문) — 실명 없으면 원래 이름. 실명은 굵게, (영문)은 작게
+  function nameHtml(n) {
+    var shown = window.RealName ? RealName.display(n) : String(n || "");
+    var m = shown.match(/^(.*?)(\([^)]*\))\s*$/);
+    return m ? "<b>" + esc(m[1]) + '</b><span class="en">' + esc(m[2]) + "</span>" : "<b>" + esc(shown) + "</b>";
+  }
 
   function reportHtml(session, roster, photos) {
     roster.forEach(function (r, i) { r.__no = i + 1; });
@@ -107,7 +115,7 @@
 
     function cell(r) {
       if (!r) return "<td></td><td></td><td></td><td></td>";
-      return '<td class="n">' + r.__no + "</td><td>" + esc(r.dept || "") + "</td><td><b>" + esc(shortName(r.name)) + "</b></td>"
+      return '<td class="n">' + r.__no + "</td><td>" + esc(r.dept || "") + "</td><td>" + nameHtml(r.name) + "</td>"
         + '<td class="sig">' + (r.signature ? '<img src="' + r.signature + '" alt="서명" />' : '<span class="miss">미서명</span>') + "</td>";
     }
     function table(list) {

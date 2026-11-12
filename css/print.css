@@ -114,3 +114,5 @@ table.rp-tbl .miss { font-size: 8.5px; font-weight: 800; color: #c2410c; }
 .print-toolbar label { display: inline-flex; align-items: center; gap: 6px; font-family: "Kakao Big Sans", "Pretendard", sans-serif; font-size: 13px; font-weight: 700; padding: 9px 12px; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
 @media print { body { background: #fff; } .sheet.rp { padding: 13mm 14mm 16mm; box-shadow: none; margin: 0; } .sheet { page-break-after: always; } .sheet + .sheet { page-break-before: auto; } }
 @media print { .sheet:last-child { page-break-after: auto; } }
+table.rp-tbl td .en { font-size: 8.5px; color: #4a4a42; margin-left: .4mm; }
+table.rp-tbl col.c-sig { width: 22mm; } table.rp-tbl col.c-dept { width: 12mm; }
