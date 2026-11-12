@@ -85,7 +85,6 @@
     roster.forEach(function (r, i) { r.__no = i + 1; });
     var total = roster.length;
     var signed = roster.filter(function (r) { return !!r.signature; }).length;
-    var rate = total ? Math.round(signed / total * 100) : 0;
     var mm = (session.date || "").slice(5, 7) || "··";
     var title = session.title || session.category || "교육";
     var topic = title.indexOf(" - ") > -1 ? title.split(" - ").slice(1).join(" - ") : title;
@@ -123,7 +122,7 @@
     var head = '<div class="rp-lbl">SNACK &amp; GARDEN · ' + kind + "</div>"
       + '<div class="rp-hero"><div class="rp-mm">' + esc(mm) + "</div><div><h1>" + esc(topic) + "</h1><p>" + meta + "</p></div></div>"
       + '<div class="rp-stats"><div class="st"><small>대상</small><b>' + total + '</b></div><div class="st"><small>서명</small><b>' + signed + "</b></div>"
-      + '<div class="st"><small>미서명</small><b>' + (total - signed) + '</b></div><div class="st hl"><small>서명률</small><b>' + rate + "%</b></div></div>"
+      + '<div class="st"><small>미서명</small><b>' + (total - signed) + "</b></div></div>"
       + (ph.length ? '<div class="rp-phs">' + ph.map(function (p) { return '<figure><img src="' + esc(p.url) + '" alt="교육 사진" /></figure>'; }).join("") + "</div>"
           + '<div class="rp-cap"><span>교육 현장 사진 ' + ph.length + "장</span><span>" + esc(session.date || "") + "</span></div>" : "");
     function secHead(cont) {

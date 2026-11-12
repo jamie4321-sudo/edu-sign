@@ -87,7 +87,7 @@ body { background: #e9ebe4; }
 .rp-mm { font-size: 84px; font-weight: 900; line-height: .82; letter-spacing: -.04em; }
 .rp-hero h1 { margin: 0; font-size: 22px; font-weight: 800; line-height: 1.25; }
 .rp-hero p { margin: 1.6mm 0 0; font-size: 10.5px; color: #4a4a42; }
-.rp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.6mm; margin: 4mm 0; }
+.rp-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6mm; margin: 4mm 0; }
 .rp-stats .st { border: .3mm solid #e2e3dd; border-radius: 3mm; padding: 2.2mm 3.2mm; }
 .rp-stats small { display: block; font-size: 9px; font-weight: 700; color: #7c7c72; }
 .rp-stats b { font-size: 20px; font-weight: 800; }
