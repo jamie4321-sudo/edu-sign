@@ -67,3 +67,50 @@ table.cs-table .cs-refused {
   font-family: "Malgun Gothic", "Pretendard", sans-serif; font-weight: 700; font-size: 10px; line-height: 1.2;
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
+
+/* ---- A안 · 에디토리얼 리포트 (채용 키트 시트 톤 · Kakao Big Sans) ---- */
+@font-face { font-family: "Kakao Big Sans"; font-weight: 400; src: url("../fonts/KakaoBigSans-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Kakao Big Sans"; font-weight: 700; src: url("../fonts/KakaoBigSans-Bold.woff2") format("woff2"); }
+@font-face { font-family: "Kakao Big Sans"; font-weight: 800 900; src: url("../fonts/KakaoBigSans-ExtraBold.woff2") format("woff2"); }
+@page { size: A4 portrait; margin: 0; }
+body { background: #e9ebe4; }
+.sheet { background: #fff; }
+.sheet.rp {
+  position: relative; height: 297mm; min-height: 0; overflow: hidden;
+  padding: 13mm 14mm 16mm; color: #16160f; word-break: keep-all;
+  font-family: "Kakao Big Sans", "Pretendard", "Malgun Gothic", sans-serif;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+@media screen { .sheet { margin: 14px auto; box-shadow: 0 10px 30px rgba(20,22,10,.13); } #sheets { padding: 56px 0 30px; } }
+.rp-lbl { font-size: 9px; font-weight: 800; letter-spacing: .1em; color: #4f6a06; }
+.rp-hero { display: flex; align-items: flex-end; gap: 6mm; padding-bottom: 4mm; margin-top: 2.5mm; border-bottom: .8mm solid #16160f; }
+.rp-mm { font-size: 84px; font-weight: 900; line-height: .82; letter-spacing: -.04em; }
+.rp-hero h1 { margin: 0; font-size: 22px; font-weight: 800; line-height: 1.25; }
+.rp-hero p { margin: 1.6mm 0 0; font-size: 10.5px; color: #4a4a42; }
+.rp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.6mm; margin: 4mm 0; }
+.rp-stats .st { border: .3mm solid #e2e3dd; border-radius: 3mm; padding: 2.2mm 3.2mm; }
+.rp-stats small { display: block; font-size: 9px; font-weight: 700; color: #7c7c72; }
+.rp-stats b { font-size: 20px; font-weight: 800; }
+.rp-stats .st.hl { background: #bff000; border-color: #bff000; }
+.rp-phs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+.rp-phs figure { margin: 0; height: 42mm; border-radius: 3mm; overflow: hidden; background: #eef0ea; }
+.rp-phs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rp-cap { display: flex; justify-content: space-between; font-size: 9px; color: #4a4a42; margin: 1.6mm 0 0; }
+.rp-h2 { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: .8mm solid #16160f; padding-bottom: 2.4mm; margin: 5mm 0 0; }
+.sheet.rp > .rp-h2:first-child { margin-top: 0; }
+.rp-h2 h2 { margin: 0; font-size: 16px; font-weight: 800; }
+.rp-h2 h2 small { font-size: 10px; color: #7c7c72; font-weight: 700; }
+.rp-h2 span { font-size: 10px; color: #4a4a42; }
+table.rp-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10.5px; }
+table.rp-tbl col.c-no { width: 7mm; } table.rp-tbl col.c-dept { width: 14mm; } table.rp-tbl col.c-sig { width: 24mm; } table.rp-tbl col.gap { width: 4mm; }
+table.rp-tbl th { font-size: 9px; font-weight: 800; color: #4a4a42; background: #f4f5f1; border-bottom: .4mm solid #16160f; padding: 1.6mm 1.4mm; text-align: left; }
+table.rp-tbl td { border-bottom: .25mm solid #e2e3dd; padding: 0 1.4mm; height: 7.6mm; vertical-align: middle; white-space: nowrap; overflow: hidden; }
+table.rp-tbl .gap { border: 0; background: #fff; }
+table.rp-tbl td.n { color: #7c7c72; text-align: center; padding: 0; }
+table.rp-tbl td.sig img { display: block; margin: 0 auto; max-height: 6.6mm; max-width: 100%; }
+table.rp-tbl .miss { font-size: 8.5px; font-weight: 800; color: #c2410c; }
+.rp-empty { font-size: 12px; color: #7c7c72; margin: 8mm 0; text-align: center; }
+.rp-foot { position: absolute; left: 14mm; right: 14mm; bottom: 7mm; display: flex; justify-content: space-between; font-size: 8px; color: #7c7c72; }
+.print-toolbar label { display: inline-flex; align-items: center; gap: 6px; font-family: "Kakao Big Sans", "Pretendard", sans-serif; font-size: 13px; font-weight: 700; padding: 9px 12px; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+@media print { body { background: #fff; } .sheet.rp { padding: 13mm 14mm 16mm; box-shadow: none; margin: 0; } .sheet { page-break-after: always; } .sheet + .sheet { page-break-before: auto; } }
+@media print { .sheet:last-child { page-break-after: auto; } }

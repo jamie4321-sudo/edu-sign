@@ -578,7 +578,8 @@
     setCrumb("EDU · 교육 서명 관리");
     view.innerHTML = '<div class="wrap"><div class="page-head">'
       + '<div><p class="eyebrow">EDU · SIGN</p><h2>교육 서명 관리</h2><p class="sub">스낵큐레이션 · 가든 · 총무지원 교육 회차를 만들고 서명 링크를 공유하세요.</p></div>'
-      + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button>'
+      + '<div class="row-actions" style="gap:8px"><button class="btn" id="pdfExportBtn">PDF 출력</button>'
+      + '<button class="btn btn--primary" id="newSessionBtn">+ 새 교육 세션</button></div>'
       + '</div>'
       + EduIntern.tabsHtml("sign")
       + '<div class="seg" id="sessionTabs" role="tablist" hidden>'
@@ -588,6 +589,7 @@
       + '<div id="sessionGrid" class="session-grid"><div class="empty">불러오는 중…</div></div></div>';
 
     document.getElementById("newSessionBtn").addEventListener("click", function () { openSessionModal(); });
+    document.getElementById("pdfExportBtn").addEventListener("click", openPdfExportModal);
 
     sessionsWithParts().then(function (sessions) {
       var grid = document.getElementById("sessionGrid");
@@ -1111,6 +1113,81 @@
     }
 
     render();
+  }
+
+  /* ---------------- PDF 출력: 서명(교육) 고르기 + 교육 사진 포함 → print.html 리포트 ---------------- */
+  function openPdfExportModal() {
+    var wrap = document.createElement("div");
+    wrap.className = "modal";
+    wrap.innerHTML = '<div class="modal__backdrop" data-close></div>'
+      + '<div class="modal__card modal__card--wide" role="dialog" aria-modal="true">'
+      + '<div class="modal__head"><h3>PDF 출력</h3><button class="modal__x" data-close>×</button></div>'
+      + '<div class="pdfx">'
+        + '<div class="pdfx__bar"><div class="pdfx__chips" id="pdfxChips"></div><span class="pdfx__count" id="pdfxCount">0개 선택</span></div>'
+        + '<div class="pdfx__tools"><button type="button" class="link-btn" id="pdfxAll">보이는 것 모두 선택</button><button type="button" class="link-btn" id="pdfxNone">선택 해제</button></div>'
+        + '<div class="pdfx__list" id="pdfxList"><div class="org-empty">불러오는 중…</div></div>'
+        + '<label class="pdfx__opt"><input type="checkbox" id="pdfxPhotos" checked><span><b>교육 사진 포함</b><small>교육마다 등록된 사진을 리포트에 함께 넣어요</small></span></label>'
+      + '</div>'
+      + '<div class="modal__foot"><div class="modal__spacer"></div><button type="button" class="btn" data-close>취소</button><button type="button" class="btn btn--primary" id="pdfxGo" disabled>PDF 만들기</button></div>'
+      + '</div>';
+    document.body.appendChild(wrap);
+    wrap.querySelectorAll("[data-close]").forEach(function (el) { el.addEventListener("click", function () { wrap.remove(); }); });
+
+    var FILTERS = [
+      { k: "safety", label: "월간 안전교육", fn: function (s) { return /월간\s*안전/.test(s.title || ""); } },
+      { k: "all", label: "전체", fn: function () { return true; } }
+    ];
+    var years = [], cur = { f: "safety", y: "" }, sessions = [], picked = {}, photoN = {};
+    var listEl = wrap.querySelector("#pdfxList"), chipsEl = wrap.querySelector("#pdfxChips");
+    var countEl = wrap.querySelector("#pdfxCount"), goBtn = wrap.querySelector("#pdfxGo");
+
+    function visible() {
+      var f = FILTERS.filter(function (x) { return x.k === cur.f; })[0];
+      return sessions.filter(function (s) { return f.fn(s) && (!cur.y || String(s.date || "").slice(0, 4) === cur.y); });
+    }
+    function sync() {
+      var n = Object.keys(picked).filter(function (k) { return picked[k]; }).length;
+      countEl.textContent = n + "개 선택";
+      goBtn.disabled = !n;
+      goBtn.textContent = n ? "PDF 만들기 · " + n + "개" : "PDF 만들기";
+    }
+    function paint() {
+      chipsEl.innerHTML = years.map(function (y) { return '<button type="button" class="pdfx__chip' + (cur.y === y ? " is-on" : "") + '" data-y="' + y + '">' + y + '년</button>'; }).join("")
+        + FILTERS.map(function (f) { return '<button type="button" class="pdfx__chip' + (cur.f === f.k ? " is-on" : "") + '" data-f="' + f.k + '">' + f.label + '</button>'; }).join("");
+      var list = visible();
+      listEl.innerHTML = list.length ? list.map(function (s) {
+        var full = s.total && s.signed === s.total;
+        return '<label class="pdfx__row"><input type="checkbox" value="' + esc(s.id) + '"' + (picked[s.id] ? " checked" : "") + '>'
+          + '<span class="pdfx__t"><b>' + esc(s.title || s.category || "제목 없음") + '</b><small>' + esc(s.date || "") + ' · ' + esc(s.category || "") + (photoN[s.id] != null ? ' · 사진 ' + photoN[s.id] + '장' : "") + '</small></span>'
+          + '<span class="pdfx__pill' + (full ? " is-full" : "") + '">서명 ' + (s.signed || 0) + '/' + (s.total || 0) + '</span></label>';
+      }).join("") : '<div class="org-empty">해당하는 교육이 없어요.</div>';
+      sync();
+    }
+    chipsEl.addEventListener("click", function (e) {
+      var b = e.target.closest(".pdfx__chip"); if (!b) return;
+      if (b.dataset.y) cur.y = cur.y === b.dataset.y ? "" : b.dataset.y;
+      if (b.dataset.f) cur.f = b.dataset.f;
+      paint();
+    });
+    listEl.addEventListener("change", function (e) { if (e.target.type === "checkbox") { picked[e.target.value] = e.target.checked; sync(); } });
+    wrap.querySelector("#pdfxAll").addEventListener("click", function () { visible().forEach(function (s) { picked[s.id] = true; }); paint(); });
+    wrap.querySelector("#pdfxNone").addEventListener("click", function () { picked = {}; paint(); });
+    goBtn.addEventListener("click", function () {
+      var ids = sessions.filter(function (s) { return picked[s.id]; }).map(function (s) { return s.id; });
+      if (!ids.length) return;
+      var url = "print.html?ids=" + ids.map(encodeURIComponent).join(",") + "&photos=" + (wrap.querySelector("#pdfxPhotos").checked ? "1" : "0");
+      window.open(url, "_blank");
+      wrap.remove();
+    });
+
+    Promise.all([Store.listSessions(), Store.photoCounts ? Store.photoCounts().catch(function () { return {}; }) : Promise.resolve({})]).then(function (arr) {
+      sessions = (arr[0] || []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+      photoN = arr[1] || {};
+      sessions.forEach(function (s) { var y = String(s.date || "").slice(0, 4); if (y && years.indexOf(y) < 0) years.push(y); });
+      cur.y = years[0] || "";
+      if (!visible().length) cur.f = "all";
+      paint();
+    }).catch(function () { listEl.innerHTML = '<div class="org-empty">교육 목록을 불러오지 못했어요.</div>'; });
   }
 
   function openRosterEditModal(r) {

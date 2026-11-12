@@ -341,6 +341,13 @@ window.Store = (function () {
       DB = load(); return Promise.resolve(DB.roster.slice());
     },
 
+    /* ---------- 세션별 사진 장수 { 세션 id: n } (PDF 출력 창) ---------- */
+    photoCounts: function () {
+      if (!SUPA) return Promise.resolve({});
+      return sb().from("photos").select("session_id").then(must).then(function (rows) {
+        var o = {}; (rows || []).forEach(function (r) { o[r.session_id] = (o[r.session_id] || 0) + 1; }); return o;
+      });
+    },
     /* ---------- 사진 목록 ---------- */
     listPhotos: function (sessionId) {
       if (SUPA) return sb().from("photos").select("*").eq("session_id", sessionId).order("uploaded_at", { ascending: false }).then(must).then(function (rows) { return (rows || []).map(mapPhoto); });
