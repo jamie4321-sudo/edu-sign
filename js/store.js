@@ -110,6 +110,21 @@ window.Store = (function () {
       if (SUPA) return sb().from("sessions").select("id,meta").then(must).then(function (rows) { var o = {}; (rows || []).forEach(function (r) { o[r.id] = r.meta || {}; }); return o; }).catch(function () { return {}; });
       return Promise.resolve({});
     },
+    // 명단 연번 다시 매기기 [{id, seq}] — 바뀐 것만
+    setRosterSeqs: function (list) {
+      if (!SUPA) return Promise.resolve({ ok: false });
+      return (list || []).reduce(function (p, r) {
+        return p.then(function () { return sb().from("roster").update({ seq: r.seq }).eq("id", r.id).then(must); });
+      }, Promise.resolve()).then(function () { return { ok: true }; });
+    },
+    // 세션 설정(meta) 일부만 바꾸기 — 예: autoRoster(명단 자동 세팅 대상 파트)
+    patchSessionMeta: function (id, patch) {
+      if (!SUPA) return Promise.resolve({ ok: false });
+      return sb().from("sessions").select("meta").eq("id", id).maybeSingle().then(must).then(function (r) {
+        var meta = Object.assign({}, (r && r.meta) || {}, patch || {});
+        return sb().from("sessions").update({ meta: meta }).eq("id", id).then(must).then(function () { return { ok: true, meta: meta }; });
+      });
+    },
     listSessions: function () {
       if (SUPA) {
         return sb().from("sessions_with_counts").select("*").order("date", { ascending: false })

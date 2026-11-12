@@ -72,12 +72,78 @@
     if (crewListCache) return crewListCache;
     crewListCache = Store.listCrews().then(function (rows) {
       if (rows && rows.length) { syncCrewsFromOps(); return tidyCrews(rows); }
-      return syncCrewsFromOps(true).then(function () { return crewListCache; });   // 복사본이 비었으면 OPS 를 기다린다
+      // 복사본이 비었으면 OPS 를 직접 기다린다 (crewListCache 자신을 기다리면 멈춤)
+      return fetchOpsCrews(30000).then(function (list) {
+        Store.syncCrews(list).catch(function (e) { console.warn("크루 명단 복사 실패", e); });
+        return tidyCrews(list);
+      }).catch(function () { crewListCache = null; return []; });
     }).catch(function () {
       // 복사본 표가 아직 없으면 예전처럼 OPS 에서 바로
       return fetchOpsCrews(30000).then(tidyCrews).catch(function () { crewListCache = null; return []; });
     });
     return crewListCache;
+  }
+
+  /* ---------------- 교육일 기준 대상 크루 (명단 자동 세팅) ----------------
+     OPS ?action=crewfor&date= → 입사일이 교육 달 말일까지 · 교육일 전에 퇴사했거나 교육일에 휴직 중인 크루 제외.
+     OPS 앱스스크립트가 아직 옛 버전이면 null (→ 현재 재직 명단으로 대신) */
+  var PART_ORDER = { "가든": 0, "스낵": 1, "총무지원": 2 };
+  var AUTO_PARTS = { all: ["가든", "스낵", "총무지원"], garden: ["가든"], snack: ["스낵"], support: ["총무지원"] };
+  var AUTO_LABEL = { all: "전체 크루", garden: "가든", snack: "스낵", support: "총무지원", none: "직접 등록" };
+  var crewForCache = {};
+  function partRank(g) { return PART_ORDER.hasOwnProperty(g) ? PART_ORDER[g] : 9; }
+  function sortByPart(list, nameKey) {
+    nameKey = nameKey || "name";
+    return list.slice().sort(function (a, b) {
+      return partRank(a.group != null ? a.group : a.dept) - partRank(b.group != null ? b.group : b.dept)
+        || String(a[nameKey] || "").localeCompare(String(b[nameKey] || ""), "ko");
+    });
+  }
+  function fetchCrewFor(date) {
+    if (!date) return Promise.resolve(null);
+    if (crewForCache[date]) return crewForCache[date];
+    crewForCache[date] = Promise.race([
+      fetch(CREW_SOURCE_URL + "?action=crewfor&date=" + encodeURIComponent(date)).then(function (r) { return r.json(); }),
+      new Promise(function (_, rej) { setTimeout(function () { rej(new Error("OPS 응답 없음")); }, 30000); })
+    ]).then(function (d) {
+      if (!d || d.ok !== true || !Array.isArray(d.crews)) { delete crewForCache[date]; return null; }
+      return sortByPart(d.crews.map(function (c) { return { name: c.name, group: c.group || "", role: c.role || "" }; }));
+    }).catch(function () { delete crewForCache[date]; return null; });
+    return crewForCache[date];
+  }
+  // 세션의 기준 명단: { list, exact } — exact=false 면 날짜 기준을 못 받아 현재 재직 명단으로 대신한 것
+  function targetCrews(date, auto) {
+    var parts = AUTO_PARTS[auto]; if (!parts) return Promise.resolve(null);
+    return fetchCrewFor(date).then(function (list) {
+      if (list) return { list: list.filter(function (c) { return parts.indexOf(c.group) > -1; }), exact: true };
+      return fetchCrewList().then(function (cur) {
+        return { list: sortByPart((cur || []).filter(function (c) { return parts.indexOf(c.group) > -1; })), exact: false };
+      });
+    });
+  }
+  function rosterDiff(roster, list) {
+    var want = {}, have = {};
+    list.forEach(function (c) { want[c.name] = c; });
+    roster.forEach(function (r) { have[r.name] = r; });
+    return {
+      missing: list.filter(function (c) { return !have[c.name]; }),
+      extra: roster.filter(function (r) { return !want[r.name]; })
+    };
+  }
+  // 기준 명단대로 맞추기: 빠진 크루 추가 · (removeExtra 면) 대상 아닌 크루 삭제 · 연번을 파트·이름 순으로
+  function applyRosterTarget(sessionId, list, removeExtra) {
+    return Store.getSession(sessionId).then(function (d) {
+      var diff = rosterDiff(d.roster || [], list);
+      var add = diff.missing.length ? Store.bulkAddRoster(sessionId, diff.missing.map(function (c) { return { dept: c.group, name: c.name }; })) : Promise.resolve();
+      return add.then(function () {
+        if (!removeExtra) return;
+        return diff.extra.reduce(function (p, r) { return p.then(function () { return Store.deleteRoster(r.id); }); }, Promise.resolve());
+      }).then(function () { return Store.getSession(sessionId); }).then(function (d2) {
+        var sorted = sortByPart(d2.roster || []), changes = [];
+        sorted.forEach(function (r, i) { if (+r.seq !== i + 1) changes.push({ id: r.id, seq: i + 1 }); });
+        return Store.setRosterSeqs(changes);
+      }).then(function () { return { added: diff.missing.length, removed: removeExtra ? diff.extra.length : 0 }; });
+    });
   }
 
   /* ---------------- 테마 ---------------- */
@@ -614,6 +680,7 @@
           + '<img class="qr-box" width="72" height="72" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' + encodeURIComponent(url) + '" />'
           + '</div>'
 
+        + '<div id="autoRosterCheck"></div>'
         + '<div class="board"><div class="board__head">'
         + '<h3 class="board__title">' + (consent ? "서명 대상자" : "참석자 명단") + ' <span class="chip-mono">' + roster.length + '명</span></h3>'
         + (s.locked ? "" : '<button class="btn btn--sm btn--primary" id="addRosterBtn">+ 명단 등록</button>')
@@ -691,7 +758,8 @@
       });
 
       var addBtn = document.getElementById("addRosterBtn");
-      if (addBtn) addBtn.addEventListener("click", function () { openRosterModal(s.id, roster); });
+      if (addBtn) addBtn.addEventListener("click", function () { openRosterModal(s.id, roster, s); });
+      if (!consent) renderAutoRosterCheck(s, roster);
 
       view.querySelectorAll("[data-edit-roster]").forEach(function (btn) {
         btn.addEventListener("click", function () {
@@ -781,6 +849,44 @@
     });
   }
 
+  /* 상세 화면: 명단이 크루 목록 기준(교육일)과 다르면 알려 주고 한 번에 맞추기 */
+  function renderAutoRosterCheck(s, roster) {
+    var box = document.getElementById("autoRosterCheck");
+    var auto = s.meta && s.meta.autoRoster;
+    if (!box || !AUTO_PARTS[auto]) return;
+    fetchCrewFor(s.date).then(function (list) {
+      if (!list || !document.body.contains(box)) return;     // 날짜 기준을 못 받으면 조용히 넘어감
+      var parts = AUTO_PARTS[auto];
+      var diff = rosterDiff(roster, list.filter(function (c) { return parts.indexOf(c.group) > -1; }));
+      var short = function (n) { return esc(String(n).split("(")[0]); };
+      if (!diff.missing.length && !diff.extra.length) {
+        box.innerHTML = '<p class="auto-check auto-check--ok">✓ 크루 목록 기준(' + esc(s.date) + ' · ' + AUTO_LABEL[auto] + ')과 명단이 같아요</p>';
+        return;
+      }
+      box.innerHTML = '<div class="auto-check auto-check--warn">'
+        + '<div class="auto-check__body"><b>크루 목록 기준(' + esc(s.date) + ' · ' + AUTO_LABEL[auto] + ')과 명단이 달라요</b>'
+        + (diff.missing.length ? '<div>빠진 크루 ' + diff.missing.length + '명: ' + diff.missing.map(function (c) { return short(c.name); }).join(", ") + '</div>' : "")
+        + (diff.extra.length ? '<div>대상 아닌 크루 ' + diff.extra.length + '명: ' + diff.extra.map(function (r) { return short(r.name) + (r.signature ? "(서명 있음)" : ""); }).join(", ") + '</div>' : "")
+        + '</div>'
+        + (s.locked ? '<span class="hint">마감된 세션이에요</span>' : '<button class="btn btn--sm btn--primary" id="autoFixBtn">기준대로 맞추기</button>')
+        + '</div>';
+      var fix = document.getElementById("autoFixBtn");
+      if (fix) fix.addEventListener("click", function () {
+        var signedExtra = diff.extra.filter(function (r) { return !!r.signature; });
+        var msg = "크루 목록 기준대로 명단을 맞출까요?"
+          + (diff.missing.length ? "\n· 추가 " + diff.missing.length + "명" : "")
+          + (diff.extra.length ? "\n· 삭제 " + diff.extra.length + "명" : "");
+        if (!confirm(msg)) return;
+        if (signedExtra.length && !confirm("삭제할 크루 중 " + signedExtra.map(function (r) { return String(r.name).split("(")[0]; }).join(", ") + " 은(는) 서명이 있어요.\n서명 기록도 함께 지워지고 되돌릴 수 없어요. 계속할까요?")) return;
+        fix.disabled = true; fix.textContent = "맞추는 중…";
+        applyRosterTarget(s.id, list.filter(function (c) { return parts.indexOf(c.group) > -1; }), true).then(function (r) {
+          toast("명단을 맞췄어요 · 추가 " + r.added + "명 · 삭제 " + r.removed + "명");
+          renderDetail(s.id);
+        }).catch(function (e) { console.warn(e); fix.disabled = false; fix.textContent = "기준대로 맞추기"; toast("맞추지 못했어요. 다시 시도해 주세요"); });
+      });
+    });
+  }
+
   function rosterRow(locked, r, displayNo, cCols) {
     var sig = r.signature
       ? '<img class="sig-thumb" src="' + r.signature + '" alt="서명" />'
@@ -806,6 +912,7 @@
   /* ---------------- 세션 생성/수정 모달 ---------------- */
   function openSessionModal(existing) {
     var editing = !!(existing && existing.id);
+    var curAuto = editing ? ((existing.meta && existing.meta.autoRoster) || "none") : "all";
     var wrap = document.createElement("div");
     wrap.className = "modal";
     wrap.innerHTML = '<div class="modal__backdrop" data-close></div>'
@@ -817,6 +924,10 @@
       + '<datalist id="categoryOptions">' + CATEGORIES.map(function (c) { return '<option value="' + esc(c) + '">'; }).join("") + '</datalist>'
       + '</label>'
       + '<label class="fld"><span>세션 제목 <em>(선택)</em></span><input type="text" name="title" maxlength="60" placeholder="예) 7월 정기 안전교육" value="' + (existing ? esc(existing.title) : "") + '"></label>'
+      + '<label class="fld"><span>명단 자동 세팅</span><select name="autoRoster">'
+        + ["all", "garden", "snack", "support", "none"].map(function (k) { return '<option value="' + k + '"' + (k === curAuto ? " selected" : "") + '>' + AUTO_LABEL[k] + (k === "none" ? " (자동으로 채우지 않음)" : "") + '</option>'; }).join("")
+      + '</select></label>'
+      + '<p class="hint" style="margin:-4px 0 0">크루 목록 기준으로 교육일에 맞는 크루만 채워요 — 그 달 말일까지 입사한 크루 · 교육일 전에 퇴사했거나 교육일에 휴직 중인 크루는 빠져요.</p>'
       + '<div class="modal__foot"><div class="modal__spacer"></div><button type="button" class="btn" data-close>취소</button><button type="submit" class="btn btn--primary">저장</button></div>'
       + '</form></div>';
     document.body.appendChild(wrap);
@@ -835,18 +946,31 @@
       e.preventDefault();
       var f = e.target;
       var obj = { date: f.date.value, category: f.category.value.trim(), title: f.title.value.trim() };
+      var auto = f.autoRoster.value;
       if (editing) obj.id = existing.id;
+      var submitBtn = f.querySelector('[type="submit"]'); submitBtn.disabled = true; submitBtn.textContent = "저장 중…";
       Store.saveSession(obj).then(function (res) {
-        wrap.remove();
-        toast(editing ? "세션을 수정했습니다" : "새 세션을 만들었습니다");
-        location.hash = SIGN + "/" + encodeURIComponent(editing ? existing.id : res.id);
-        if (editing) route();
-      });
+        var sid = editing ? existing.id : res.id;
+        var metaP = (editing && auto === curAuto) ? Promise.resolve() : Store.patchSessionMeta(sid, { autoRoster: auto }).catch(function (e) { console.warn(e); });
+        // 새 세션: 교육일 기준 대상 크루로 명단을 바로 채운다 (수정은 상세 화면의 점검 안내에서 맞춤)
+        var fillP = (!editing && AUTO_PARTS[auto]) ? (submitBtn.textContent = "명단 채우는 중…", targetCrews(obj.date, auto).then(function (t) {
+          if (!t || !t.list.length) return "";
+          return applyRosterTarget(sid, t.list, false).then(function (r) {
+            return " · 명단 " + r.added + "명 자동 등록" + (t.exact ? "" : " (OPS 날짜 기준 확인이 안 돼 현재 재직 크루로 채웠어요)");
+          });
+        }).catch(function (e) { console.warn(e); return " · 명단 자동 등록 실패 — + 명단 등록으로 넣어 주세요"; })) : Promise.resolve("");
+        return Promise.all([metaP, fillP]).then(function (arr) {
+          wrap.remove();
+          toast((editing ? "세션을 수정했습니다" : "새 세션을 만들었습니다") + (arr[1] || ""));
+          location.hash = SIGN + "/" + encodeURIComponent(sid);
+          if (editing) route();
+        });
+      }).catch(function (e) { console.warn(e); submitBtn.disabled = false; submitBtn.textContent = "저장"; toast("저장하지 못했어요. 다시 시도해 주세요"); });
     });
   }
 
   /* ---------------- 명단 일괄 등록 모달 ---------------- */
-  function openRosterModal(sessionId, existingRoster) {
+  function openRosterModal(sessionId, existingRoster, session) {
     var existingNames = {};
     (existingRoster || []).forEach(function (r) { existingNames[r.name] = true; });
 
@@ -900,7 +1024,18 @@
     });
 
     orgBox.innerHTML = '<div class="org-empty">크루 목록을 불러오는 중…</div>';
-    fetchCrewList().then(function (crew) {
+    var auto = session && session.meta && session.meta.autoRoster;
+    var dateP = session && session.date ? fetchCrewFor(session.date) : Promise.resolve(null);
+    dateP.then(function (byDate) {
+      if (byDate) {
+        var parts = AUTO_PARTS[auto];
+        return { crew: parts ? byDate.filter(function (c) { return parts.indexOf(c.group) > -1; }) : byDate,
+          note: '교육일 ' + session.date + ' 기준 대상 크루' + (parts ? ' (' + AUTO_LABEL[auto] + ')' : '') + '만 보여요 — 입사 전 · 퇴사 · 휴직 중인 크루는 빠져 있어요.' };
+      }
+      return fetchCrewList().then(function (crew) { return { crew: crew, note: "" }; });
+    }).then(function (res) {
+      var crew = res.crew;
+      if (res.note) orgBox.dataset.note = res.note;
       if (!crew.length) {
         orgBox.innerHTML = '<div class="org-empty">SNACK&amp;GARDEN OPS에서 크루 목록을 불러오지 못했습니다.<br>네트워크 상태를 확인하거나 "직접 붙여넣기"를 이용해주세요.</div>';
         return;
@@ -927,7 +1062,8 @@
       var filtered = q ? crew.filter(function (c) { return c.name.toLowerCase().indexOf(q) > -1; }) : crew;
       var gs = groups(filtered);
 
-      orgBox.innerHTML = '<div class="org-search"><input type="search" id="orgSearch" placeholder="이름 검색" value="' + esc(query) + '"></div>'
+      orgBox.innerHTML = (orgBox.dataset.note ? '<p class="hint" style="margin:12px 20px 0">' + esc(orgBox.dataset.note) + '</p>' : "")
+        + '<div class="org-search"><input type="search" id="orgSearch" placeholder="이름 검색" value="' + esc(query) + '"></div>'
         + '<div class="org-toolbar"><span id="orgSelCount">0명 선택</span><button type="button" id="orgSelectAll">보이는 전체 선택</button></div>'
         + '<div class="org-list">'
         + (gs.length ? gs.map(function (g) {
