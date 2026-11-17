@@ -674,8 +674,9 @@
         + '<div class="stat"><div class="stat__label">전체 인원</div><div class="stat__value">' + roster.length + '</div></div>'
         + '<div class="stat"><div class="stat__label">서명 완료</div><div class="stat__value accent">' + signed + '</div></div>'
         + (consent ? '<div class="stat"><div class="stat__label">미동의</div><div class="stat__value">' + refused + '</div></div>' : "")
-        + '<div class="stat"><div class="stat__label">미서명</div><div class="stat__value">' + (roster.length - signed - refused) + '</div></div>'
+        + '<button type="button" class="stat stat--btn" id="unsignedStat" title="누르면 미서명자 목록이 보여요"><div class="stat__label">미서명 ▾</div><div class="stat__value">' + (roster.length - signed - refused) + '</div></button>'
         + '</div>'
+        + '<div id="unsignedPanel" class="unsigned-panel" hidden></div>'
 
         + '<div class="share-box">'
           + '<div style="flex:1;min-width:200px"><p class="hint" style="margin:0 0 6px">' + (consent ? "이 동의서 전용 서명 링크 — 대상자 이름만 보여요 (공용 서명 링크에는 안 나와요)" : "크루용 서명 페이지 (모든 세션 공용 — 한 번만 공유하면 계속 사용)") + '</p>'
@@ -708,6 +709,18 @@
         + '</div>'
         + '</div>';
 
+      var unsignedBtn = document.getElementById("unsignedStat"), unsignedPanel = document.getElementById("unsignedPanel");
+      if (unsignedBtn) unsignedBtn.addEventListener("click", function () {
+        if (!unsignedPanel.hidden) { unsignedPanel.hidden = true; return; }
+        var list = roster.filter(function (r) { return !(r.signature && String(r.signature).trim()) && !(consent && Consent.isRefused(r)); });
+        unsignedPanel.innerHTML = list.length
+          ? '<p class="unsigned-panel__t">미서명 ' + list.length + '명</p><div class="unsigned-panel__list">' + list.map(function (r) {
+              var nm = consent ? Consent.printName(r) : (window.RealName ? RealName.display(r.name) : (r.name || ""));
+              return '<span class="unsigned-chip">' + (r.dept ? '<small>' + esc(r.dept) + '</small> ' : "") + esc(nm) + '</span>';
+            }).join("") + '</div>'
+          : '<p class="unsigned-panel__t">모두 서명했어요 🎉</p>';
+        unsignedPanel.hidden = false;
+      });
       document.getElementById("editSessionBtn").addEventListener("click", function () { openSessionModal(s); });
       document.getElementById("printBtn").addEventListener("click", function () { window.open("print.html?id=" + encodeURIComponent(s.id), "_blank"); });
       document.getElementById("excelBtn").addEventListener("click", function () {
