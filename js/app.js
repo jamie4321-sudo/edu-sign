@@ -705,6 +705,9 @@
         + (s.driveFolderUrl ? '<a class="btn btn--sm" href="' + esc(s.driveFolderUrl) + '" target="_blank" rel="noopener">Drive에서 열기</a>' : "")
         + '<label class="btn btn--sm btn--primary" style="cursor:pointer">+ 사진 업로드<input type="file" accept="image/*" id="photoInput" multiple hidden></label>'
         + '</div></div>'
+        + '<div style="padding:14px 18px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label for="educatorInput" style="font-weight:700">교육자</label>'
+        + '<input type="text" id="educatorInput" maxlength="40" autocomplete="off" placeholder="교육하신 분 이름 (예: 제이미)" value="' + esc((s.meta && s.meta.educator) || "") + '"' + (s.locked ? " disabled" : "") + ' style="min-width:220px;padding:8px 10px;border:1px solid var(--line,#ccc);border-radius:8px;font:inherit">'
+        + '<span class="hint" id="educatorHint" style="margin:0">PDF 리포트의 교육 사진 아래에 함께 나와요</span></div>'
         + '<div id="photoGrid" style="padding:18px;display:flex;flex-wrap:wrap;gap:12px">불러오는 중…</div>'
         + '</div>'
         + '</div>';
@@ -789,6 +792,15 @@
           if (!confirm("이 명단을 삭제할까요? 서명 기록도 함께 삭제됩니다.")) return;
           Store.deleteRoster(btn.dataset.delRoster).then(function () { renderDetail(id); });
         });
+      });
+
+      var eduIn = document.getElementById("educatorInput");
+      if (eduIn) eduIn.addEventListener("change", function () {
+        var v = eduIn.value.trim(), hint = document.getElementById("educatorHint");
+        Store.patchSessionMeta(s.id, { educator: v }).then(function (r) {
+          if (r && r.ok) { s.meta = r.meta; if (hint) hint.textContent = "저장했어요"; toast(v ? "교육자 " + v + " 저장" : "교육자 이름을 지웠어요"); }
+          else toast("이 모드에서는 저장할 수 없어요");
+        }).catch(function () { toast("저장하지 못했어요. 인터넷 연결을 확인해 주세요."); });
       });
 
       document.getElementById("photoInput").addEventListener("change", function (e) {
@@ -941,6 +953,7 @@
       + '<datalist id="categoryOptions">' + CATEGORIES.map(function (c) { return '<option value="' + esc(c) + '">'; }).join("") + '</datalist>'
       + '</label>'
       + '<label class="fld"><span>세션 제목 <em>(선택)</em></span><input type="text" name="title" maxlength="60" placeholder="예) 7월 정기 안전교육" value="' + (existing ? esc(existing.title) : "") + '"></label>'
+      + '<label class="fld"><span>교육자 <em>' + (editing ? "(선택)" : "*") + '</em></span><input type="text" name="educator" maxlength="40" autocomplete="off"' + (editing ? "" : " required") + ' placeholder="교육하신 분 이름 (예: 제이미)" value="' + esc((existing && existing.meta && existing.meta.educator) || "") + '"></label>'
       + '<label class="fld"><span>명단 자동 세팅</span><select name="autoRoster">'
         + ["all", "garden", "snack", "support", "none"].map(function (k) { return '<option value="' + k + '"' + (k === curAuto ? " selected" : "") + '>' + AUTO_LABEL[k] + (k === "none" ? " (자동으로 채우지 않음)" : "") + '</option>'; }).join("")
       + '</select></label>'
@@ -968,7 +981,9 @@
       var submitBtn = f.querySelector('[type="submit"]'); submitBtn.disabled = true; submitBtn.textContent = "저장 중…";
       Store.saveSession(obj).then(function (res) {
         var sid = editing ? existing.id : res.id;
-        var metaP = (editing && auto === curAuto) ? Promise.resolve() : Store.patchSessionMeta(sid, { autoRoster: auto }).catch(function (e) { console.warn(e); });
+        var educator = f.educator.value.trim();
+        var curEdu = (editing && existing.meta && existing.meta.educator) || "";
+        var metaP = (editing && auto === curAuto && educator === curEdu) ? Promise.resolve() : Store.patchSessionMeta(sid, { autoRoster: auto, educator: educator }).catch(function (e) { console.warn(e); });
         // 새 세션: 교육일 기준 대상 크루로 명단을 바로 채운다 (수정은 상세 화면의 점검 안내에서 맞춤)
         var fillP = (!editing && AUTO_PARTS[auto]) ? (submitBtn.textContent = "명단 채우는 중…", targetCrews(obj.date, auto).then(function (t) {
           if (!t || !t.list.length) return "";

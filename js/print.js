@@ -100,9 +100,12 @@
     var depts = [];
     roster.forEach(function (r) { if (r.dept && depts.indexOf(r.dept) < 0) depts.push(r.dept); });
     depts.sort(function (a, b) { var x = PART_ORDER.indexOf(a), y = PART_ORDER.indexOf(b); return (x < 0 ? 9 : x) - (y < 0 ? 9 : y); });
-    var meta = [session.date + (dow(session.date) ? " (" + dow(session.date) + ")" : ""), session.category, depts.join(" · ")].filter(Boolean).map(esc).join(" · ");
-
+    var educator = (session.meta && session.meta.educator) || "";
     var ph = photos || [];
+    var meta = [session.date + (dow(session.date) ? " (" + dow(session.date) + ")" : ""), session.category, depts.join(" · ")].filter(Boolean).map(esc).join(" · ");
+    // 사진이 없으면 사진 설명줄이 없으니 머리 줄에 교육자를 넣는다
+    if (educator && !ph.length) meta += " · 교육자 " + nameHtml(educator);
+
     var photoRows = Math.ceil(ph.length / 3);
     // 1쪽에 들어가는 줄 수: 사진 한 줄마다 약 7줄 덜 들어감
     var cap1 = Math.max(6, 25 - photoRows * 7), capN = 31;
@@ -132,7 +135,7 @@
       + '<div class="rp-stats"><div class="st"><small>대상</small><b>' + total + '</b></div><div class="st"><small>서명</small><b>' + signed + "</b></div>"
       + '<div class="st"><small>미서명</small><b>' + (total - signed) + "</b></div></div>"
       + (ph.length ? '<div class="rp-phs">' + ph.map(function (p) { return '<figure><img src="' + esc(p.url) + '" alt="교육 사진" /></figure>'; }).join("") + "</div>"
-          + '<div class="rp-cap"><span>교육 현장 사진 ' + ph.length + "장</span><span>" + esc(session.date || "") + "</span></div>" : "");
+          + '<div class="rp-cap"><span>교육 현장 사진 ' + ph.length + "장" + (educator ? " · 교육자 " + nameHtml(educator) : "") + "</span><span>" + esc(session.date || "") + "</span></div>" : "");
     function secHead(cont) {
       return '<div class="rp-h2"><h2>참석자 서명' + (cont ? " <small>(이어서)</small>" : "") + "</h2><span>" + esc(String(+mm || mm)) + "월 · " + signed + " / " + total + "명</span></div>";
     }
