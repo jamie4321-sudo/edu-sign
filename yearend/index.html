@@ -425,7 +425,14 @@ document.querySelector(".enter .go").addEventListener("click",function(){window.
  window.__openPlan=function(){document.body.classList.add('planmode');pl.hidden=false;fit();scrollTo(0,0);it.classList.add('out');soft=1;rain=reduce?.1:.35;
   var r=a.play();if(r&&r.catch)r.catch(function(){m.classList.add('off')});m.classList.add('on')};
  document.getElementById('home').onclick=function(){document.body.classList.remove('planmode');it.classList.remove('out');soft=0;rain=base;scrollTo(0,0)};
- m.onclick=function(){if(a.paused){a.play();m.classList.remove('off')}else{a.pause();m.classList.add('off')}};
+ // 들어오자마자 음악: 자동 재생 시도 → 막히면 첫 터치·클릭·키·스크롤 때 재생
+ var userOff=false;
+ function start(){if(userOff||!a.paused)return;var r=a.play();m.classList.add('on');if(r&&r.then)r.then(function(){m.classList.remove('off');off()}).catch(function(){m.classList.add('off')});}
+ var EV=['pointerdown','touchstart','keydown','wheel','scroll'];
+ function off(){EV.forEach(function(e){removeEventListener(e,start,true)})}
+ EV.forEach(function(e){addEventListener(e,start,{capture:true,passive:true})});
+ start();
+ m.onclick=function(e){e.stopPropagation();if(a.paused){userOff=false;a.play();m.classList.remove('off')}else{userOff=true;a.pause();m.classList.add('off')}};
 })();
 </script>
 </body></html>
