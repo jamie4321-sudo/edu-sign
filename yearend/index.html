@@ -76,8 +76,8 @@ h1 em::before{content:"";position:absolute;left:-.08em;right:-.08em;bottom:.05em
 #gate .g2{font-size:clamp(40px,5.6vw,76px);color:#ffd166;margin-top:-6px;text-shadow:0 0 20px rgba(255,209,102,.45)}
 @keyframes pulse{from{transform:scale(.85);opacity:1}to{transform:scale(1.6);opacity:0}}
 #gate .gk{font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px}
-#gate .drink{width:20px;height:25px;animation:clink 2.4s ease-in-out infinite;transform-origin:50% 90%}
-@keyframes clink{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+#gate .drink{width:20px;height:24px;animation:bounce 1.2s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-5px) rotate(6deg)}}
 #gate .gm{font-size:13px;color:#ffd9d9}
 #intro.wait *{animation-play-state:paused!important}
 .copy h1{font-size:clamp(24px,3.5vw,46px);margin:6px 0 8px}.brand{width:min(170px,40vw)!important;margin-bottom:4px!important}.script{font-size:clamp(36px,4.4vw,62px)!important}.copy{height:60%!important;padding-top:10px}
@@ -279,7 +279,7 @@ body.planmode #stars{z-index:1}
   <div class="gs">Merry Christmas</div>
   <div class="gs g2">Goodbye 2026</div>
   <div class="ring"><svg viewBox="0 0 200 200" aria-hidden="true"><defs><path id="gcir" d="M100 100 m-74 0 a74 74 0 1 1 148 0 a74 74 0 1 1 -148 0"/></defs><text font-size="21" font-weight="900" fill="#8f0f17" font-family="Kakao Big Sans, sans-serif"><textPath href="#gcir" textLength="455" lengthAdjust="spacing">LINKAGE LAB ✦ LINKAGE LAB ✦</textPath></text></svg><b>✦</b></div>
-  <div class="gk">눌러서 입장<svg class="drink" viewBox="0 0 32 40" aria-hidden="true"><path d="M5 6 H27 L17.5 19 V33 H23 V36 H9 V33 H14.5 V19 Z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><path d="M9.5 11 H22.5 L16 19.5 Z" fill="#ff5a64"/><circle cx="24" cy="6" r="3.4" fill="#ffd166"/><path d="M20 2 L13 13" stroke="#ffd166" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+  <div class="gk">눌러서 입장<svg class="drink" viewBox="0 0 24 28" aria-hidden="true"><path d="M9 21 V5 L21 2 V18" fill="none" stroke="#ffd166" stroke-width="2.6" stroke-linejoin="round"/><path d="M9 9 L21 6" stroke="#ffd166" stroke-width="2.6"/><ellipse cx="6" cy="21.5" rx="4" ry="3.2" fill="#ffd166"/><ellipse cx="18" cy="18.5" rx="4" ry="3.2" fill="#ffd166"/></svg></div>
 </div>
 <script>window.__enterP=new Promise(function(r){window.__enterGo=r});</script>
 <div id="intro" class="wait"><div class="stage" id="stage">
