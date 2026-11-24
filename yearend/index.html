@@ -68,9 +68,12 @@ h1 em::before{content:"";position:absolute;left:-.08em;right:-.08em;bottom:.05em
 #gate.out{opacity:0;visibility:hidden}
 #gate .gs{font-family:"Script";font-size:clamp(56px,9vw,120px);line-height:1;text-shadow:0 6px 24px rgba(0,0,0,.3)}
 #gate .gt{max-width:90vw;font-weight:950;font-size:clamp(14px,1.6vw,18px);letter-spacing:.3em;color:#ffd166}
-#gate .ring{position:relative;width:96px;height:96px;margin:18px 0 6px;border-radius:50%;background:#ffd166;color:#8f0f17;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+#gate .ring{position:relative;width:118px;height:118px;margin:16px 0 6px;border-radius:50%;background:#ffd166;color:#8f0f17;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;box-shadow:0 12px 30px rgba(0,0,0,.35)}
 #gate .ring:before,#gate .ring:after{content:"";position:absolute;inset:-10px;border:2px solid rgba(255,209,102,.7);border-radius:50%;animation:pulse 2s ease-out infinite}
 #gate .ring:after{animation-delay:1s}
+#gate .ring svg{position:absolute;inset:0;width:100%;height:100%;animation:spin 12s linear infinite}
+#gate .ring b{font-size:30px;color:#8f0f17}
+#gate .g2{font-size:clamp(40px,5.6vw,76px);color:#ffd166;margin-top:-6px;text-shadow:0 0 20px rgba(255,209,102,.45)}
 @keyframes pulse{from{transform:scale(.85);opacity:1}to{transform:scale(1.6);opacity:0}}
 #gate .gk{font-size:20px;font-weight:800}
 #gate .gm{font-size:13px;color:#ffd9d9}
@@ -272,7 +275,8 @@ body.planmode #stars{z-index:1}
 <div id="gate" role="button" tabindex="0" aria-label="눌러서 입장">
   <div class="gt">SNACK &amp; GARDEN · YEAR-END PARTY</div>
   <div class="gs">Merry Christmas</div>
-  <div class="ring">♪</div>
+  <div class="gs g2">Goodbye 2026</div>
+  <div class="ring"><svg viewBox="0 0 200 200" aria-hidden="true"><defs><path id="gcir" d="M100 100 m-74 0 a74 74 0 1 1 148 0 a74 74 0 1 1 -148 0"/></defs><text font-size="21" font-weight="900" fill="#8f0f17" font-family="Kakao Big Sans, sans-serif"><textPath href="#gcir" textLength="455" lengthAdjust="spacing">LINKAGE LAB ✦ LINKAGE LAB ✦</textPath></text></svg><b>✦</b></div>
   <div class="gk">눌러서 입장</div>
   <div class="gm">음악과 함께 시작해요</div>
 </div>
