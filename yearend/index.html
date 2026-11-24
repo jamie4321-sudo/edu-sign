@@ -1,24 +1,95 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
 <script>if (/github\.io$/.test(location.hostname)) location.replace("https://linkagelab-edu.pages.dev" + location.pathname.replace(/^\/edu-sign/, "") + location.search + location.hash);</script>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>스낵앤가든사업팀 송년회 준비</title>
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="링키지랩">
-<meta property="og:title" content="스낵앤가든사업팀 송년회 준비">
-<meta property="og:description" content="연결의 시작 · 2026.12.4(금) 오후 5시 · 준비 현황과 결정 요청">
+<title>스낵앤가든사업팀 송년의 밤</title>
+<meta property="og:type" content="website"><meta property="og:site_name" content="링키지랩">
+<meta property="og:title" content="스낵앤가든사업팀 송년의 밤">
+<meta property="og:description" content="연결의 시작 · 2026.12.4(금) 오후 5시 · 송년회 준비 기획안">
 <meta property="og:url" content="https://linkagelab-edu.pages.dev/yearend/">
 <meta property="og:image" content="https://linkagelab-edu.pages.dev/og.png?v=1">
-<meta property="og:image:width" content="400">
-<meta property="og:image:height" content="400">
+<meta property="og:image:width" content="400"><meta property="og:image:height" content="400">
 <meta name="twitter:card" content="summary">
 <style>
+
+/* 레이아웃: 위 = 글씨 영역(종이 위) / 아래 = 종이가 찢겨 열린 구멍, 캐릭터는 구멍 속에서 종이 인형처럼 튀어나옴 */
+@font-face{font-family:"Kakao Big Sans";src:url(fonts/kbs-regular.woff2) format("woff2");font-weight:100 500}
+@font-face{font-family:"Kakao Big Sans";src:url(fonts/kbs-bold.woff2) format("woff2");font-weight:600 700}
+@font-face{font-family:"Kakao Big Sans";src:url(fonts/kbs-extrabold.woff2) format("woff2");font-weight:800 950}
+:root{--paper:#f7f5ee;--paper-back:#e6e1d1;--fiber:#ffffff;--lime:#ffd166;--lime-deep:#d62a32;--ink:#16160f;--ink-2:#4a4a42;--ink-3:#7c7c72;color-scheme:light;
+  --font:"Kakao Big Sans",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--font);color:var(--ink);word-break:keep-all;background:var(--paper);-webkit-font-smoothing:antialiased}
+#intro{position:fixed;inset:0;z-index:50;background:var(--paper);transition:opacity .8s ease,visibility .8s}#intro.out{opacity:0;visibility:hidden}.stage{position:relative;height:100%;overflow:hidden}
+svg.layer{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+#back{z-index:1}#front{z-index:5}
+/* 글씨 영역 */
+.copy{position:absolute;left:0;right:0;top:0;height:56%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{width:min(230px,52vw);margin-bottom:10px}
+.brand img{display:block;width:100%}
+.eye{font-size:13px;letter-spacing:.16em;color:var(--ink-3);font-weight:700}
+h1{font-size:clamp(30px,4.8vw,64px);font-weight:950;line-height:1.16;margin:10px 0 10px;letter-spacing:-.03em;text-wrap:balance}
+h1 em{font-style:normal;position:relative;z-index:0;white-space:nowrap}
+h1 em::before{content:"";position:absolute;left:-.08em;right:-.08em;bottom:.05em;height:.44em;background:var(--lime);z-index:-1;transform:rotate(-1.4deg);border-radius:3px}
+.load{white-space:nowrap}.load i{display:inline-block;width:.16em;height:.16em;margin-left:.08em;border-radius:50%;background:var(--ink);vertical-align:.08em;animation:dot 1.2s infinite}.load i:nth-child(2){animation-delay:.2s}.load i:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.lede{color:var(--ink-2);font-size:clamp(15px,1.3vw,18px);margin:0 0 18px;line-height:1.6}
+.fade{animation:fade .7s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.d1{animation-delay:.1s}.d2{animation-delay:.3s}.d3{animation-delay:.5s}.d4{animation-delay:2.2s}
+/* 채용 키트 검은 둥근 버튼 + 비밀번호 */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:3.5rem;padding:0 1.6rem;border-radius:999px;border:2px solid var(--ink);background:var(--ink);color:var(--paper);font:inherit;font-size:1.0625rem;font-weight:700;cursor:pointer;transition:transform .12s ease}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:scale(.98)}
+.btn:focus-visible,.pin input:focus-visible{outline:3px solid var(--lime-deep);outline-offset:3px}
+.enter{display:flex;flex-direction:column;align-items:center;gap:10px;min-height:4rem}
+.pin{display:none;align-items:center;gap:8px;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:6px 6px 6px 22px}
+.pin input{border:0;background:transparent;font:inherit;font-size:1.3rem;letter-spacing:.5em;width:7.5rem;outline:none}
+.pin .btn{min-height:2.9rem;padding:0 1.2rem}
+.enter.open .go{background:var(--paper);color:var(--ink)}.enter.open .pin{display:flex;animation:fade .3s ease both}
+.hint{font-size:13px;color:var(--ink-3);min-height:1em}
+/* 캐릭터: 종이 인형 — 흰 테두리 스티커 + 한 칸씩 끊기는 흔들림 */
+.pup{position:absolute;z-index:3;transform-origin:50% 100%;opacity:0}
+.pup img{display:block;width:100%;height:auto;filter:drop-shadow(4px 0 0 #fff) drop-shadow(-4px 0 0 #fff) drop-shadow(0 4px 0 #fff) drop-shadow(0 -4px 0 #fff) drop-shadow(0 10px 10px rgba(30,34,8,.28))}
+.pup.go{opacity:1;animation:pop .95s cubic-bezier(.25,1.55,.45,1) both, sway 2.6s steps(3,jump-none) 1s infinite}
+@keyframes pop{0%{transform:translateY(105%) rotate(0)}55%{transform:translateY(-10%) rotate(var(--r))}100%{transform:translateY(0) rotate(var(--r))}}
+@keyframes sway{0%,100%{rotate:0deg}50%{rotate:var(--s,3deg)}}
+.replay-x{position:fixed;right:16px;top:16px;z-index:9;border:1px solid #d9d6c8;background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;color:var(--ink-3);cursor:pointer}
+.foot{position:absolute;left:0;right:0;bottom:2.4%;text-align:center;font-weight:800;font-size:12px;letter-spacing:.22em;color:var(--ink-3);z-index:6}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.pup{opacity:1}}
+
+@font-face{font-family:"Script";src:url(fonts/Sacramento-Regular.ttf) format("truetype")}
+.script{font-family:"Script";font-size:clamp(40px,5.2vw,74px);line-height:1;color:#d62a32;margin:2px 0 -4px;text-shadow:0 2px 0 #fff}
+.eye b{color:#d62a32}
+.pup{display:none!important}
+.foot{display:none}
+.marq{position:absolute;left:0;right:0;bottom:0;z-index:8;background:#16160f;color:#ffd166;overflow:hidden;white-space:nowrap;font-weight:800;letter-spacing:.18em;font-size:clamp(12px,1.2vw,15px);padding:11px 0}
+.marq span{display:inline-block;padding-left:100%;animation:marq 26s linear infinite}
+@keyframes marq{to{transform:translateX(-100%)}}
+.badge{position:absolute;right:7%;top:12%;width:clamp(96px,11vw,150px);aspect-ratio:1;z-index:7}
+.badge svg{width:100%;height:100%;animation:spin 14s linear infinite}
+.badge b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:950;font-size:clamp(18px,2vw,26px);color:#16160f;line-height:1}
+.badge b small{font-size:.45em;letter-spacing:.12em;margin-top:4px;color:#d62a32}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orn{position:absolute;top:0;z-index:7;width:2px;background:#16160f;transform-origin:top center;animation:swing 3.4s ease-in-out infinite}
+.orn:after{content:"";position:absolute;left:50%;bottom:-26px;width:30px;height:30px;margin-left:-15px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff8a8f,#d62a32 55%,#8f0f17);box-shadow:0 6px 14px rgba(0,0,0,.25)}
+.orn.g:after{background:radial-gradient(circle at 35% 30%,#fff1b8,#ffd166 55%,#c9932e)}
+.orn.e:after{background:radial-gradient(circle at 35% 30%,#7fd6a0,#2f9e5b 55%,#1d6b3c)}
+@keyframes swing{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@media (max-width:700px){.badge{display:none}.orn{display:none}.eye{font-size:11px;letter-spacing:.08em}}
+@media (prefers-reduced-motion:reduce){.marq span,.badge svg,.orn{animation:none}}
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:70;pointer-events:none}
+.mus{position:fixed;right:16px;bottom:16px;z-index:80;width:48px;height:48px;border-radius:50%;border:2px solid #16160f;cursor:pointer;background:#16160f;color:#ffd166;font-size:20px;display:none}
+.mus.on{display:block}.mus.off{opacity:.5}
+/* 기획안 화면 */
+
 @font-face{font-family:"KBS";src:url(fonts/kbs-regular.woff2) format("woff2");font-weight:400}
 @font-face{font-family:"KBS";src:url(fonts/kbs-bold.woff2) format("woff2");font-weight:700}
 @font-face{font-family:"KBS";src:url(fonts/kbs-extrabold.woff2) format("woff2");font-weight:800}
 *{box-sizing:border-box}
-body{margin:0;background:#e9eae4;font-family:"KBS",system-ui,sans-serif;word-break:keep-all;-webkit-font-smoothing:antialiased;padding:30px 0}
+
 .a4{--pi:#16160f;--pi2:#55554d;--pi3:#8f8f85;--pl:#e2e3dd;--pb:#f3f4ef;--lime:#bff000;--lime-d:#5c7a08;
   width:794px;height:1123px;margin:0 auto 50px;background:#fff;color:var(--pi);padding:40px 44px 26px;font-size:12px;line-height:1.5;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,.08)}
 p{margin:0}
@@ -170,18 +241,45 @@ mark.hl{background:linear-gradient(transparent 38%,#bff000 38%,#bff000 92%,trans
 #P5 .num{font-weight:800;font-size:12px;margin:0 0 6px}
 #P5 .st{font-size:10px;font-weight:800;border-radius:99px;padding:1px 7px;background:var(--pb);color:var(--pi2);white-space:nowrap}
 
-/* 웹 보기 */
-body{padding:0}
-.bar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;background:#16160f;color:#fff;font-size:13px;font-weight:700}
-.bar a{background:#bff000;color:#16160f;text-decoration:none;border-radius:99px;padding:7px 14px;font-weight:800;white-space:nowrap}
-.wrap{padding:20px 0 40px;overflow:hidden}
-.fit{width:794px;margin:0 auto;transform-origin:top left}
-.fit .a4{margin:0}
-@media print{.bar{display:none}.wrap{padding:0}.fit{transform:none!important;height:auto!important;width:auto}}
+#plan{position:relative;z-index:2;min-height:100vh;padding:0 0 50px}
+body.planmode{background:radial-gradient(circle at 20% 10%,#c41e27,#7c0d14 60%,#4a070c) fixed}
+body.planmode #stars{z-index:1}
+.copy h1,.copy .lede,.copy .eye{text-shadow:0 0 10px #f7f5ee,0 0 18px #f7f5ee}
+#plan .bar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 18px;background:rgba(22,22,15,.85);backdrop-filter:blur(6px);color:#fff;font-weight:800;font-size:14px}
+#plan .bar .sc{font-family:"Script";font-weight:400;font-size:28px;color:#ffd166;margin-right:8px;vertical-align:-4px}
+#plan .bar a,#plan .bar button{font:inherit;font-size:13px;border:0;cursor:pointer;text-decoration:none;border-radius:99px;padding:8px 14px;font-weight:800}
+#plan .bar a{background:#ffd166;color:#16160f}#plan .bar button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);margin-right:6px}
+#plan .wrap{padding:26px 0 0;overflow:hidden}
+#plan .fit{width:794px;margin:0 auto;transform-origin:top left}
+#plan .fit .a4{margin:0;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+@media (max-width:600px){#plan .bar .sc{display:none}#plan .bar{padding:10px 12px}}
+@media print{#intro,#stars,.mus,#plan .bar{display:none!important}#plan{background:#fff;padding:0}#plan .fit{transform:none!important;height:auto!important}}
 </style></head><body>
-<div class="bar"><span>스낵앤가든사업팀 송년회 준비</span><a href="yearend-plan-2026.pdf" download>PDF 저장</a></div>
-<div class="wrap"><div class="fit" id="fit">
-<section class="a4" id="P3">
+<canvas id="stars"></canvas>
+<div id="intro"><div class="stage" id="stage">
+  <svg class="layer" id="back"></svg>
+  <div class="copy">
+    <div class="brand fade d1"><img src="chars/logo.png" alt="LINKAGE LAB"></div>
+    <div class="eye fade d1"><b>MERRY CHRISTMAS</b> · SNACK &amp; GARDEN 2026</div>
+    <div class="script fade d2">Goodbye 2026</div>
+    <h1 class="fade d2">올 한 해 함께 이어 온 우리,<br><em>송년의 밤</em>에서 만나요</h1>
+    <p class="lede fade d3">2026. 12. 4.(금) 오후 5시 · 더 파티 하우스</p>
+    <div class="enter fade d4"><button class="btn go" type="button">송년회 준비 보기 →</button></div>
+  </div>
+  <div class="pup" id="p1" style="--r:-6deg;--s:3deg"><img src="data:," alt=""></div>
+  <div class="pup" id="p4" style="--r:-1deg;--s:1.5deg"><img src="data:," alt=""></div>
+  <div class="pup" id="p2" style="--r:2deg;--s:-2deg"><img src="data:," alt=""></div>
+  <div class="pup" id="p3" style="--r:6deg;--s:-3deg"><img src="data:," alt=""></div>
+  <svg class="layer" id="front"></svg>
+  <div class="orn" style="left:6%;height:120px"></div><div class="orn g" style="left:12%;height:70px;animation-delay:-1s"></div><div class="orn e" style="left:18%;height:150px;animation-delay:-2s"></div>
+  <div class="orn g" style="right:22%;height:90px;animation-delay:-.5s"></div><div class="orn" style="right:28%;height:46px;animation-delay:-1.6s"></div>
+  <div class="badge"><svg viewBox="0 0 200 200"><defs><path id="cir" d="M100 100 m-78 0 a78 78 0 1 1 156 0 a78 78 0 1 1 -156 0"/></defs><circle cx="100" cy="100" r="98" fill="#ffd166"/><text font-size="17" font-weight="800" letter-spacing="4" fill="#16160f" font-family="Kakao Big Sans, sans-serif"><textPath href="#cir">MERRY CHRISTMAS ✦ GOODBYE 2026 ✦ </textPath></text></svg><b>12.04<small>FRI 5PM</small></b></div>
+  <div class="marq"><span>MERRY CHRISTMAS ✦ GOODBYE 2026 ✦ SNACK &amp; GARDEN YEAR-END PARTY ✦ 12.04 FRI 5PM ✦ THE PARTY HOUSE ✦ MERRY CHRISTMAS ✦ GOODBYE 2026 ✦ SNACK &amp; GARDEN YEAR-END PARTY ✦ 12.04 FRI 5PM ✦</span></div>
+  <div class="foot">LINKAGELAB · SNACK &amp; GARDEN · YEAR-END PARTY</div>
+</div></div>
+<div id="plan" hidden>
+  <div class="bar"><span><span class="sc">Merry Christmas</span>송년회 준비</span><span><button type="button" id="home">처음으로</button><a href="yearend-plan-2026.pdf" download>PDF 저장</a></span></div>
+  <div class="wrap"><div class="fit" id="fit"><section class="a4" id="P3">
   <div class="hero">
     <div><p class="eb">2026 YEAR-END PARTY · PLAN</p>
       <h3>스낵앤가든사업팀<br>송년회 준비</h3>
@@ -233,18 +331,101 @@ body{padding:0}
     <div class="box" style="margin-top:12px;display:flex;gap:18px;align-items:center"><b style="font-size:12.5px">확인 필요</b><span class="mu2" style="font-size:11.5px">진행 운영비 <b style="color:var(--pi)">5만원</b> 예상 (현수막, 인쇄 출력비)</span></div>
   </div>
   <div class="ft"><span>출처 · 송년회 운영안 및 TF 업무표(8개 탭) · 11/24 기준 · 식순 시각은 업체 종료 시각 확인 후 확정 예정</span><span>LINKAGELAB</span></div>
-</section>
-</div></div>
+</section></div></div>
+</div>
+<button class="mus" id="mus" type="button" aria-label="음악 켜기/끄기">♪</button>
+<audio id="bgm" src="audio/bgm.mp3" loop preload="auto"></audio>
 <script>
 (function(){
-  var f=document.getElementById('fit');
-  function fit(){
-    var vw=document.documentElement.clientWidth||window.innerWidth;var w=Math.min(1,(vw-24)/794);
-    f.style.transform=w<1?'scale('+w+')':'none';
-    f.style.marginLeft=w<1?'12px':'auto';
-    f.style.height=(1123*w)+'px';
-  }
-  fit(); window.addEventListener('resize',fit);
+var NS="http://www.w3.org/2000/svg", back=document.getElementById("back"), front=document.getElementById("front"), stage=document.getElementById("stage");
+var seed=5; function rnd(){seed=(seed*9301+49297)%233280;return seed/233280}
+// 한쪽(왼→오)으로 쭉 찢기는 띠. 가장자리는 둥글둥글 귀여운 물결 + 작은 톱니
+var M=64, TJ=[], BJ=[]; for(var i=0;i<=M;i++){TJ.push((rnd()-.5)*12+(i%2?5:-5)); BJ.push((rnd()-.5)*12+(i%2?-5:5));}
+var W,H,cy,hh,x0,x1,PUPX=[0.13,0.62,0.86,0.37],popped=[0,0,0,0];
+function size(){W=stage.clientWidth;H=stage.clientHeight;cy=H*0.79;hh=Math.min(H*0.15,140);x0=-30;x1=W*0.9;
+  ["p1","p2","p3","p4"].forEach(function(id,k){var e=document.getElementById(id),im=e.querySelector("img"),w=Math.min([0.14,0.12,0.14,0.21][k]*Math.max(W,700),[210,180,210,310][k]);
+    if(W<600)w=W*[0.22,0.2,0.22,0.3][k];
+    e.style.width=w+"px";e.style.left=(x0+(x1-x0)*PUPX[k]-w/2)+"px";var h=im.naturalHeight/im.naturalWidth*w||w*1.25;e.style.top=(cy+hh*0.8-h)+"px";});}
+function yT(i,amp){var x=i/M,wave=Math.sin(x*Math.PI*3.2)*10;return cy-hh*0.5*amp+wave+TJ[i]*amp}
+function yB(i,amp){var x=i/M,wave=Math.sin(x*Math.PI*2.6+1)*12;return cy+hh*0.5*amp+wave+BJ[i]*amp}
+function X(i){return x0+(x1-x0)*i/M}
+function smooth(pts){var d="M"+pts[0][0].toFixed(1)+","+pts[0][1].toFixed(1);for(var i=1;i<pts.length-1;i++){var mx=(pts[i][0]+pts[i+1][0])/2,my=(pts[i][1]+pts[i+1][1])/2;d+="Q"+pts[i][0].toFixed(1)+","+pts[i][1].toFixed(1)+" "+mx.toFixed(1)+","+my.toFixed(1);}var l=pts[pts.length-1];return d+"L"+l[0].toFixed(1)+","+l[1].toFixed(1)}
+// 진행 p(0~1)까지 찢긴 구멍. grow>0 이면 종이 면(섬유 안쪽)용으로 조금 작게
+function hole(p,grow){var n=Math.max(1,Math.round(M*p)),top=[],bot=[],open=Math.min(1,p*3);
+  for(var i=0;i<=n;i++){var a=open*Math.min(1,(n-i)/4+0.25);top.push([X(i),yT(i,a)+grow]);bot.push([X(i),yB(i,a)-grow]);}
+  var d=smooth(top),r=bot.slice().reverse();d+=" L"+r[0][0]+","+r[0][1]+" "+smooth(r).slice(1);return d+"Z"}
+function lip(p,off){var n=Math.max(1,Math.round(M*p)),bot=[],open=Math.min(1,p*3);
+  for(var i=0;i<=n;i++){var a=open*Math.min(1,(n-i)/4+0.25);bot.push([X(i),yB(i,a)+off]);}
+  var l=bot[bot.length-1];return smooth(bot)+"L"+l[0]+","+(H+60)+"L-60,"+(H+60)+"L-60,"+bot[0][1]+"Z"}
+function el(tag,attr,parent){var e=document.createElementNS(NS,tag);for(var k in attr)e.setAttribute(k,attr[k]);if(parent)parent.appendChild(e);return e}
+function defs(svg,id){var df=el("defs",{},svg);
+  var f=el("filter",{id:"g"+id,x:"0",y:"0",width:"100%",height:"100%"},df);el("feTurbulence",{type:"fractalNoise",baseFrequency:".85",numOctaves:"2",result:"n"},f);
+  el("feColorMatrix",{"in":"n",values:"0 0 0 0 .35  0 0 0 0 .33  0 0 0 0 .24  0 0 0 .10 0",result:"c"},f);el("feComposite",{"in":"c",in2:"SourceGraphic",operator:"in"},f);
+  var sh=el("filter",{id:"s"+id,x:"-5%",y:"-5%",width:"110%",height:"120%"},df);el("feDropShadow",{dx:"0",dy:"5",stdDeviation:"6","flood-color":"#3a0a0e","flood-opacity":".3"},sh);
+  var lg=el("linearGradient",{id:"l"+id,x1:"0",y1:"0",x2:"0",y2:"1"},df);el("stop",{offset:"0","stop-color":"#8f0f17"},lg);el("stop",{offset:".4","stop-color":"#d62a32"},lg);el("stop",{offset:"1","stop-color":"#a8121a"},lg);
+  var rg=el("linearGradient",{id:"r"+id,x1:"0",y1:"0",x2:"1",y2:"0"},df);[["0","#d9d2bb"],[".35","#fbf9f2"],[".6","#efe9d8"],["1","#cfc6aa"]].forEach(function(s){el("stop",{offset:s[0],"stop-color":s[1]},rg)});
+  var cp=el("clipPath",{id:"c"+id},df);return el("rect",{x:"-50",y:"0",width:"99999",height:"99999"},cp)}
+var cB=defs(back,"b"), cF=defs(front,"f"); el("g",{},back); var gB=back.lastChild, gF=el("g",{},front), gR=el("g",{},front);
+function rect(){return "M-40,-40H"+(W+40)+"V"+(H+40)+"H-40Z"}
+function paint(g,p,id,withGap){g.innerHTML="";
+  if(withGap){el("path",{d:hole(p,0),fill:"url(#l"+id+")"},g);var t=el("text",{x:x0+(x1-x0)*0.5,y:cy+hh*0.36,"text-anchor":"middle","font-size":hh*1.25,"font-weight":"900","font-family":"Kakao Big Sans, sans-serif",fill:"#ffd166","clip-path":"none"},g);t.textContent="12.04";
+    var cl=el("clipPath",{id:"hc"+id},g);el("path",{d:hole(p,0)},cl);t.setAttribute("clip-path","url(#hc"+id+")");}
+  var pa=el("g",{filter:"url(#s"+id+")"},g);
+  el("path",{d:rect()+hole(p,0),"fill-rule":"evenodd",fill:"#ffffff"},pa);
+  el("path",{d:rect()+hole(p,-6),"fill-rule":"evenodd",fill:"#f7f5ee"},pa);
+  el("path",{d:rect()+hole(p,-6),"fill-rule":"evenodd",fill:"#000",filter:"url(#g"+id+")"},pa);}
+// 찢겨 말려 올라간 종이 두루마리(앞쪽 끝)
+function roll(g,p){g.innerHTML="";var n=Math.max(1,Math.round(M*p)),x=X(n),a=Math.min(1,p*3),t=yT(n,a)-16,b=yB(n,a)+16,w=Math.max(22,hh*0.42);
+  var r=el("g",{filter:"url(#sf)"},g);
+  el("rect",{x:x-w*0.35,y:t,width:w,height:b-t,rx:w/2,fill:"url(#rf)",stroke:"#ffffff","stroke-width":"3"},r);
+  el("path",{d:"M"+(x-w*0.05)+","+(t+w*0.5)+"V"+(b-w*0.5),stroke:"rgba(120,110,80,.25)","stroke-width":"2","stroke-linecap":"round",fill:"none"},r);
+  el("circle",{cx:x+w*0.15,cy:t+w*0.5,r:w*0.18,fill:"#ffffff",opacity:".8"},r);}
+var t0=null,P=0;
+function frame(ts){t0=t0||ts;var q=Math.min(1,Math.max(0,(ts-t0-500)/1700));P=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2;
+  paint(gB,Math.max(.03,P),"b",true);front2(gF,Math.max(.03,P));roll(gR,Math.max(.03,P));
+  PUPX.forEach(function(px,k){if(!popped[k]&&P>px+0.06){popped[k]=1;document.getElementById(["p1","p2","p3","p4"][k]).classList.add("go");}});
+  if(q<1)requestAnimationFrame(frame);}
+function front2(g,p){g.innerHTML="";var pa=el("g",{},g);el("path",{d:lip(p,0),fill:"#ffffff"},pa);el("path",{d:lip(p,6),fill:"#f7f5ee"},pa);el("path",{d:lip(p,6),fill:"#000",filter:"url(#gf)"},pa);}
+function layout(){size();paint(gB,Math.max(.03,P),"b",true);front2(gF,Math.max(.03,P));roll(gR,Math.max(.03,P));}
+addEventListener("resize",layout);
+Promise.all([].map.call(document.images,function(i){return i.complete?0:new Promise(function(r){i.onload=i.onerror=r})})).then(function(){layout();requestAnimationFrame(frame);});
+document.querySelector(".enter .go").addEventListener("click",function(){window.__openPlan&&window.__openPlan()});
+})();
+</script>
+<script>
+(function(){
+ // 별 쏟아짐 + 커서 따라 별
+ var cv=document.getElementById('stars'),c=cv.getContext('2d'),W,H,R=Math.min(window.devicePixelRatio||1,2),P=[],soft=0,rain=5,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ var COL=['#ffd166','#ffcf40','#ff4d57','#d62a32','#2f9e5b','#ffe9a8'];
+ function size(){W=innerWidth;H=innerHeight;cv.width=W*R;cv.height=H*R;c.setTransform(R,0,0,R,0,0)}
+ size();addEventListener('resize',size);
+ function add(x,y,vx,vy,s,g){if(P.length>1300)P.shift();P.push({x:x,y:y,vx:vx,vy:vy,s:s,r:Math.random()*6.3,vr:(Math.random()-.5)*.14,a:1,g:g||0,c:COL[(Math.random()*COL.length)|0],t:Math.random()*6.3})}
+ function star(x,y,s,r){c.save();c.translate(x,y);c.rotate(r);c.beginPath();for(var i=0;i<10;i++){var q=i%2?s*.42:s,a=i*Math.PI/5-Math.PI/2;c.lineTo(Math.cos(a)*q,Math.sin(a)*q)}c.closePath();c.fill();c.restore()}
+ function trail(x,y){for(var i=0;i<(soft?1:5);i++)add(x+(Math.random()-.5)*16,y+(Math.random()-.5)*16,(Math.random()-.5)*3,(Math.random()-1)*2.6,3+Math.random()*7,.13)}
+ addEventListener('pointermove',function(e){trail(e.clientX,e.clientY)});
+ addEventListener('touchmove',function(e){var t=e.touches[0];if(t)trail(t.clientX,t.clientY)},{passive:true});
+ addEventListener('pointerdown',function(e){for(var i=0;i<(soft?8:50);i++){var a=Math.random()*6.3,v=2+Math.random()*7;add(e.clientX,e.clientY,Math.cos(a)*v,Math.sin(a)*v-2,3+Math.random()*8,.14)}});
+ if(reduce)rain=.5;else if(innerWidth<700)rain=2;var base=rain;
+ function tick(){c.clearRect(0,0,W,H);
+  var n=rain|0;if(Math.random()<rain-n)n++;
+  for(var k=0;k<n;k++)add(Math.random()*W,-20,(Math.random()-.3)*1.2,1.4+Math.random()*4.2,2+Math.random()*(Math.random()<.12?12:6),0);
+  c.shadowBlur=10;
+  for(var i=P.length-1;i>=0;i--){var p=P[i];p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.t+=.15;if(p.g)p.a-=.012;
+   if(p.y>H+30||p.a<=0||p.x<-40||p.x>W+40){P.splice(i,1);continue}
+   c.globalAlpha=Math.max(0,p.a)*(.6+.4*Math.sin(p.t))*(soft?.35:1);c.fillStyle=p.c;c.shadowColor=p.c;star(p.x,p.y,p.s,p.r)}
+  c.globalAlpha=1;requestAnimationFrame(tick)}
+ tick();
+ // A4 기획안 화면 폭 맞춤
+ var f=document.getElementById('fit');
+ function fit(){var vw=document.documentElement.clientWidth||innerWidth,w=Math.min(1,(vw-24)/794);f.style.transform=w<1?'scale('+w+')':'none';f.style.marginLeft=w<1?'12px':'auto';f.style.height=(1123*w)+'px'}
+ fit();addEventListener('resize',fit);
+ // 음악 + 화면 전환
+ var a=document.getElementById('bgm'),m=document.getElementById('mus'),pl=document.getElementById('plan'),it=document.getElementById('intro');
+ a.volume=.5;
+ window.__openPlan=function(){document.body.classList.add('planmode');pl.hidden=false;fit();scrollTo(0,0);it.classList.add('out');soft=1;rain=reduce?.1:.35;
+  var r=a.play();if(r&&r.catch)r.catch(function(){m.classList.add('off')});m.classList.add('on')};
+ document.getElementById('home').onclick=function(){document.body.classList.remove('planmode');it.classList.remove('out');soft=0;rain=base;scrollTo(0,0)};
+ m.onclick=function(){if(a.paused){a.play();m.classList.remove('off')}else{a.pause();m.classList.add('off')}};
 })();
 </script>
 </body></html>
