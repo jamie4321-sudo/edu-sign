@@ -63,6 +63,18 @@ h1 em::before{content:"";position:absolute;left:-.08em;right:-.08em;bottom:.05em
 @font-face{font-family:"Script";src:url(fonts/Sacramento-Regular.ttf) format("truetype")}
 .script{font-family:"Script";font-size:clamp(40px,5.2vw,74px);line-height:1;color:#d62a32;margin:2px 0 -4px;text-shadow:0 2px 0 #fff}
 .eye b{color:#d62a32}
+#gate{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;color:#fff;text-align:center;padding:20px;
+ background:radial-gradient(circle at 50% 40%,#d62a32,#8f0f17 60%,#4a070c);transition:opacity .7s ease,visibility .7s;-webkit-tap-highlight-color:transparent}
+#gate.out{opacity:0;visibility:hidden}
+#gate .gs{font-family:"Script";font-size:clamp(56px,9vw,120px);line-height:1;text-shadow:0 6px 24px rgba(0,0,0,.3)}
+#gate .gt{max-width:90vw;font-weight:950;font-size:clamp(14px,1.6vw,18px);letter-spacing:.3em;color:#ffd166}
+#gate .ring{position:relative;width:96px;height:96px;margin:18px 0 6px;border-radius:50%;background:#ffd166;color:#8f0f17;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+#gate .ring:before,#gate .ring:after{content:"";position:absolute;inset:-10px;border:2px solid rgba(255,209,102,.7);border-radius:50%;animation:pulse 2s ease-out infinite}
+#gate .ring:after{animation-delay:1s}
+@keyframes pulse{from{transform:scale(.85);opacity:1}to{transform:scale(1.6);opacity:0}}
+#gate .gk{font-size:20px;font-weight:800}
+#gate .gm{font-size:13px;color:#ffd9d9}
+#intro.wait *{animation-play-state:paused!important}
 .copy h1{font-size:clamp(24px,3.5vw,46px);margin:6px 0 8px}.brand{width:min(170px,40vw)!important;margin-bottom:4px!important}.script{font-size:clamp(36px,4.4vw,62px)!important}.copy{height:60%!important;padding-top:10px}
 .pup{display:none!important}
 .foot{display:none}
@@ -257,7 +269,15 @@ body.planmode #stars{z-index:1}
 @media print{#intro,#stars,.mus,#plan .bar{display:none!important}#plan{background:#fff;padding:0}#plan .fit{transform:none!important;height:auto!important}}
 </style></head><body>
 <canvas id="stars"></canvas>
-<div id="intro"><div class="stage" id="stage">
+<div id="gate" role="button" tabindex="0" aria-label="눌러서 입장">
+  <div class="gt">SNACK &amp; GARDEN · YEAR-END PARTY</div>
+  <div class="gs">Merry Christmas</div>
+  <div class="ring">♪</div>
+  <div class="gk">눌러서 입장</div>
+  <div class="gm">음악과 함께 시작해요</div>
+</div>
+<script>window.__enterP=new Promise(function(r){window.__enterGo=r});</script>
+<div id="intro" class="wait"><div class="stage" id="stage">
   <svg class="layer" id="back"></svg>
   <div class="copy">
     <div class="brand fade d1"><img src="chars/logo.png" alt="LINKAGE LAB"></div>
@@ -389,7 +409,7 @@ function frame(ts){t0=t0||ts;var q=Math.min(1,Math.max(0,(ts-t0-500)/1700));P=q<
 function front2(g,p){g.innerHTML="";var pa=el("g",{},g);el("path",{d:lip(p,0),fill:"#ffffff"},pa);el("path",{d:lip(p,6),fill:"#f7f5ee"},pa);el("path",{d:lip(p,6),fill:"#000",filter:"url(#gf)"},pa);}
 function layout(){size();paint(gB,Math.max(.03,P),"b",true);front2(gF,Math.max(.03,P));roll(gR,Math.max(.03,P));}
 addEventListener("resize",layout);
-Promise.all([].map.call(document.images,function(i){return i.complete?0:new Promise(function(r){i.onload=i.onerror=r})})).then(function(){layout();requestAnimationFrame(frame);});
+Promise.all([].map.call(document.images,function(i){return i.complete?0:new Promise(function(r){i.onload=i.onerror=r})})).then(function(){layout();window.__enterP.then(function(){requestAnimationFrame(frame)})});
 document.querySelector(".enter .go").addEventListener("click",function(){window.__openPlan&&window.__openPlan()});
 })();
 </script>
@@ -426,13 +446,15 @@ document.querySelector(".enter .go").addEventListener("click",function(){window.
  window.__openPlan=function(){document.body.classList.add('planmode');pl.hidden=false;fit();scrollTo(0,0);it.classList.add('out');soft=1;rain=reduce?.1:.35;
   var r=a.play();if(r&&r.catch)r.catch(function(){m.classList.add('off')});m.classList.add('on')};
  document.getElementById('home').onclick=function(){document.body.classList.remove('planmode');it.classList.remove('out');soft=0;rain=base;scrollTo(0,0)};
+ var gate=document.getElementById('gate');
+ function enter(){if(gate.classList.contains('out'))return;gate.classList.add('out');it.classList.remove('wait');window.__enterGo();a.currentTime=0;var r=a.play();m.classList.add('on');if(r&&r.catch)r.catch(function(){m.classList.add('off')})}
+ gate.addEventListener('click',enter);gate.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' ')enter()});
  // 들어오자마자 음악: 자동 재생 시도 → 막히면 첫 터치·클릭·키·스크롤 때 재생
  var userOff=false;
  function start(){if(userOff||!a.paused)return;var r=a.play();m.classList.add('on');if(r&&r.then)r.then(function(){m.classList.remove('off');off()}).catch(function(){m.classList.add('off')});}
  var EV=['pointerdown','touchstart','keydown','wheel','scroll'];
  function off(){EV.forEach(function(e){removeEventListener(e,start,true)})}
  EV.forEach(function(e){addEventListener(e,start,{capture:true,passive:true})});
- start();
  m.onclick=function(e){e.stopPropagation();if(a.paused){userOff=false;a.play();m.classList.remove('off')}else{userOff=true;a.pause();m.classList.add('off')}};
 })();
 </script>
