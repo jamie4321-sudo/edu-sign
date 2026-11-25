@@ -156,7 +156,7 @@ body.clean{cursor:none}
 <section class="v" id="vk" aria-label="02 카운트다운">
   <div class="layer att" id="kAtt"><div><h2>잠시 후 시작합니다.</h2><p>모두 화면을 봐 주세요.</p></div></div>
   <div class="layer" id="kNumWrap"><div class="num" id="kNum">10</div></div>
-  <div class="layer fin" id="kFin"><p><em>함께,</em> 시작합니다.</p></div>
+  <div class="layer fin" id="kFin"><p>시작합니다.</p></div>
   <div class="bar" id="kBar"><i></i></div>
   <div class="foot">LINKAGELAB</div>
 </section>
@@ -266,7 +266,10 @@ function show(v,restart){
   countdown(v==='k');
 }
 
-/* ── 02: 카운트다운 — 안내 6초 → 10…1 → '함께, 시작합니다.' (원본 타이밍·음악 동기화 유지) ── */
+/* ── 02: 카운트다운 — 안내 6초 → 10…1 → '시작합니다.' (원본 타이밍·음악 동기화 유지) ──
+   카운트다운 곡(BBC 뉴스 카운트다운)은 1초 간격 '똑' 박자가 매초 x.61초에 떨어짐(분석값).
+   → 곡을 0.61초 지점부터 틀고, 곡이 재생 중이면 화면 시계를 곡 위치에 묶어 숫자가 박자에 정확히 바뀌게 함. */
+const SONG_SYNC=0.61;
 const ATT=6,COUNT=10;
 const bgm=$('#bgm');let bgmOn=true;
 const cd={on:false,t:0,paused:false,last:0};
@@ -274,7 +277,7 @@ const clamp=x=>Math.max(0,Math.min(1,x)),sm=x=>{x=clamp(x);return x*x*(3-2*x)},e
 function setLayer(el,a,blur,scale){el.style.opacity=a.toFixed(3);el.style.filter=blur>.01?`blur(${blur.toFixed(2)}cqw)`:'none';el.style.transform=`scale(${scale.toFixed(4)})`}
 // 카운트다운 곡을 골라 두었으면 그 곡, 아니면 원본 배경음(bgm.mp3)
 const useSong=()=>window.CountSong&&CountSong.name;
-function playBgm(){if(!bgmOn)return;if(useSong()){bgm.pause();CountSong.play(cd.t);return}try{bgm.currentTime=cd.t}catch(e){}bgm.play().catch(()=>{})}
+function playBgm(){if(!bgmOn)return;if(useSong()){bgm.pause();CountSong.play(cd.t+SONG_SYNC);return}try{bgm.currentTime=cd.t}catch(e){}bgm.play().catch(()=>{})}
 function stopBgm(fade){bgm.pause();if(window.CountSong)fade?CountSong.stop():CountSong.pause()}
 function countdown(on){
   const was=cd.on;cd.on=on;cd.t=0;cd.paused=false;cd.last=performance.now();
@@ -294,15 +297,20 @@ function renderCd(){
   if(ct>=0&&ct<COUNT){
     const n=COUNT-Math.floor(ct),p=ct%1;
     if(n!==lastN){num.textContent=n;num.classList.toggle('hot',n<=3);lastN=n}
-    const a=sm(p/.2)*(1-sm((p-.8)/.2));
-    setLayer(nw,reduced?1:a,reduced?0:(1-sm(p/.2))*1.4+sm((p-.8)/.2)*.6,reduced?1:1.08-.08*eo(p/.55));
+    // 박자에 맞춰 '탁' 하고 나타나도록: 0.07초 만에 켜지고, 살짝 크게 튀었다가 제자리
+    const a=sm(p/.07)*(1-sm((p-.84)/.16));
+    setLayer(nw,reduced?1:a,reduced?0:(1-sm(p/.07))*.8+sm((p-.84)/.16)*.6,reduced?1:1.1-.1*eo(p/.45));
     bar.style.opacity=1;bar.firstElementChild.style.transform=`scaleX(${clamp(ct/COUNT).toFixed(4)})`;
   }else{nw.style.opacity=0;lastN=null;if(ct>=COUNT){bar.style.opacity=0}else{bar.style.opacity=0;bar.firstElementChild.style.transform='scaleX(0)'}}
   // 마무리
   const f=sm((ct-COUNT-.35)/1.2);
   setLayer(fin,f,(1-f)*1.2,1.04-.04*f);
 }
-(function cdLoop(now){requestAnimationFrame(cdLoop);if(!cd.on)return;const dt=Math.min(.25,(now-cd.last)/1000);cd.last=now;if(cd.paused)return;if(cd.t<ATT+COUNT+2){cd.t+=dt;renderCd()}})(performance.now());
+(function cdLoop(now){requestAnimationFrame(cdLoop);if(!cd.on)return;const dt=Math.min(.25,(now-cd.last)/1000);cd.last=now;if(cd.paused)return;if(cd.t<ATT+COUNT+2){
+  const s=useSong()&&bgmOn?CountSong.state:null;
+  if(s&&!s.paused&&s.time>SONG_SYNC)cd.t=s.time-SONG_SYNC; // 곡 위치 = 화면 시계
+  else if(!(s&&!s.paused))cd.t+=dt;                          // 곡이 없거나 막히면 자체 시계
+  renderCd()}})(performance.now());
 
 /* ── D: 키노트 슬라이드 순환 (한 장 5.5초) ── */
 let kTimer=null,kIdx=-1;
