@@ -727,6 +727,17 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 #contact .qr{width:240px;padding:16px}
 #contact .qr b{font-size:16px}
 @media (max-width:640px){#contact .qrs{gap:16px}#contact .qr{width:160px}}
+/* 팝콘 튀기 */
+.v-pop{display:block;height:auto}
+.v-pop img{display:block;width:100%;height:auto}
+.v-pop .kn{position:absolute;left:44%;top:60%;width:9px;height:8px;border-radius:50% 45% 50% 40%;background:#FFF6D6;border:1.2px solid #2A2116;opacity:0;animation:knPop 2.8s cubic-bezier(.25,.6,.4,1) infinite}
+.v-pop .kn::after{content:"";position:absolute;left:3px;top:-3px;width:5px;height:5px;border-radius:50%;background:#FFF6D6;border:1.2px solid #2A2116;border-bottom-color:transparent}
+.v-pop .k1{--x:-16px;--y:-30px;--r:-160deg;animation-delay:0s}
+.v-pop .k2{--x:10px;--y:-38px;--r:200deg;animation-delay:.7s}
+.v-pop .k3{--x:-4px;--y:-44px;--r:120deg;animation-delay:1.4s}
+.v-pop .k4{--x:18px;--y:-26px;--r:-220deg;animation-delay:2.1s}
+@keyframes knPop{0%{opacity:0;transform:translate(0,0) scale(.4) rotate(0)}8%{opacity:1}45%{transform:translate(calc(var(--x)*.7),var(--y)) scale(1) rotate(calc(var(--r)*.5))}80%{opacity:1}100%{opacity:0;transform:translate(var(--x),4px) scale(.9) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.v-pop .kn{display:none}}
 </style>
 </head>
 <body>
@@ -757,7 +768,7 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
     <div>
       <span class="kicker">Value system</span>
       <h2 class="title">장애인과 함께 일하는<br>카카오의 첫 발걸음</h2>
-      <div class="vlist"><img class="v-pop" src="chars/popcorn.png" width="320" height="254" alt="" aria-hidden="true">
+      <div class="vlist"><span class="v-pop" aria-hidden="true"><img src="chars/popcorn.png" width="320" height="254" alt=""><i class="kn k1"></i><i class="kn k2"></i><i class="kn k3"></i><i class="kn k4"></i></span>
         <div class="vrow"><b>비전</b><p>함께 전문가로 성장하며, 지속적인 기회를 만들어가요</p></div>
         <div class="vrow"><b>미션</b><p>어울려 만드는 더 나은 세상</p></div>
         <div class="vrow"><b>전략</b><p>이해와 존중을 바탕으로 소통하고 협력해요. 업무에 최선을 다하고 성과를 창출해요.</p></div>
