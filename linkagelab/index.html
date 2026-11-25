@@ -1133,13 +1133,13 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
       </div>
       <div>
         <div class="pane on" data-k="before"><div class="case-pics">
-          <figure class="cp"><div class="photo zoom"><img src="img/before-1.jpg" width="1600" height="1200" alt="종이 체크리스트 수기 작성" loading="lazy"></div><figcaption><i>STEP 01</i>종이 체크리스트 수기 작성</figcaption></figure>
-          <figure class="cp"><div class="photo zoom"><img src="img/before-2.jpg" width="1600" height="1200" alt="A4 용지 대량 누적·보관" loading="lazy"></div><figcaption><i>STEP 02</i>A4 용지 대량 누적·보관</figcaption></figure>
-          <figure class="cp"><div class="photo zoom"><img src="img/before-3.jpg" width="1600" height="1200" alt="PC 엑셀 시트 수동 재입력" loading="lazy"></div><figcaption><i>STEP 03</i>PC 엑셀 시트 수동 재입력</figcaption></figure>
+          <figure class="cp"><div class="photo zoom"><img src="img/before-1.jpg?v=2" width="1200" height="1600" alt="종이 체크리스트 수기 작성" loading="lazy"></div><figcaption><i>STEP 01</i>종이 체크리스트 수기 작성</figcaption></figure>
+          <figure class="cp"><div class="photo zoom"><img src="img/before-2.jpg?v=2" width="1200" height="1600" alt="A4 용지 대량 누적·보관" loading="lazy"></div><figcaption><i>STEP 02</i>A4 용지 대량 누적·보관</figcaption></figure>
+          <figure class="cp"><div class="photo zoom"><img src="img/before-3.jpg?v=2" width="1200" height="1600" alt="PC 엑셀 시트 수동 재입력" loading="lazy"></div><figcaption><i>STEP 03</i>PC 엑셀 시트 수동 재입력</figcaption></figure>
         </div></div>
         <div class="pane" data-k="after"><div class="case-pics two">
-          <figure class="cp"><div class="photo zoom"><img src="img/after-1.jpg" width="1600" height="1200" alt="넘버스 어플 데이터 입력" loading="lazy"></div><figcaption><i>STEP 01</i>넘버스 어플 데이터 입력</figcaption></figure>
-          <figure class="cp"><div class="photo zoom"><img src="img/after-2.jpg" width="1600" height="1200" alt="신속하고 정확한 재고 파악" loading="lazy"></div><figcaption><i>STEP 02</i>신속하고 정확한 재고 파악</figcaption></figure>
+          <figure class="cp"><div class="photo zoom"><img src="img/after-1.jpg?v=2" width="1200" height="1600" alt="넘버스 어플 데이터 입력" loading="lazy"></div><figcaption><i>STEP 01</i>넘버스 어플 데이터 입력</figcaption></figure>
+          <figure class="cp"><div class="photo zoom"><img src="img/after-2.jpg?v=2" width="1200" height="1600" alt="신속하고 정확한 재고 파악" loading="lazy"></div><figcaption><i>STEP 02</i>신속하고 정확한 재고 파악</figcaption></figure>
         </div></div>
       </div>
     </div>
@@ -1316,7 +1316,7 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 
   // 넘버스 도입 전/후
   var seg=[].slice.call(document.querySelectorAll('.seg button')),panes=[].slice.call(document.querySelectorAll('.case .pane'));
-  var txt={before:['A4 월 약 <span class="hlt">540</span>장','수작업으로 인한 비효율: 한 달 체크리스트 A4 사용량 약 540장'],after:['A4 월 <span class="hlt">0</span>장 제로화','종이 낭비 제로, 데이터 입력을 통한 신속하고 정확한 재고 파악 가능']};
+  var txt={before:['A4 월 약 <span class="hlt">540</span>장','수작업으로 인한 비효율: 한 달 체크리스트 A4 사용량 약 540장'],after:['A4 <span class="hlt">제로화</span>','종이 낭비 제로, 데이터 입력을 통한 신속하고 정확한 재고 파악 가능']};
   seg.forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.k;seg.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});panes.forEach(function(p){p.classList.toggle('on',p.dataset.k===k)});document.getElementById('nbNum').innerHTML=txt[k][0];document.getElementById('nbDesc').textContent=txt[k][1];});});
 
   // 사진 크게 보기
