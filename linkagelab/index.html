@@ -718,6 +718,9 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 /* 교육 방향성 제목: 한 줄 + 라임 형광펜 */
 @media (min-width:900px){.edu-t{white-space:nowrap}}
 .hlt{background:linear-gradient(180deg,transparent 56%,rgba(191,240,0,.6) 56%,rgba(191,240,0,.6) 92%,transparent 92%);padding:0 .08em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+/* 5단계 지원: 형광 포인트가 3→4→5단계로 차례대로 */
+#edu-prog .steps5 div{transition:background-color .5s ease,color .5s ease}
+#edu-prog .steps5 div small{transition:color .5s ease}
 </style>
 </head>
 <body>
@@ -1211,6 +1214,16 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
       if(e.isIntersecting&&e.intersectionRatio>=.5){c.classList.add('dim');void c.offsetWidth;c.classList.remove('dim');c.classList.add('light');}
       else if(e.intersectionRatio===0){c.classList.remove('light');}
     })},{threshold:[0,.5]}).observe(c);
+  })();
+
+  // 5단계 지원: 교육스탭 → 파트리더 → 팀리더 면담 차례로 형광
+  (function(){
+    var st=[].slice.call(document.querySelectorAll('#edu-prog .steps5 > div')).slice(2);if(st.length<2||reduce)return;
+    var i=0,t=null;
+    function show(){st.forEach(function(d,j){d.classList.toggle('pt',j===i)});}
+    function run(){if(t)return;i=0;show();t=setInterval(function(){i=(i+1)%st.length;show();},1600);}
+    function stop(){clearInterval(t);t=null;i=0;show();}
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)run();else stop();})},{threshold:.3}).observe(document.getElementById('edu-prog'));
   })();
 
   // 넘버스 도입 전/후
