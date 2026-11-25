@@ -1315,7 +1315,7 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 
   // 넘버스 도입 전/후
   var seg=[].slice.call(document.querySelectorAll('.seg button')),panes=[].slice.call(document.querySelectorAll('.case .pane'));
-  var txt={before:['A4 월 약 <span class="hlt">540</span>장','수작업으로 인한 비효율: 한 달 체크리스트 A4 사용량 약 540장'],after:['A4 월 0장 제로화','종이 낭비 제로, 데이터 입력을 통한 신속하고 정확한 재고 파악 가능']};
+  var txt={before:['A4 월 약 <span class="hlt">540</span>장','수작업으로 인한 비효율: 한 달 체크리스트 A4 사용량 약 540장'],after:['A4 월 <span class="hlt">0</span>장 제로화','종이 낭비 제로, 데이터 입력을 통한 신속하고 정확한 재고 파악 가능']};
   seg.forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.k;seg.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});panes.forEach(function(p){p.classList.toggle('on',p.dataset.k===k)});document.getElementById('nbNum').innerHTML=txt[k][0];document.getElementById('nbDesc').textContent=txt[k][1];});});
 
   // 사진 크게 보기
