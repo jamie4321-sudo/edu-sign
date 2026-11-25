@@ -755,6 +755,24 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 #edu .cards4 .tags{gap:4px 14px;margin-top:0}
 #edu .cards4 .tags span{border:0;background:none;padding:0;min-height:0;border-radius:0;font-size:14px;font-weight:600;color:var(--ink-2)}
 @media (max-width:960px){#edu .cvx{grid-template-columns:1fr}#edu .venn{margin:0 auto;transform:scale(.85)}#edu .cards4{grid-template-columns:1fr}}
+/* 박람회 D안: 하루 흐름 3단 + 키트 띠 */
+.fd-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:32px}
+.fd-st{background:rgba(255,255,255,.045);border-radius:24px;padding:16px}
+.fd-ph{display:block;position:relative;width:100%;aspect-ratio:16/10;border:0;padding:0;border-radius:16px;overflow:hidden;background:#000;cursor:zoom-in}
+.fd-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fd-x .fx2{opacity:0;animation:fdFade 8s ease-in-out infinite}
+@keyframes fdFade{0%,40%{opacity:0}50%,90%{opacity:1}100%{opacity:0}}
+.fd-t{display:flex;align-items:baseline;gap:10px;margin-top:14px;padding:0 4px}
+.fd-t i{font-style:normal;font-size:12px;font-weight:900;letter-spacing:.08em;color:var(--accent)}
+.fd-t b{font-size:21px;font-weight:900;letter-spacing:-.03em}
+.fd-st.k{background:var(--accent);color:#0B0B0C}
+.fd-st.k .fd-t i{color:#3A3A3E}
+.fd-kit{background:#0B0B0C;padding:5px}
+.fd-kit img{position:static;border-radius:11px;object-position:0 0}
+.fd-strip{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+.fd-strip .ht-shot{width:auto!important}
+@media (max-width:960px){.fd-flow{grid-template-columns:1fr}.fd-strip{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){.fd-x .fx2{animation:none}}
 </style>
 </head>
 <body>
@@ -1044,12 +1062,12 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
   <div class="wrap">
     <span class="kicker">Job fair</span>
     <h2 class="title">2026년 성남장애인일자리 박람회</h2>
-    <div class="fair-grid">
-      <figure class="fair-pic"><button class="zoom fp-photo" type="button" aria-label="박람회 사진 크게 보기"><img src="img/fair-2026.jpg" width="318" height="167" alt="2026년 성남장애인일자리 박람회 현장" loading="lazy"></button><figcaption>박람회 현장</figcaption></figure>
-      <div class="fair-kit"><span class="fk-label">면접 채용 키트</span>
-        <div class="ht-thumbs fk-grid"><button class="ht-shot zoom" type="button" aria-label="직무 고르기 화면 크게 보기"><img src="img/kit-step1.jpg" width="1180" height="750" alt="채용 키트 직무 고르기 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="직무 소개 영상 화면 크게 보기"><img src="img/kit-video.jpg" width="1180" height="750" alt="채용 키트 직무 소개 영상 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="근무 시간 안내 화면 크게 보기"><img src="img/kit-step3.jpg" width="1180" height="750" alt="채용 키트 근무 시간 안내 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="역량 체크 화면 크게 보기"><img src="img/kit-step4.jpg" width="1180" height="750" alt="채용 키트 역량 체크 화면" loading="lazy"></button></div>
-      </div>
+    <div class="fd-flow">
+      <div class="fd-st"><button class="zoom fd-ph fd-x" type="button" aria-label="박람회 부스 사진 크게 보기"><img src="img/fair-booth.jpg" width="1400" height="711" alt="링키지랩 A24 부스" loading="lazy"><img class="fx2" src="img/fair-2026.jpg" width="1400" height="1050" alt="박람회 현장" loading="lazy"></button><div class="fd-t"><i>STEP 01</i><b>A24 부스 운영</b></div></div>
+      <div class="fd-st"><button class="zoom fd-ph" type="button" aria-label="현장 면접 사진 크게 보기"><img src="img/fair-interview.jpg" width="1400" height="1050" alt="박람회 현장 면접" loading="lazy" style="object-position:50% 60%"></button><div class="fd-t"><i>STEP 02</i><b>현장 면접</b></div></div>
+      <div class="fd-st k"><button class="zoom fd-ph fd-kit" type="button" aria-label="채용 키트 첫 화면 크게 보기"><img src="img/kit-step1.jpg" width="1180" height="750" alt="채용 키트 첫 화면" loading="lazy"></button><div class="fd-t"><i>STEP 03</i><b>면접 채용 키트</b></div></div>
     </div>
+    <div class="fd-strip"><button class="ht-shot zoom" type="button" aria-label="직무 고르기 화면 크게 보기"><img src="img/kit-step1.jpg" width="1180" height="750" alt="채용 키트 직무 고르기 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="직무 소개 영상 화면 크게 보기"><img src="img/kit-video.jpg" width="1180" height="750" alt="채용 키트 직무 소개 영상 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="근무 시간 안내 화면 크게 보기"><img src="img/kit-step3.jpg" width="1180" height="750" alt="채용 키트 근무 시간 안내 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="역량 체크 화면 크게 보기"><img src="img/kit-step4.jpg" width="1180" height="750" alt="채용 키트 역량 체크 화면" loading="lazy"></button></div>
   </div>
 </section>
 
@@ -1282,7 +1300,7 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
   var lb=document.getElementById('lb'),lbi=lb.querySelector('img'),lbc=lb.querySelector('.lb-close'),last=null;
   function openLb(el){last=el;var im=el.querySelector('img');lbi.src=im.src;lbi.alt=im.alt;lb.hidden=false;requestAnimationFrame(function(){lb.classList.add('on')});document.body.style.overflow='hidden';lbc.focus();}
   function closeLb(){lb.classList.remove('on');document.body.style.overflow='';setTimeout(function(){lb.hidden=true},300);if(last)last.focus();}
-  document.querySelectorAll('.wall .zoom,.mini4 .photo,.a11y-pics .zoom,.kit-shot,.kit-fair .zoom,.hf-shot,.ht-shot,.fp-photo').forEach(function(b){b.addEventListener('click',function(){openLb(b)})});
+  document.querySelectorAll('.wall .zoom,.mini4 .photo,.a11y-pics .zoom,.kit-shot,.kit-fair .zoom,.hf-shot,.ht-shot,.fp-photo,.fd-ph').forEach(function(b){b.addEventListener('click',function(){openLb(b)})});
   lb.addEventListener('click',function(e){if(e.target!==lbi)closeLb()});
   addEventListener('keydown',function(e){if(e.key==='Escape'&&!lb.hidden)closeLb()});
 
