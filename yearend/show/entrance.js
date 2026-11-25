@@ -18,9 +18,10 @@
       get name(){return url?name:''},
       get state(){return {time:+audio.currentTime.toFixed(2),paused:audio.paused,volume:audio.volume}},
       async pick(file){use(file);try{await save(key,file)}catch(e){}},
-      play(offset=0){ // START + offset 초 지점부터 재생
+      play(offset=0,fadeIn=.5){ // START + offset 초 지점부터, fadeIn 초 동안 소리를 키우며 재생 (뚝 끊기지 않게)
         if(!url)return false;
-        clearInterval(fadeT);audio.volume=1;
+        clearInterval(fadeT);audio.volume=fadeIn>0?0:1;
+        if(fadeIn>0){const step=1/(fadeIn*20);fadeT=setInterval(()=>{audio.volume=Math.min(1,audio.volume+step);if(audio.volume>=1)clearInterval(fadeT)},50)}
         const go=()=>{try{audio.currentTime=START+offset}catch(e){}audio.play().catch(()=>{})};
         audio.readyState>=1?go():audio.addEventListener('loadedmetadata',go,{once:true});
         return true;
@@ -32,6 +33,7 @@
       },
       pause(){audio.pause()},
       get playing(){return !audio.paused},
+      get el(){return audio},
       onEnded(fn){audio.addEventListener('ended',fn)},
       resume(){if(url&&audio.currentTime>0)audio.play().catch(()=>{})}
     };
@@ -46,6 +48,8 @@
       async clear(){use([]);try{await save(KEY,[])}catch(e){}window.dispatchEvent(new Event('photos-ready'))}};
   })();
   window.Entrance=slot('scarlett-song',86,'entrance-ready');
+  // 05 데이빗 라디오 음성 (처음부터)
+  window.RadioVoice=slot('radio-voice',0,'radio-ready');
   // 01 입장 대기 음악 2곡 — 번갈아 계속 재생
   window.WelcomeSongs=[slot('welcome-song-1',0,'welcome-ready'),slot('welcome-song-2',0,'welcome-ready')];
   window.CountSong=slot('countdown-song',0,'countsong-ready');
