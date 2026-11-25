@@ -497,6 +497,71 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
 @keyframes vidA{0%{opacity:1;transform:scale(1)}44%{opacity:1;transform:scale(1.07)}52%{opacity:0;transform:scale(1.08)}94%{opacity:0;transform:scale(1)}100%{opacity:1;transform:scale(1)}}
 @keyframes vidB{0%{opacity:0;transform:scale(1)}44%{opacity:0;transform:scale(1)}52%{opacity:1;transform:scale(1.01)}94%{opacity:1;transform:scale(1.08)}100%{opacity:0;transform:scale(1.08)}}
 @media (prefers-reduced-motion:reduce){.ch-pics .pg:has(.m2) .m{animation:none;opacity:1!important}.ch-pics .pg:has(.m2) .m2{animation:none;opacity:0!important}}
+
+/* 채용 키트 */
+.kit-head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap}
+.kit-steps{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:40px;counter-reset:k}
+.kit-step{display:flex;flex-direction:column}
+.kit-shot{display:block;border:0;padding:6px;border-radius:18px;background:#000;cursor:zoom-in;transition:transform .25s var(--ease),box-shadow .25s ease;box-shadow:0 0 0 1px var(--line)}
+.kit-shot:hover{transform:translateY(-3px);box-shadow:0 0 0 2px var(--accent)}
+.kit-shot:active{transform:scale(.97)}
+.kit-shot img{display:block;width:100%;height:auto;border-radius:12px}
+.ks-no{margin-top:14px;font-size:13px;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums}
+.kit-step b{font-size:17px;font-weight:900;letter-spacing:-.02em;margin-top:2px}
+.kit-step small{font-size:13.5px;color:var(--ink-3);margin-top:2px}
+@media (max-width:1100px){.kit-steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.kit-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.kit-fair{display:flex;flex-direction:column;gap:8px;width:min(260px,100%)}
+.kit-fair .zoom{border:0;padding:0;border-radius:14px;overflow:hidden;cursor:zoom-in;background:#000;transition:transform .25s var(--ease)}
+.kit-fair .zoom:hover{transform:translateY(-2px)}
+.kit-fair img{display:block;width:100%;height:auto}
+.kit-fair figcaption{font-size:13px;font-weight:700;color:var(--ink-3)}
+
+/* 장애 크루 채용 */
+.hire-head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap}
+.hire-facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.hire-facts span{display:inline-flex;align-items:center;min-height:34px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line-2);font-size:14px;font-weight:800;color:var(--ink-2)}
+.hire-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(32px,5vw,64px);margin-top:48px;align-items:start}
+.hire-who h3{font-size:19px;font-weight:900;letter-spacing:-.02em;margin-bottom:12px}
+.hire-basic{list-style:none;border-top:1.5px solid var(--ink)}
+.hire-basic li{display:grid;grid-template-columns:72px 1fr;gap:12px;padding:14px 0;border-bottom:1.5px solid var(--line);color:var(--ink-2);font-size:15.5px}
+.hire-basic b{color:var(--accent);font-weight:900}
+.hire-jobs{display:grid;gap:10px}
+.hire-jobs > div{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);padding:16px 18px}
+.hire-jobs b{display:block;font-size:18px;font-weight:900}
+.hire-jobs span{display:block;color:var(--ink-2);font-size:15px;margin-top:2px}
+.hire-jobs small{display:block;color:var(--ink-3);font-size:13px;margin-top:6px;font-variant-numeric:tabular-nums}
+.hire-flow{list-style:none;border-top:1.5px solid var(--ink)}
+.hire-flow li{display:grid;grid-template-columns:44px 1fr 150px;gap:14px;align-items:center;padding:16px 0;border-bottom:1.5px solid var(--line)}
+.hire-flow li:not(:has(.hf-shot)){grid-template-columns:44px 1fr}
+.hire-flow .no{font-size:15px;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums;align-self:start;padding-top:2px}
+.hire-flow b{display:block;font-size:17.5px;font-weight:900;letter-spacing:-.02em}
+.hire-flow p{color:var(--ink-2);font-size:14.5px;margin-top:3px}
+.hire-flow li.key{background:var(--accent);border-radius:var(--r);padding:16px;margin:8px 0;border-bottom:0}
+.hire-flow li.key .no,.hire-flow li.key b,.hire-flow li.key p{color:#0B0B0C}
+.hf-shot{border:0;padding:3px;border-radius:10px;background:#000;cursor:zoom-in;box-shadow:0 0 0 1px var(--line);transition:transform .2s var(--ease)}
+.hf-shot:hover{transform:translateY(-2px)}
+.hf-shot img{display:block;width:100%;height:auto;border-radius:7px}
+@media (max-width:960px){.hire-grid{grid-template-columns:1fr}}
+@media (max-width:640px){.hire-flow li{grid-template-columns:36px 1fr}.hf-shot{grid-column:2;max-width:220px}}
+
+.hire-snack{background:var(--accent);color:#0B0B0C;border-radius:var(--r-lg);padding:22px 22px 20px}
+.hire-snack .hs-tag{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:999px;background:#0B0B0C;color:var(--accent);font-size:12.5px;font-weight:900}
+.hire-snack h3{color:#0B0B0C;margin:10px 0 12px!important}
+.hs-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hs-two > div{background:rgba(11,11,12,.08);border-radius:12px;padding:14px}
+.hs-two b{display:block;font-size:19px;font-weight:900;letter-spacing:-.02em}
+.hs-two p{font-size:14.5px;margin-top:4px;color:#1D1D1F}
+.hh-title{font-size:19px;font-weight:900;letter-spacing:-.02em;margin-bottom:12px}
+.hire-flow li{grid-template-columns:44px 1fr!important}
+.hire-tool{margin-top:22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hire-tool > span{font-size:13px;font-weight:800;color:var(--ink-3)}
+.ht-thumbs{display:flex;gap:8px}
+.ht-shot{width:92px;border:0;padding:2px;border-radius:8px;background:#000;cursor:zoom-in;box-shadow:0 0 0 1px var(--line);transition:transform .2s var(--ease)}
+.ht-shot:hover{transform:translateY(-2px)}
+.ht-shot img{display:block;width:100%;height:auto;border-radius:6px}
+@media (max-width:640px){.hs-two{grid-template-columns:1fr}.ht-shot{width:72px}}
 </style>
 </head>
 <body>
@@ -718,6 +783,63 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
   </div>
 </section>
 
+<!-- 장애 크루 채용 -->
+<section id="hiring">
+  <div class="wrap">
+    <div class="hire-head">
+      <div>
+        <span class="kicker">Hiring</span>
+        <h2 class="title">장애 크루 채용,<br>이렇게 진행해요</h2>
+        <div class="hire-facts"><span>종이 없이 패드로</span><span>1인당 10분</span><span>실기 없이 구두 면접</span></div>
+      </div>
+      <figure class="kit-fair"><button class="zoom" type="button" aria-label="박람회 사진 크게 보기"><img src="img/fair-2026.jpg" width="318" height="167" alt="2026년 성남장애인일자리 박람회 현장" loading="lazy"></button><figcaption>2026년 성남장애인일자리 박람회</figcaption></figure>
+    </div>
+
+    <div class="hire-grid">
+      <div class="hire-who">
+        <div class="hire-snack">
+          <span class="hs-tag">스낵큐레이션</span>
+          <h3>이런 역량이 필요해요</h3>
+          <div class="hs-two">
+            <div><b>숫자셈</b><p>진열 업무라서 개수를 세고 채울 수량을 계산할 수 있어야 해요.</p></div>
+            <div><b>서로 배려하는 마음</b><p>함께 쓰는 창고 공간에서 동료를 배려할 수 있어야 해요.</p></div>
+          </div>
+        </div>
+        <h3 style="margin-top:30px">기본 조건</h3>
+        <ul class="hire-basic">
+          <li><b>출퇴근</b>혼자 버스나 지하철로 올 수 있어요</li>
+          <li><b>체력</b>서서 움직이고 박스를 옮길 수 있어요</li>
+          <li><b>위생</b>손을 씻고 위생 규칙을 지킬 수 있어요</li>
+          <li><b>연락</b>휴대폰으로 카톡 메시지와 사진을 보낼 수 있어요</li>
+          <li><b>소통</b>모르는 게 있으면 물어볼 수 있어요</li>
+        </ul>
+        <h3 style="margin-top:30px">뽑는 직무</h3>
+        <div class="hire-jobs">
+          <div><b>스낵</b><span>과자와 음료를 정해진 자리에 채워요</span><small>월–금 · 하루 4시간 · 오전 7:00–11:30 또는 오후 12:00–4:30</small></div>
+          <div><b>조경</b><span>사무실 식물에 물을 주고 잎을 닦아요</span><small>월–금 · 하루 8시간 · 7:00–16:00</small></div>
+          <div><b>총무지원</b><span>사무실에 필요한 물건을 나르고 정리해요</span><small>근무 시간은 면접관이 안내해요</small></div>
+        </div>
+      </div>
+
+      <div class="hire-how">
+      <h3 class="hh-title">이렇게 진행해요</h3>
+      <ol class="hire-flow">
+        <li><span class="no">01</span><div><b>직무 영상 보고 고르기</b><p>스낵 · 조경 · 총무지원 중 궁금한 일을 고르고, 짧은 영상으로 하는 일을 먼저 봐요.</p></div></li>
+        <li><span class="no">02</span><div><b>개인정보 동의</b><p>동의하지 않아도 면접은 똑같이 볼 수 있어요.</p></div></li>
+        <li><span class="no">03</span><div><b>일하는 시간 안내</b><p>요일과 하루 근무 시간, 휴식 시간을 그림으로 확인해요.</p></div></li>
+        <li><span class="no">04</span><div><b>기본 역량 체크 10문항</b><p>유통기한 · 진열 · 개수 · 시간 문항과 기본 조건 O/X를 한 화면에 하나씩 풀어요. ‘읽어 주기’로 문제를 소리로 들을 수 있어요.</p></div></li>
+        <li class="key"><span class="no">05</span><div><b>면접관 구두 역량 확인</b><p>철저확인력 · 조직 헌신력 · 정보 지향성을 이야기로 확인하고, 태도를 관찰해 기록해요.</p></div></li>
+        <li><span class="no">06</span><div><b>결과 안내</b><p>다음 면접은 복지관을 통해 연락드려요.</p></div></li>
+      </ol>
+      <div class="hire-tool">
+        <span>면접 도구 · 채용 키트 화면</span>
+        <div class="ht-thumbs"><button class="ht-shot zoom" type="button" aria-label="직무 고르기 화면 크게 보기"><img src="img/kit-step1.jpg" width="1180" height="750" alt="채용 키트 직무 고르기 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="개인정보 동의 화면 크게 보기"><img src="img/kit-step2.jpg" width="1180" height="750" alt="채용 키트 개인정보 동의 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="근무 시간 안내 화면 크게 보기"><img src="img/kit-step3.jpg" width="1180" height="750" alt="채용 키트 근무 시간 안내 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="역량 체크 화면 크게 보기"><img src="img/kit-step4.jpg" width="1180" height="750" alt="채용 키트 역량 체크 화면" loading="lazy"></button></div>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- 8. AI 활용 -->
 <section id="ai">
   <div class="wrap">
@@ -876,7 +998,7 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
   var lb=document.getElementById('lb'),lbi=lb.querySelector('img'),lbc=lb.querySelector('.lb-close'),last=null;
   function openLb(el){last=el;var im=el.querySelector('img');lbi.src=im.src;lbi.alt=im.alt;lb.hidden=false;requestAnimationFrame(function(){lb.classList.add('on')});document.body.style.overflow='hidden';lbc.focus();}
   function closeLb(){lb.classList.remove('on');document.body.style.overflow='';setTimeout(function(){lb.hidden=true},300);if(last)last.focus();}
-  document.querySelectorAll('.wall .zoom,.mini4 .photo,.a11y-pics .zoom').forEach(function(b){b.addEventListener('click',function(){openLb(b)})});
+  document.querySelectorAll('.wall .zoom,.mini4 .photo,.a11y-pics .zoom,.kit-shot,.kit-fair .zoom,.hf-shot,.ht-shot').forEach(function(b){b.addEventListener('click',function(){openLb(b)})});
   lb.addEventListener('click',function(e){if(e.target!==lbi)closeLb()});
   addEventListener('keydown',function(e){if(e.key==='Escape'&&!lb.hidden)closeLb()});
 
