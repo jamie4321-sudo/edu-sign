@@ -569,6 +569,15 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
 .ht-shot{width:auto!important;padding:4px!important;border-radius:12px!important}
 .ht-shot img{border-radius:9px!important}
 @media (max-width:640px){.ht-thumbs{grid-template-columns:1fr}}
+
+.fair-peek{margin-top:0!important}
+.fp-label{display:inline-flex!important;align-items:center;gap:8px;font-size:14px!important;font-weight:800!important;color:var(--accent)!important;margin-bottom:12px!important}
+.fp-label::before{content:"";width:22px;height:2px;background:var(--accent)}
+.fp-photo{display:block;width:min(318px,100%);border:0;padding:0;border-radius:14px;overflow:hidden;cursor:zoom-in;background:#000;margin-bottom:18px}
+.fp-photo img{display:block;width:100%;height:auto}
+.fp-sub{font-size:13px!important;color:var(--ink-3)!important}
+.fair-peek .ht-shot{opacity:.92;transition:opacity .2s ease,transform .2s var(--ease)}
+.fair-peek .ht-shot:hover{opacity:1}
 </style>
 </head>
 <body>
@@ -799,7 +808,6 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
         <h2 class="title">장애 크루 채용</h2>
         <p class="hire-one">패드로 10분, 구두 면접</p>
       </div>
-      <figure class="kit-fair"><button class="zoom" type="button" aria-label="박람회 사진 크게 보기"><img src="img/fair-2026.jpg" width="318" height="167" alt="2026년 성남장애인일자리 박람회 현장" loading="lazy"></button><figcaption>2026년 성남장애인일자리 박람회</figcaption></figure>
     </div>
 
     <div class="hire-grid">
@@ -823,16 +831,11 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
       </div>
 
       <div class="hire-how">
-      <ol class="hire-flow">
-        <li><span class="no">01</span><div><b>직무 영상 보고 고르기</b><p>스낵 · 조경 · 총무지원 중 궁금한 일을 고르고, 짧은 영상으로 하는 일을 먼저 봐요.</p></div></li>
-        <li><span class="no">02</span><div><b>개인정보 동의</b><p>동의하지 않아도 면접은 똑같이 볼 수 있어요.</p></div></li>
-        <li><span class="no">03</span><div><b>일하는 시간 안내</b><p>요일과 하루 근무 시간, 휴식 시간을 그림으로 확인해요.</p></div></li>
-        <li><span class="no">04</span><div><b>기본 역량 체크 10문항</b><p>유통기한 · 진열 · 개수 · 시간 문항과 기본 조건 O/X를 한 화면에 하나씩 풀어요. ‘읽어 주기’로 문제를 소리로 들을 수 있어요.</p></div></li>
-        <li class="key"><span class="no">05</span><div><b>면접관 구두 역량 확인</b><p>철저확인력 · 조직 헌신력 · 정보 지향성을 이야기로 확인하고, 태도를 관찰해 기록해요.</p></div></li>
-        <li><span class="no">06</span><div><b>결과 안내</b><p>다음 면접은 복지관을 통해 연락드려요.</p></div></li>
-      </ol>
-      <div class="hire-tool">
-        <span>면접 도구 · 채용 키트 화면</span>
+      
+      <div class="hire-tool fair-peek">
+        <span class="fp-label">2026년 성남장애인일자리 박람회</span>
+        <button class="zoom fp-photo" type="button" aria-label="박람회 사진 크게 보기"><img src="img/fair-2026.jpg" width="318" height="167" alt="2026년 성남장애인일자리 박람회 현장" loading="lazy"></button>
+        <span class="fp-sub">현장에서 쓴 면접 화면</span>
         <div class="ht-thumbs"><button class="ht-shot zoom" type="button" aria-label="직무 고르기 화면 크게 보기"><img src="img/kit-step1.jpg" width="1180" height="750" alt="채용 키트 직무 고르기 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="개인정보 동의 화면 크게 보기"><img src="img/kit-step2.jpg" width="1180" height="750" alt="채용 키트 개인정보 동의 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="근무 시간 안내 화면 크게 보기"><img src="img/kit-step3.jpg" width="1180" height="750" alt="채용 키트 근무 시간 안내 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="역량 체크 화면 크게 보기"><img src="img/kit-step4.jpg" width="1180" height="750" alt="채용 키트 역량 체크 화면" loading="lazy"></button></div>
       </div>
       </div>
@@ -998,7 +1001,7 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
   var lb=document.getElementById('lb'),lbi=lb.querySelector('img'),lbc=lb.querySelector('.lb-close'),last=null;
   function openLb(el){last=el;var im=el.querySelector('img');lbi.src=im.src;lbi.alt=im.alt;lb.hidden=false;requestAnimationFrame(function(){lb.classList.add('on')});document.body.style.overflow='hidden';lbc.focus();}
   function closeLb(){lb.classList.remove('on');document.body.style.overflow='';setTimeout(function(){lb.hidden=true},300);if(last)last.focus();}
-  document.querySelectorAll('.wall .zoom,.mini4 .photo,.a11y-pics .zoom,.kit-shot,.kit-fair .zoom,.hf-shot,.ht-shot').forEach(function(b){b.addEventListener('click',function(){openLb(b)})});
+  document.querySelectorAll('.wall .zoom,.mini4 .photo,.a11y-pics .zoom,.kit-shot,.kit-fair .zoom,.hf-shot,.ht-shot,.fp-photo').forEach(function(b){b.addEventListener('click',function(){openLb(b)})});
   lb.addEventListener('click',function(e){if(e.target!==lbi)closeLb()});
   addEventListener('keydown',function(e){if(e.key==='Escape'&&!lb.hidden)closeLb()});
 
