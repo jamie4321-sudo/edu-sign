@@ -111,6 +111,19 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vd .dots i{width:.5cqw;height:.5cqw;border-radius:50%;background:#3a3a3e;transition:background .4s,width .4s var(--ease-out)}
 #vd .dots i.on{background:#f5f5f7;width:1.8cqw;border-radius:1cqw}
 
+/* ───────── 02 · 카운트다운 (키노트) ───────── */
+#vk{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%)}
+#vk .layer{position:absolute;inset:0;display:grid;place-content:center;text-align:center;opacity:0;will-change:opacity,transform,filter}
+#vk .att h2{margin:0;font-weight:800;font-size:6.6cqw;letter-spacing:-.045em;line-height:1.1}
+#vk .att p{margin:2cqw 0 0;font-size:2.2cqw;font-weight:500;color:var(--grey);letter-spacing:-.02em}
+#vk .num{font-weight:900;font-size:36cqw;letter-spacing:-.07em;line-height:.8;font-variant-numeric:tabular-nums;padding:0 .06em .04em}
+#vk .num.hot{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#vk .fin p{margin:0;font-weight:800;font-size:6.6cqw;letter-spacing:-.045em}
+#vk .fin em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#vk .bar{position:absolute;left:50%;bottom:10.5cqh;width:24cqw;height:.18cqw;margin-left:-12cqw;background:#2a2a2e;border-radius:1cqw;overflow:hidden;opacity:0;transition:opacity .5s}
+#vk .bar i{position:absolute;inset:0;background:var(--grad);transform-origin:left;transform:scaleX(0)}
+#vk .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
+
 /* 운영 패널 */
 #panel{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:20;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;padding:8px;border-radius:14px;background:#111114ee;border:1px solid #ffffff1f;box-shadow:0 12px 40px #0009;font-family:"Kakao Big Sans","Malgun Gothic",sans-serif;max-width:calc(100vw - 20px);transition:opacity .2s}
 #panel.hide{opacity:0;pointer-events:none}
@@ -136,6 +149,15 @@ body.clean{cursor:none}
   <div class="slide"><div><h1 class="lock">SNACK <span class="amp">&amp;</span> GARDEN</h1><p class="cap">2026 송년회 · <b>12.04 FRI 17:00</b></p></div></div>
   <div class="slide"><div><p class="say">Welcome.</p><p class="cap">웰컴 드링크 받고, 편하게 앉아 주세요.</p></div></div>
   <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="foot">LINKAGELAB</div>
+</section>
+
+<!-- 02 카운트다운 -->
+<section class="v" id="vk" aria-label="02 카운트다운">
+  <div class="layer att" id="kAtt"><div><h2>잠시 후 시작합니다.</h2><p>모두 화면을 봐 주세요.</p></div></div>
+  <div class="layer" id="kNumWrap"><div class="num" id="kNum">10</div></div>
+  <div class="layer fin" id="kFin"><p><em>함께,</em> 시작합니다.</p></div>
+  <div class="bar" id="kBar"><i></i></div>
   <div class="foot">LINKAGELAB</div>
 </section>
 
@@ -187,16 +209,32 @@ body.clean{cursor:none}
 </main>
 
 <nav id="panel" aria-label="시안 선택">
-  <button data-v="d">D 키노트 (4)</button>
-  <button data-v="a">A 리소 포스터 (1)</button>
-  <button data-v="b">B 크롬 홀로그램 (2)</button>
-  <button data-v="c">C LED 전광판 (3)</button>
+  <span class="hint">01 입장</span>
+  <button data-v="d">D 키노트</button>
+  <button data-v="a">A 리소</button>
+  <button data-v="b">B 크롬</button>
+  <button data-v="c">C LED</button>
+  <span class="sep"></span>
+  <button data-v="k">02 카운트다운 (2)</button>
+  <button id="bgmBtn">음악 켜짐 (B)</button>
+  <button id="songBtn">스칼렛 입장곡 선택</button><input type="file" id="songFile" accept="audio/*" hidden>
   <span class="sep"></span>
   <a href="original.html">원본 보기</a>
   <button id="fs">전체 화면 (F)</button>
   <button id="hd">패널 숨기기 (H)</button>
-  <span class="hint">더블클릭 = 패널 표시</span>
+  <span class="hint">1 입장 · 2 카운트다운(다시 누르면 처음부터) · Space 일시정지 · 더블클릭 = 패널 표시</span>
 </nav>
+<audio id="bgm" src="bgm.mp3" preload="auto"></audio>
+<script src="entrance.js"></script>
+<script>
+(function(){ // 입장곡은 여기서 골라도 원본 상영본(04 스칼렛)과 같이 쓰입니다
+  const btn=document.getElementById('songBtn'),input=document.getElementById('songFile');
+  const label=()=>{btn.textContent=Entrance.name?'스칼렛 입장곡 ✓ (1:26~)':'스칼렛 입장곡 선택'};
+  addEventListener('entrance-ready',label);label();
+  btn.onclick=()=>input.click();
+  input.onchange=async e=>{const f=e.target.files[0];if(!f)return;await Entrance.pick(f);label();e.target.value=''};
+})();
+</script>
 
 <script>
 'use strict';
@@ -204,10 +242,11 @@ const $=s=>document.querySelector(s);
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ── 시안 전환 ── */
-let cur='';
-function show(v){
-  if(!['a','b','c','d'].includes(v))v='d';
-  if(v===cur)return;cur=v;
+let cur='',last01='d';
+function show(v,restart){
+  if(!['a','b','c','d','k'].includes(v))v='d';
+  if(v===cur&&!(restart&&v==='k'))return;cur=v;
+  if(v!=='k')last01=v;
   document.querySelectorAll('.v').forEach(s=>{
     const on=s.id==='v'+v;s.classList.toggle('on',on);
     if(on){ // 재진입 시 입장 모션 다시 재생
@@ -218,7 +257,43 @@ function show(v){
   history.replaceState(null,'','#'+v);
   led.active=v==='c';
   keynote(v==='d');
+  countdown(v==='k');
 }
+
+/* ── 02: 카운트다운 — 안내 6초 → 10…1 → '함께, 시작합니다.' (원본 타이밍·음악 동기화 유지) ── */
+const ATT=6,COUNT=10;
+const bgm=$('#bgm');let bgmOn=true;
+const cd={on:false,t:0,paused:false,last:0};
+const clamp=x=>Math.max(0,Math.min(1,x)),sm=x=>{x=clamp(x);return x*x*(3-2*x)},eo=x=>1-Math.pow(1-clamp(x),3);
+function setLayer(el,a,blur,scale){el.style.opacity=a.toFixed(3);el.style.filter=blur>.01?`blur(${blur.toFixed(2)}cqw)`:'none';el.style.transform=`scale(${scale.toFixed(4)})`}
+function playBgm(){if(!bgmOn)return;try{bgm.currentTime=cd.t}catch(e){}bgm.play().catch(()=>{})}
+function countdown(on){
+  cd.on=on;cd.t=0;cd.paused=false;cd.last=performance.now();
+  if(on){renderCd();playBgm()}else{bgm.pause()}
+}
+function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?bgm.pause():playBgm()}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if(!bgmOn)bgm.pause();else if(cd.on&&!cd.paused)playBgm()}
+$('#bgmBtn').onclick=toggleBgm;
+let lastN=null;
+function renderCd(){
+  const t=cd.t,att=$('#kAtt'),nw=$('#kNumWrap'),num=$('#kNum'),fin=$('#kFin'),bar=$('#kBar');
+  // 안내: 블러에서 또렷하게 → 끝나기 0.7초 전 사라짐
+  const aIn=sm(t/1.1),aOut=sm((t-(ATT-.7))/.6);
+  setLayer(att,aIn*(1-aOut),(1-aIn)*1.2+aOut*.8,1.04-.04*eo(t/1.4));
+  // 숫자: 1초마다 하나, 들어올 때 살짝 크게 → 제자리, 나갈 때 빠르게
+  const ct=t-ATT;
+  if(ct>=0&&ct<COUNT){
+    const n=COUNT-Math.floor(ct),p=ct%1;
+    if(n!==lastN){num.textContent=n;num.classList.toggle('hot',n<=3);lastN=n}
+    const a=sm(p/.2)*(1-sm((p-.8)/.2));
+    setLayer(nw,reduced?1:a,reduced?0:(1-sm(p/.2))*1.4+sm((p-.8)/.2)*.6,reduced?1:1.08-.08*eo(p/.55));
+    bar.style.opacity=1;bar.firstElementChild.style.transform=`scaleX(${clamp(ct/COUNT).toFixed(4)})`;
+  }else{nw.style.opacity=0;lastN=null;if(ct>=COUNT){bar.style.opacity=0}else{bar.style.opacity=0;bar.firstElementChild.style.transform='scaleX(0)'}}
+  // 마무리
+  const f=sm((ct-COUNT-.35)/1.2);
+  setLayer(fin,f,(1-f)*1.2,1.04-.04*f);
+}
+(function cdLoop(now){requestAnimationFrame(cdLoop);if(!cd.on)return;const dt=Math.min(.25,(now-cd.last)/1000);cd.last=now;if(cd.paused)return;if(cd.t<ATT+COUNT+2){cd.t+=dt;renderCd()}})(performance.now());
 
 /* ── D: 키노트 슬라이드 순환 (한 장 5.5초) ── */
 let kTimer=null,kIdx=-1;
@@ -319,7 +394,9 @@ async function fullscreen(){try{document.fullscreenElement?await document.exitFu
 $('#fs').onclick=fullscreen;$('#hd').onclick=togglePanel;
 addEventListener('dblclick',e=>{if(!e.target.closest('#panel'))togglePanel()});
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();
-  if(k==='4')show('d');else if(k==='1')show('a');else if(k==='2')show('b');else if(k==='3')show('c');
+  if(k==='1')show(last01);else if(k==='2')show('k',true);
+  else if(k===' '){e.preventDefault();toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
+  else if(k==='arrowright'&&cur!=='k')show('k',true);else if(k==='arrowleft'&&cur==='k')show(last01);
   else if(k==='f'||k==='ㄹ'){e.preventDefault();fullscreen()}else if(k==='h'||k==='ㅗ')togglePanel();});
 show(location.hash.slice(1)||'d');
 </script>
