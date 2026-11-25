@@ -1382,14 +1382,22 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
     function setPop(v){h26.classList.toggle('pop',v);h26.setAttribute('aria-hidden',v?'false':'true');}
     function atHist(){var i=(target!=null?target:idxNow());return Math.abs(stops[i]-(hist.getBoundingClientRect().top+scrollY))<60;}
     h26.setAttribute('aria-hidden','true');
+    // 넘버스: 도입 전 → Enter → 도입 후 → Enter → 다음 장
+    var caseSec=document.getElementById('ai-case');
+    function caseIdx(){var y=caseSec.getBoundingClientRect().top+scrollY;for(var k=0;k<stops.length;k++){if(Math.abs(stops[k]-y)<60)return k;}return -1;}
+    function nbBtn(k){return caseSec.querySelector('.seg button[data-k="'+k+'"]')}
+    function nbAfter(){return nbBtn('after').getAttribute('aria-pressed')==='true'}
     function next(){
       if(on&&popOpen()){setPop(false);go((target!=null?target:idxNow())+1);return;}
       if(on&&target==null&&atHist()){setPop(true);return;}
+      var ci=caseIdx(),now=(target!=null?target:idxNow());
+      if(on&&now===ci&&!nbAfter()){nbBtn('after').click();return;}
+      if(on&&now+1===ci&&nbAfter())nbBtn('before').click();
       go((target!=null?target:idxNow())+1)
     }
     addEventListener('scroll',function(){if(popOpen()&&target==null&&!atHist())setPop(false);},{passive:true});
     addEventListener('keydown',function(e){if(e.key==='Escape'&&popOpen())setPop(false);});
-    function prev(){if(on&&popOpen()){setPop(false);return;}var i=(target!=null?target:idxNow());if(target==null&&scrollY>stops[i]+12){go(i);}else{go(i-1);}}
+    function prev(){if(on&&popOpen()){setPop(false);return;}var i=(target!=null?target:idxNow());if(on&&i===caseIdx()&&nbAfter()&&scrollY<=stops[i]+12){nbBtn('before').click();return;}if(target==null&&scrollY>stops[i]+12){go(i);}else{go(i-1);}}
     function isUI(el){return el&&el.closest&&el.closest('a,button,input,textarea,select,label,[role="button"],.zoom,.lb,.present-hud,.seg')}
     document.addEventListener('click',function(e){if(!on||e.button!==0||isUI(e.target))return;if(String(getSelection())!=='')return;next();});
     addEventListener('keydown',function(e){
