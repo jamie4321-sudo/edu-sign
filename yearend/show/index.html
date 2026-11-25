@@ -92,6 +92,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 
 /* ───────── D · 키노트 ───────── */
 #vd{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%)}
+#vd #dStars{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #vd .glow{position:absolute;left:50%;bottom:-38cqh;width:120cqw;height:70cqh;transform:translateX(-50%);background:radial-gradient(closest-side,#ff9f4a26,#3ddc8414 55%,#0000);filter:blur(2cqw);animation:breathe 9s ease-in-out infinite}
 @keyframes breathe{50%{opacity:.55;transform:translateX(-50%) scale(1.06)}}
 #vd .slide{position:absolute;inset:0;display:grid;place-content:center;text-align:center;opacity:0;pointer-events:none}
@@ -173,6 +174,7 @@ body.clean{cursor:none}
 
 <!-- D -->
 <section class="v" id="vd" aria-label="D안 키노트">
+  <canvas id="dStars" aria-hidden="true"></canvas>
   <div class="glow" aria-hidden="true"></div>
   <div class="slide"><h1 class="hero">2026.</h1></div>
   <div class="slide"><p class="say">올해도,<br><em>함께여서</em> 가능했습니다.</p></div>
@@ -340,7 +342,7 @@ function show(v,restart){
   document.querySelectorAll('#panel [data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
   history.replaceState(null,'','#'+v);
   led.active=v==='c';
-  keynote(v==='d');
+  keynote(v==='d');dStars.set(v==='d');
   welcomeMusic('abcd'.includes(v),'abcd'.includes(prev));
   countdown(v==='k',v==='o');
   opening(v==='o',prev==='k');
@@ -535,6 +537,22 @@ function toggleSc(){if(!sc.on)return;sc.paused=!sc.paused;sc.last=performance.no
   renderSc()})(performance.now());
 
 (function opLoop(now){requestAnimationFrame(opLoop);if(!op.on)return;const dt=Math.min(.1,(now-op.last)/1000);op.last=now;if(op.paused)return;op.t+=dt;renderOp()})(performance.now());
+
+/* ── D: 아주 잔잔한 별빛 — 작은 점 160개가 3~9초 주기로 천천히 숨쉬듯 반짝, 글자 있는 가운데는 더 옅게 ── */
+const dStars=(()=>{const c=$('#dStars'),g=c.getContext('2d');let on=false;
+  const S=Array.from({length:160},(_,i)=>{const r=k=>{const x=Math.sin((i*13+k)*127.1+311.7)*43758.5453;return x-Math.floor(x)};
+    const x=r(1),y=r(2),mid=Math.abs(x-.5)<.36&&Math.abs(y-.5)<.24;
+    return {x,y,s:.8+r(3)*1.4,per:3+r(4)*6,ph:r(5)*6.28,max:(mid?.2:.6)*(.45+r(6)*.55),warm:r(7)<.18,glint:r(8)<.06}});
+  function size(){const b=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=Math.round(b.width*d);c.height=Math.round(b.height*d)}
+  function draw(t){if(!c.width)size();const W=c.width,H=c.height,u=W/1600;g.clearRect(0,0,W,H);
+    for(const p of S){const tw=reduced?.6:.5+.5*Math.sin(t*2*Math.PI/p.per+p.ph),a=p.max*(.25+.75*tw*tw);
+      g.globalAlpha=a;g.fillStyle=p.warm?'#ffe2b8':'#e8eeff';g.beginPath();g.arc(p.x*W,p.y*H,p.s*u,0,6.283);g.fill();
+      if(p.glint&&tw>.92){const k=(tw-.92)/.08,l=p.s*u*5*k;g.globalAlpha=a*.7*k;g.strokeStyle=g.fillStyle;g.lineWidth=.6*u;g.beginPath();g.moveTo(p.x*W-l,p.y*H);g.lineTo(p.x*W+l,p.y*H);g.moveTo(p.x*W,p.y*H-l);g.lineTo(p.x*W,p.y*H+l);g.stroke()}}
+    g.globalAlpha=1}
+  addEventListener('resize',()=>{size();if(on)draw(performance.now()/1000)});
+  (function loop(now){requestAnimationFrame(loop);if(on)draw(now/1000)})(performance.now());
+  return {set(v){on=v;if(v){size();draw(performance.now()/1000)}},draw};
+})();
 
 /* ── D: 키노트 슬라이드 순환 (한 장 5.5초) ── */
 let kTimer=null,kIdx=-1;
