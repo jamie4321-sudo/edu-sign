@@ -738,6 +738,23 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 .v-pop .k4{--x:18px;--y:-26px;--r:-220deg;animation-delay:2.1s}
 @keyframes knPop{0%{opacity:0;transform:translate(0,0) scale(.4) rotate(0)}8%{opacity:1}45%{transform:translate(calc(var(--x)*.7),var(--y)) scale(1) rotate(calc(var(--r)*.5))}80%{opacity:1}100%{opacity:0;transform:translate(var(--x),4px) scale(.9) rotate(var(--r))}}
 @media (prefers-reduced-motion:reduce){.v-pop .kn{display:none}}
+/* 교육 방향성 C안: 가치 원 + 카드, 원이 차례로 포인트 */
+#edu .cvx{display:grid;grid-template-columns:420px minmax(0,1fr);gap:clamp(32px,4vw,64px);align-items:center;margin-top:36px}
+#edu .venn{position:relative;width:420px;height:350px}
+#edu .vc{position:absolute;width:210px;height:210px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(191,240,0,.18);color:var(--ink);transition:background-color .6s ease,color .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+#edu .vc small{font-size:11px;font-weight:800;letter-spacing:.12em;opacity:.75}
+#edu .vc b{font-size:22px;font-weight:900;letter-spacing:-.03em;line-height:1.2;margin-top:2px}
+#edu .v1{left:10px;top:0}
+#edu .v2{left:200px;top:0}
+#edu .v3{left:105px;top:140px}
+#edu .vc.pt{background:rgba(191,240,0,.92);color:#0B0B0C;transform:scale(1.06);z-index:2}
+#edu .cards4{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#edu .cards4 > div{background:rgba(255,255,255,.045);border-radius:22px;padding:24px 26px}
+#edu .cards4 small{font-size:12.5px;font-weight:700;color:var(--ink-3)}
+#edu .cards4 b{display:block;font-size:22px;font-weight:900;letter-spacing:-.03em;margin:6px 0 10px}
+#edu .cards4 .tags{gap:4px 14px;margin-top:0}
+#edu .cards4 .tags span{border:0;background:none;padding:0;min-height:0;border-radius:0;font-size:14px;font-weight:600;color:var(--ink-2)}
+@media (max-width:960px){#edu .cvx{grid-template-columns:1fr}#edu .venn{margin:0 auto;transform:scale(.85)}#edu .cards4{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -942,16 +959,18 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
       <div>
         <span class="kicker">Core values</span>
         <div class="edu-head"><h2 class="title edu-t">장애·비장애 크루 통합 <span class="hlt">교육 방향성</span></h2></div>
-        <div class="cv">
-          <div><small>RESPECT</small><b>상호존중</b></div>
-          <div><small>SAFETY</small><b>심리적 안정감</b></div>
-          <div><small>GROWTH</small><b>성장 지향</b></div>
-        </div>
-        <div class="dir">
-          <div><small>01 교육 방향</small><b>존중과 이해</b><div class="tags"><span>#장애유형별_특성_이해</span><span>#수용문화_조성</span></div></div>
-          <div><small>02 교육 방향</small><b>성장 가능성</b><div class="tags"><span>#장애크루_성장지원</span><span>#지속적_방법_고민</span></div></div>
-          <div><small>03 교육 방법</small><b>사례 교육</b><div class="tags"><span>#면담일지_사례화</span><span>#비장애크루_이해교육</span></div></div>
-          <div><small>04 교육 방법</small><b>강점 개발</b><div class="tags"><span>#세심한_관찰</span><span>#개인강점_기반_직무확장</span></div></div>
+        <div class="cvx">
+          <div class="venn" aria-label="핵심 가치: 상호존중, 심리적 안정감, 성장 지향">
+            <div class="vc v1"><small>RESPECT</small><b>상호존중</b></div>
+            <div class="vc v2"><small>SAFETY</small><b>심리적<br>안정감</b></div>
+            <div class="vc v3"><small>GROWTH</small><b>성장 지향</b></div>
+          </div>
+          <div class="cards4">
+            <div><small>01 교육 방향</small><b>존중과 이해</b><div class="tags"><span>#장애유형별_특성_이해</span><span>#수용문화_조성</span></div></div>
+            <div><small>02 교육 방향</small><b>성장 가능성</b><div class="tags"><span>#장애크루_성장지원</span><span>#지속적_방법_고민</span></div></div>
+            <div><small>03 교육 방법</small><b>사례 교육</b><div class="tags"><span>#면담일지_사례화</span><span>#비장애크루_이해교육</span></div></div>
+            <div><small>04 교육 방법</small><b>강점 개발</b><div class="tags"><span>#세심한_관찰</span><span>#개인강점_기반_직무확장</span></div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1242,6 +1261,16 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
     function run(){if(t)return;i=0;show();t=setInterval(function(){i=(i+1)%st.length;show();},1600);}
     function stop(){clearInterval(t);t=null;i=0;show();}
     new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)run();else stop();})},{threshold:.3}).observe(document.getElementById('edu-prog'));
+  })();
+
+  // 교육 방향성: 가치 원이 하나씩 라임 포인트
+  (function(){
+    var vs=[].slice.call(document.querySelectorAll('#edu .vc'));if(!vs.length)return;
+    var i=0,t=null;function show(){vs.forEach(function(v,j){v.classList.toggle('pt',j===i)});}
+    if(reduce){show();return;}
+    function run(){if(t)return;i=0;show();t=setInterval(function(){i=(i+1)%vs.length;show();},1600);}
+    function stop(){clearInterval(t);t=null;vs.forEach(function(v){v.classList.remove('pt')});}
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)run();else stop();})},{threshold:.3}).observe(document.getElementById('edu'));
   })();
 
   // 넘버스 도입 전/후
