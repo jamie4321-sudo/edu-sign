@@ -689,6 +689,16 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 .vlist{position:relative}
 .v-pop{position:absolute;right:4px;bottom:100%;width:92px;height:auto;margin-bottom:-2px;pointer-events:none}
 @media (max-width:640px){.v-pop{width:64px}}
+/* 채용 재배치: 왼쪽 필요 역량+면접 / 오른쪽 기본 역량 */
+.hire-grid.hg2{grid-template-columns:1fr 1fr;gap:20px;align-items:stretch;margin-top:36px}
+.hire-left{display:flex;flex-direction:column;gap:20px}
+.hire-left .hire-snack{flex:1}
+.hire-right{background:rgba(255,255,255,.045);border-radius:var(--r-lg);padding:24px 24px 18px;display:flex;flex-direction:column}
+.hire-right .hi-h{margin-bottom:12px}
+.hb2{border-top:0;display:flex;flex-direction:column;gap:8px;flex:1}
+.hb2 li{border-bottom:0;background:rgba(255,255,255,.045);border-radius:14px;padding:14px 16px;flex:1;align-items:center}
+.hire-left .hire-iv li:not(.arr){padding:20px 22px}
+@media (max-width:960px){.hire-grid.hg2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -939,8 +949,8 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
       </div>
     </div>
 
-    <div class="hire-grid">
-      <div class="hire-who">
+    <div class="hire-grid hg2">
+      <div class="hire-left">
         <div class="hire-snack">
           <span class="hs-tag">스낵큐레이션</span>
           <h3>이런 역량이 필요해요</h3>
@@ -949,23 +959,24 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
             <div><b>서로 배려하는 마음</b><p>함께 쓰는 창고 공간에서 동료를 배려할 수 있어야 해요.</p></div>
           </div>
         </div>
-        <h3 style="margin-top:30px">기본 역량</h3>
-        <ul class="hire-basic">
+        <div class="hire-how">
+          <h3 class="hi-h">2단계 면접 프로세스</h3>
+          <ol class="hire-iv">
+            <li><small>STEP 01</small><b>구두 면접</b></li>
+            <li class="arr" aria-hidden="true">→</li>
+            <li><small>STEP 02</small><b>실기 면접</b></li>
+          </ol>
+        </div>
+      </div>
+      <div class="hire-right">
+        <h3 class="hi-h">기본 역량</h3>
+        <ul class="hire-basic hb2">
           <li><b>출퇴근</b>혼자 버스나 지하철로 올 수 있어요</li>
           <li><b>체력</b>서서 움직이고 박스를 옮길 수 있어요</li>
           <li><b>위생</b>손을 씻고 위생 규칙을 지킬 수 있어요</li>
           <li><b>연락</b>휴대폰으로 카톡 메시지와 사진을 보낼 수 있어요</li>
           <li><b>소통</b>모르는 게 있으면 물어볼 수 있어요</li>
         </ul>
-      </div>
-
-      <div class="hire-how">
-        <h3 class="hi-h">2단계 면접 프로세스</h3>
-        <ol class="hire-iv">
-          <li><small>STEP 01</small><b>구두 면접</b></li>
-          <li class="arr" aria-hidden="true">→</li>
-          <li><small>STEP 02</small><b>실기 면접</b></li>
-        </ol>
       </div>
     </div>
   </div>
