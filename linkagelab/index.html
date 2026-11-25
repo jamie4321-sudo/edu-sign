@@ -711,6 +711,10 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 @media (prefers-reduced-motion:reduce){.ramen-x .rx2{animation:none}}
 .kk-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .kk-badge{flex:none;display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:#FEE500;color:#191919;font-size:14px;font-weight:900;letter-spacing:-.03em;line-height:1}
+/* 팝콘 캐릭터: 아주 살짝 흔들 */
+.v-pop{transform-origin:50% 100%;animation:vPop 3.2s ease-in-out infinite}
+@keyframes vPop{0%,100%{transform:rotate(0) translateY(0)}25%{transform:rotate(-2deg) translateY(-1px)}50%{transform:rotate(0) translateY(-2px)}75%{transform:rotate(2deg) translateY(-1px)}}
+@media (prefers-reduced-motion:reduce){.v-pop{animation:none}}
 </style>
 </head>
 <body>
