@@ -596,6 +596,82 @@ body.presenting .close{justify-content:center}
 .years-26{border-top:0;margin-top:28px}
 .years-26 .yr.now{margin-top:0}
 body.presenting .years-26{display:block}
+
+/* 장애유형 그래프 모션 */
+.big-num .bn{display:inline-block;min-width:1.2em;transform-origin:50% 80%}
+.big-num .bn.roll{filter:blur(1.5px);opacity:.85}
+.big-num .bn.land{animation:bnLand .6s cubic-bezier(.2,1.4,.4,1)}
+@keyframes bnLand{0%{transform:scale(1.18);color:#BFF000}60%{color:#BFF000}100%{transform:scale(1);color:inherit}}
+#crew.anim .types div{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+#crew.anim .biz .bar i{transform:scaleX(0);transform-origin:left center;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+#crew.anim .biz > div{opacity:.35;transition:opacity .6s ease}
+#crew.anim.play .types div{opacity:1;transform:none}
+#crew.anim.play .biz .bar i{transform:scaleX(1)}
+#crew.anim.play .biz > div{opacity:1}
+#crew .types div:nth-child(2){transition-delay:.06s}#crew .types div:nth-child(3){transition-delay:.12s}#crew .types div:nth-child(4){transition-delay:.18s}
+#crew .types div:nth-child(5){transition-delay:.24s}#crew .types div:nth-child(6){transition-delay:.3s}#crew .types div:nth-child(7){transition-delay:.36s}#crew .types div:nth-child(8){transition-delay:.42s}
+#crew .biz > div:nth-child(1) i,#crew .biz > div:nth-child(1){transition-delay:.5s}
+#crew .biz > div:nth-child(2) i,#crew .biz > div:nth-child(2){transition-delay:.62s}
+#crew .biz > div:nth-child(3) i,#crew .biz > div:nth-child(3){transition-delay:.74s}
+#crew .biz > div:nth-child(4) i,#crew .biz > div:nth-child(4){transition-delay:.86s}
+#crew .biz > div:nth-child(5) i,#crew .biz > div:nth-child(5){transition-delay:.98s}
+#crew .biz > div:nth-child(6) i,#crew .biz > div:nth-child(6){transition-delay:1.1s}
+
+/* 통합 교육 방향성: 선 없이 면으로 */
+#edu .cv{gap:clamp(20px,4vw,56px);margin-top:40px;grid-template-columns:repeat(3,auto);justify-content:start}
+#edu .cv div{background:none;border:0;padding:0;border-radius:0}
+#edu .cv small{color:var(--accent);font-size:12px;letter-spacing:.12em}
+#edu .cv b{font-size:clamp(1.6rem,3vw,2.3rem);margin-top:6px;letter-spacing:-.04em}
+#edu .dir{gap:12px;margin-top:40px}
+#edu .dir div{border-top:0;padding-top:0}
+#edu .dir > div{padding:24px 26px;border-radius:22px;background:rgba(255,255,255,.045)}
+#edu .dir small{color:var(--ink-3);font-size:12.5px}
+#edu .dir b{font-size:21px;margin:6px 0 10px;letter-spacing:-.03em}
+#edu .dir .tags{gap:4px 14px;margin-top:0}
+#edu .dir .tags span{border:0;background:none;padding:0;min-height:0;border-radius:0;font-size:14px;font-weight:600;color:var(--ink-2)}
+#edu-prog .prog-2 > div{border:0;background:rgba(255,255,255,.045);border-radius:22px;min-width:0}
+#edu-prog .prog-2 small{color:var(--accent);font-size:15px;letter-spacing:-.01em}
+#edu-prog .prog-2 h4,#edu-prog .prog-2 p{overflow-wrap:break-word;word-break:keep-all}
+#edu-prog .prog-2 p{margin-top:14px;line-height:1.55}
+#edu-prog .prog-2 p b{display:block;font-size:16.5px;margin-bottom:2px}
+#edu-prog .steps5{border:0;border-radius:0;overflow:visible;gap:8px}
+#edu-prog .steps5 div{border:0!important;border-radius:16px;background:rgba(255,255,255,.045)}
+#edu-prog .steps5 div.pt{background:var(--accent)}
+
+/* 발표 모드: 2026 연혁 = 팝업 */
+body.presenting main > section#history-2026{position:fixed;inset:0;z-index:80;height:auto;background:rgba(0,0,0,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s ease,visibility 0s linear .35s}
+body.presenting main > section#history-2026.pop{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .35s ease}
+body.presenting #history-2026 > .sl-fit{transform:translateY(40px) scale(.94);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.25,1.1),opacity .4s ease}
+body.presenting #history-2026.pop > .sl-fit{transform:none;opacity:1}
+body.presenting #history-2026 .wrap{max-width:1040px;background:var(--bg-2);border:1.5px solid var(--line-2);border-radius:28px;padding:40px 44px;box-shadow:0 40px 120px rgba(0,0,0,.6)}
+body.presenting #history-2026 .years-26{border-top:0}
+body.presenting #history-2026 .yr.now{margin-top:18px}
+body.presenting #history-2026 .y26 .g{opacity:0;transform:translateY(12px);transition:opacity .45s ease,transform .5s cubic-bezier(.2,.8,.2,1)}
+body.presenting #history-2026.pop .y26 .g{opacity:1;transform:none}
+body.presenting #history-2026.pop .y26 .g:nth-child(1){transition-delay:.2s}
+body.presenting #history-2026.pop .y26 .g:nth-child(2){transition-delay:.32s}
+body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
+@media (prefers-reduced-motion: reduce){#crew.anim .types div,#crew.anim .biz .bar i,#crew.anim .biz > div,body.presenting #history-2026 > .sl-fit,body.presenting #history-2026 .y26 .g{transition:none!important}}
+
+/* 채용: 2단계 면접 · 박람회 한 장 */
+.hire-how .hi-h{font-size:19px;font-weight:900;letter-spacing:-.02em;margin-bottom:14px}
+.hire-iv{list-style:none;display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+.hire-iv li:not(.arr){background:rgba(255,255,255,.045);border-radius:22px;padding:28px 26px}
+.hire-iv li:last-child{background:var(--accent);color:#0B0B0C}
+.hire-iv small{display:block;font-size:12.5px;font-weight:800;letter-spacing:.08em;color:var(--accent)}
+.hire-iv li:last-child small{color:#2A2A2E}
+.hire-iv b{display:block;font-size:clamp(1.5rem,2.6vw,2rem);font-weight:900;letter-spacing:-.04em;margin-top:6px}
+.hire-iv .arr{font-size:28px;font-weight:900;color:var(--ink-3)}
+.fair-grid{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:clamp(28px,4vw,56px);margin-top:40px;align-items:start}
+.fair-pic{margin:0}
+.fair-pic .fp-photo{width:100%;max-width:400px;margin-bottom:10px}
+.fair-pic figcaption{font-size:14px;font-weight:700;color:var(--ink-3)}
+.fk-label{display:block;font-size:14px;font-weight:800;color:var(--accent);margin-bottom:12px}
+.fk-grid{gap:14px!important}
+.fk-grid .ht-shot{opacity:1}
+@media (max-width:960px){.fair-grid{grid-template-columns:1fr}.hire-iv{grid-template-columns:1fr}.hire-iv .arr{transform:rotate(90deg);justify-self:center}}
+.bench-pic{position:relative}
+.pic-cap{position:absolute;left:14px;bottom:14px;display:inline-flex;align-items:center;min-height:32px;padding:0 14px;border-radius:999px;background:rgba(11,11,12,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:14px;font-weight:800;pointer-events:none}
 </style>
 </head>
 <body>
@@ -644,7 +720,7 @@ body.presenting .years-26{display:block}
       <div>
         <span class="kicker">복지큐레이션센터</span>
         <h2 class="title">다양한 장애유형과 함께합니다</h2>
-        <div class="big-num" style="margin-top:28px">63<small>%</small></div>
+        <div class="big-num" style="margin-top:28px"><span class="bn" id="bigNum" data-to="63">63</span><small>%</small></div>
         <p class="big-cap">장애크루 <span>· 장애 82명 (63%) · 비장애 48명 (37%)</span></p>
         <div class="types">
           <div><b>8</b><span>장애유형</span></div>
@@ -822,8 +898,8 @@ body.presenting .years-26{display:block}
     <div class="prog">
       <h3>대상별 체계적 교육 및 다층 면담 프로세스</h3>
       <div class="prog-2">
-        <div><small>비장애크루 대상 교육</small><h4>장애 이해와 협업 역량 강화</h4><p><b>01 단계별 역량교육</b> — 전공·현장 경험과 무관하게 이해부터 실무 역량까지 단계적 습득</p><p><b>02 실제 현장 사례 교육</b> — 현장 사례를 중심으로 구체적인 소통 방법 및 지원 방향 학습</p></div>
-        <div><small>장애크루 대상 교육</small><h4>직장생활 기본기와 동료 소통</h4><p><b>01 발달장애크루 중심 운영</b> — 발달장애크루 비율이 높은 현장 특성을 반영한 맞춤형 교육 운영</p><p><b>02 장애유형·개인 특성별 조정</b> — 시각·청각 등 다양한 장애유형과 개인 특성에 맞춘 유연한 교육</p></div>
+        <div><small>비장애크루 대상 교육</small><h4>장애 이해와 협업 역량 강화</h4><p><b>01 단계별 역량교육</b>전공·현장 경험과 무관하게 이해부터 실무 역량까지 단계적 습득</p><p><b>02 실제 현장 사례 교육</b>현장 사례를 중심으로 구체적인 소통 방법 및 지원 방향 학습</p></div>
+        <div><small>장애크루 대상 교육</small><h4>직장생활 기본기와 동료 소통</h4><p><b>01 발달장애크루 중심 운영</b>발달장애크루 비율이 높은 현장 특성을 반영한 맞춤형 교육 운영</p><p><b>02 장애유형·개인 특성별 조정</b>시각·청각 등 다양한 장애유형과 개인 특성에 맞춘 유연한 교육</p></div>
       </div>
       <p class="note" style="font-size:15px;margin-top:28px">SUPPORT PROCESS · 현장 밀착형 5단계 지원 및 다층 면담 체계</p>
       <div class="steps5">
@@ -844,7 +920,6 @@ body.presenting .years-26{display:block}
       <div>
         <span class="kicker">Hiring</span>
         <h2 class="title">장애 크루 채용</h2>
-        <p class="hire-one">패드로 10분, 구두 면접</p>
       </div>
     </div>
 
@@ -869,13 +944,25 @@ body.presenting .years-26{display:block}
       </div>
 
       <div class="hire-how">
-      
-      <div class="hire-tool fair-peek">
-        <span class="fp-label">2026년 성남장애인일자리 박람회</span>
-        <button class="zoom fp-photo" type="button" aria-label="박람회 사진 크게 보기"><img src="img/fair-2026.jpg" width="318" height="167" alt="2026년 성남장애인일자리 박람회 현장" loading="lazy"></button>
-        <span class="fp-sub">현장에서 쓴 면접 화면</span>
-        <div class="ht-thumbs"><button class="ht-shot zoom" type="button" aria-label="직무 고르기 화면 크게 보기"><img src="img/kit-step1.jpg" width="1180" height="750" alt="채용 키트 직무 고르기 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="개인정보 동의 화면 크게 보기"><img src="img/kit-step2.jpg" width="1180" height="750" alt="채용 키트 개인정보 동의 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="근무 시간 안내 화면 크게 보기"><img src="img/kit-step3.jpg" width="1180" height="750" alt="채용 키트 근무 시간 안내 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="역량 체크 화면 크게 보기"><img src="img/kit-step4.jpg" width="1180" height="750" alt="채용 키트 역량 체크 화면" loading="lazy"></button></div>
+        <h3 class="hi-h">2단계 면접 프로세스</h3>
+        <ol class="hire-iv">
+          <li><small>STEP 01</small><b>구두 면접</b></li>
+          <li class="arr" aria-hidden="true">→</li>
+          <li><small>STEP 02</small><b>실기 면접</b></li>
+        </ol>
       </div>
+    </div>
+  </div>
+</section>
+
+<section id="hiring-fair">
+  <div class="wrap">
+    <span class="kicker">Job fair</span>
+    <h2 class="title">2026년 성남장애인일자리 박람회</h2>
+    <div class="fair-grid">
+      <figure class="fair-pic"><button class="zoom fp-photo" type="button" aria-label="박람회 사진 크게 보기"><img src="img/fair-2026.jpg" width="318" height="167" alt="2026년 성남장애인일자리 박람회 현장" loading="lazy"></button><figcaption>박람회 현장</figcaption></figure>
+      <div class="fair-kit"><span class="fk-label">현장에서 쓴 면접 화면</span>
+        <div class="ht-thumbs fk-grid"><button class="ht-shot zoom" type="button" aria-label="직무 고르기 화면 크게 보기"><img src="img/kit-step1.jpg" width="1180" height="750" alt="채용 키트 직무 고르기 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="개인정보 동의 화면 크게 보기"><img src="img/kit-step2.jpg" width="1180" height="750" alt="채용 키트 개인정보 동의 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="근무 시간 안내 화면 크게 보기"><img src="img/kit-step3.jpg" width="1180" height="750" alt="채용 키트 근무 시간 안내 화면" loading="lazy"></button><button class="ht-shot zoom" type="button" aria-label="역량 체크 화면 크게 보기"><img src="img/kit-step4.jpg" width="1180" height="750" alt="채용 키트 역량 체크 화면" loading="lazy"></button></div>
       </div>
     </div>
   </div>
@@ -962,7 +1049,7 @@ body.presenting .years-26{display:block}
       <div><small>STAGE 03 · 역량 확장</small><h3>대외 활동 참여</h3><p>발달장애기능경기대회 등 외부 활동에 적극 참여하여 직무 외 역량을 확장합니다.</p><div class="f">발달장애기능경기대회 등 외부 도약</div></div>
     </div>
     <div class="bench">
-      <div class="photo zoom"><img src="img/benchmark.jpg" width="1024" height="572" alt="벤치마킹 활동 사진" loading="lazy"></div>
+      <div class="photo zoom bench-pic"><img src="img/benchmark.jpg" width="1024" height="572" alt="성수 팝업 신라면 벤치마킹 사진" loading="lazy"><span class="pic-cap">성수 팝업 - 신라면</span></div>
       <div class="t"><small>BENCHMARKING</small><h3>벤치마킹 활동</h3><p>외부 플래그십 스토어 트렌드 조사를 통한 전문적인 성장 지원</p></div>
     </div>
   </div>
@@ -1053,6 +1140,23 @@ body.presenting .years-26{display:block}
 
   var edu=document.getElementById('edu');new IntersectionObserver(function(es,o){es.forEach(function(e){if(e.isIntersecting){edu.classList.add('in');o.disconnect();}})},{threshold:.2}).observe(edu);
   var duo=document.querySelector('.duo');new IntersectionObserver(function(es,o){es.forEach(function(e){if(e.isIntersecting){duo.classList.add('in');o.disconnect();}})},{threshold:.35}).observe(duo);
+  // 장애유형: 63 숫자 굴리기 + 그래프
+  (function(){
+    var crew=document.getElementById('crew'),bn=document.getElementById('bigNum');if(!crew||!bn||reduce)return;
+    var to=+bn.dataset.to,tb=[].slice.call(crew.querySelectorAll('.types b')),tbv=tb.map(function(b){return +b.textContent});
+    crew.classList.add('anim');var timer=null,raf2=null;
+    function reset(){clearTimeout(timer);cancelAnimationFrame(raf2);crew.classList.remove('play');bn.classList.remove('land','roll');bn.textContent='00';tb.forEach(function(b){b.textContent='0'});}
+    function play(){
+      reset();void crew.offsetWidth;crew.classList.add('play');
+      var t0=performance.now(),D=1500;bn.classList.add('roll');
+      (function tick(){var k=(performance.now()-t0)/D;if(k>=1){bn.classList.remove('roll');bn.textContent=to;bn.classList.add('land');return;}
+        var n;do{n=10+Math.floor(Math.random()*90)}while(n===to);bn.textContent=n;timer=setTimeout(tick,40+Math.pow(k,2.2)*220);})();
+      var c0=performance.now()+250;(function cnt(now){var k=Math.min(1,Math.max(0,(now-c0)/1100)),e=1-Math.pow(1-k,3);tb.forEach(function(b,i){b.textContent=Math.round(tbv[i]*e)});if(k<1)raf2=requestAnimationFrame(cnt);})(performance.now());
+    }
+    reset();
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>=.4){if(!crew.classList.contains('play'))play();}else if(e.intersectionRatio===0){reset();}})},{threshold:[0,.45]}).observe(crew);
+  })();
+
   // 넘버스 도입 전/후
   var seg=[].slice.call(document.querySelectorAll('.seg button')),panes=[].slice.call(document.querySelectorAll('.case .pane'));
   var txt={before:['A4 월 약 540장','수작업으로 인한 비효율: 한 달 체크리스트 A4 사용량 약 540장'],after:['A4 월 0장 제로화','종이 낭비 제로, 데이터 입력을 통한 신속하고 정확한 재고 파악 가능']};
@@ -1096,6 +1200,7 @@ body.presenting .years-26{display:block}
       var vh=innerHeight, list=[];
       document.querySelectorAll('main > section').forEach(function(sec){
         var top=sec.getBoundingClientRect().top+scrollY, h=sec.offsetHeight;
+        if(on && sec.id==='history-2026')return;
         list.push(top);
         if(on && sec.id==='snack'){ sec.querySelectorAll('.ch').forEach(function(c,i){ if(i===0)return; var r=c.getBoundingClientRect(); list.push(Math.round(r.top+scrollY+r.height/2-vh/2)); }); return; }
         if(!on && h>vh*1.15){ for(var y=top+vh*0.85; y<top+h-vh*0.9; y+=vh*0.85) list.push(Math.round(y)); }
@@ -1114,8 +1219,20 @@ body.presenting .years-26{display:block}
       (function step(now){var k=dur?Math.min(1,(now-t0)/dur):1;var e=1-Math.pow(1-k,4);scrollTo(0,from+(to-from)*e);if(k<1){raf=requestAnimationFrame(step);}else{raf=null;target=null;document.documentElement.style.scrollBehavior='';sync();}})(t0);
       sync();
     }
-    function next(){go((target!=null?target:idxNow())+1)}
-    function prev(){var i=(target!=null?target:idxNow());if(target==null&&scrollY>stops[i]+12){go(i);}else{go(i-1);}}
+    // 2026 연혁 팝업
+    var h26=document.getElementById('history-2026'),hist=document.getElementById('history');
+    function popOpen(){return h26.classList.contains('pop')}
+    function setPop(v){h26.classList.toggle('pop',v);h26.setAttribute('aria-hidden',v?'false':'true');}
+    function atHist(){var i=(target!=null?target:idxNow());return Math.abs(stops[i]-(hist.getBoundingClientRect().top+scrollY))<60;}
+    h26.setAttribute('aria-hidden','true');
+    function next(){
+      if(on&&popOpen()){setPop(false);go((target!=null?target:idxNow())+1);return;}
+      if(on&&target==null&&atHist()){setPop(true);return;}
+      go((target!=null?target:idxNow())+1)
+    }
+    addEventListener('scroll',function(){if(popOpen()&&target==null&&!atHist())setPop(false);},{passive:true});
+    addEventListener('keydown',function(e){if(e.key==='Escape'&&popOpen())setPop(false);});
+    function prev(){if(on&&popOpen()){setPop(false);return;}var i=(target!=null?target:idxNow());if(target==null&&scrollY>stops[i]+12){go(i);}else{go(i-1);}}
     function isUI(el){return el&&el.closest&&el.closest('a,button,input,textarea,select,label,[role="button"],.zoom,.lb,.present-hud,.seg')}
     document.addEventListener('click',function(e){if(!on||e.button!==0||isUI(e.target))return;if(String(getSelection())!=='')return;next();});
     addEventListener('keydown',function(e){
@@ -1129,7 +1246,7 @@ body.presenting .years-26{display:block}
       else if(k==='Home'){e.preventDefault();go(0);}
       else if(k==='End'){e.preventDefault();go(stops.length-1);}
     });
-    tog.addEventListener('click',function(){on=!on;tog.setAttribute('aria-pressed',on?'true':'false');tog.textContent=on?'발표 모드':'발표 모드 꺼짐';document.body.classList.toggle('presenting',on);build();});
+    tog.addEventListener('click',function(){on=!on;tog.setAttribute('aria-pressed',on?'true':'false');tog.textContent=on?'발표 모드':'발표 모드 꺼짐';setPop(false);document.body.classList.toggle('presenting',on);build();});
     wrapAll();
     document.body.classList.add('presenting');
     addEventListener('scroll',function(){if(target==null)sync();},{passive:true});
