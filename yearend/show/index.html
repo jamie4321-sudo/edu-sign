@@ -90,6 +90,27 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vc .scan{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#fff0 0,#ffffff08 50%,#fff0 100%);background-size:100% 16cqh;animation:scan 7s linear infinite;mix-blend-mode:screen}
 @keyframes scan{to{background-position:0 16cqh}}
 
+/* ───────── D · 키노트 ───────── */
+#vd{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%)}
+#vd .glow{position:absolute;left:50%;bottom:-38cqh;width:120cqw;height:70cqh;transform:translateX(-50%);background:radial-gradient(closest-side,#ff9f4a26,#3ddc8414 55%,#0000);filter:blur(2cqw);animation:breathe 9s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.55;transform:translateX(-50%) scale(1.06)}}
+#vd .slide{position:absolute;inset:0;display:grid;place-content:center;text-align:center;opacity:0;pointer-events:none}
+#vd .slide.in{animation:kIn 1.4s var(--ease-out) .8s both}
+#vd .slide.out{animation:kOut .7s ease-in both}
+@keyframes kIn{from{opacity:0;filter:blur(1.2cqw);transform:scale(1.04)}to{opacity:1;filter:blur(0);transform:none}}
+@keyframes kOut{from{opacity:1;filter:blur(0)}to{opacity:0;filter:blur(.8cqw);transform:scale(.985)}}
+#vd .hero{font-weight:900;font-size:21cqw;letter-spacing:-.06em;line-height:.9;margin:0;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em}
+#vd .say{font-weight:800;font-size:6.6cqw;letter-spacing:-.045em;line-height:1.12;margin:0}
+#vd .say em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#vd .lock{font-weight:800;font-size:9.6cqw;letter-spacing:-.05em;line-height:1;margin:0}
+#vd .lock .amp{color:var(--grey);font-weight:400}
+#vd .cap{margin:2.2cqw 0 0;font-size:2.2cqw;font-weight:500;color:var(--grey);letter-spacing:-.02em}
+#vd .cap b{color:#f5f5f7;font-weight:700}
+#vd .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
+#vd .dots{position:absolute;left:50%;bottom:10.5cqh;transform:translateX(-50%);display:flex;gap:.7cqw}
+#vd .dots i{width:.5cqw;height:.5cqw;border-radius:50%;background:#3a3a3e;transition:background .4s,width .4s var(--ease-out)}
+#vd .dots i.on{background:#f5f5f7;width:1.8cqw;border-radius:1cqw}
+
 /* 운영 패널 */
 #panel{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:20;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;padding:8px;border-radius:14px;background:#111114ee;border:1px solid #ffffff1f;box-shadow:0 12px 40px #0009;font-family:"Kakao Big Sans","Malgun Gothic",sans-serif;max-width:calc(100vw - 20px);transition:opacity .2s}
 #panel.hide{opacity:0;pointer-events:none}
@@ -106,6 +127,17 @@ body.clean{cursor:none}
 <body>
 <main id="show" aria-label="송년회 01 입장 화면 시안">
 <div class="stage">
+
+<!-- D -->
+<section class="v" id="vd" aria-label="D안 키노트">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="slide"><h1 class="hero">2026.</h1></div>
+  <div class="slide"><p class="say">올해도,<br><em>함께여서</em> 가능했습니다.</p></div>
+  <div class="slide"><div><h1 class="lock">SNACK <span class="amp">&amp;</span> GARDEN</h1><p class="cap">2026 송년회 · <b>12.04 FRI 17:00</b></p></div></div>
+  <div class="slide"><div><p class="say">Welcome.</p><p class="cap">웰컴 드링크 받고, 편하게 앉아 주세요.</p></div></div>
+  <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="foot">LINKAGELAB</div>
+</section>
 
 <!-- A -->
 <section class="v" id="va" aria-label="A안 리소 포스터">
@@ -155,6 +187,7 @@ body.clean{cursor:none}
 </main>
 
 <nav id="panel" aria-label="시안 선택">
+  <button data-v="d">D 키노트 (4)</button>
   <button data-v="a">A 리소 포스터 (1)</button>
   <button data-v="b">B 크롬 홀로그램 (2)</button>
   <button data-v="c">C LED 전광판 (3)</button>
@@ -173,7 +206,7 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ── 시안 전환 ── */
 let cur='';
 function show(v){
-  if(!['a','b','c'].includes(v))v='a';
+  if(!['a','b','c','d'].includes(v))v='d';
   if(v===cur)return;cur=v;
   document.querySelectorAll('.v').forEach(s=>{
     const on=s.id==='v'+v;s.classList.toggle('on',on);
@@ -184,6 +217,23 @@ function show(v){
   document.querySelectorAll('#panel [data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
   history.replaceState(null,'','#'+v);
   led.active=v==='c';
+  keynote(v==='d');
+}
+
+/* ── D: 키노트 슬라이드 순환 (한 장 5.5초) ── */
+let kTimer=null,kIdx=-1;
+function keynote(on){
+  clearTimeout(kTimer);
+  const slides=[...document.querySelectorAll('#vd .slide')],dots=[...document.querySelectorAll('#vd .dots i')];
+  if(!on){slides.forEach(s=>s.className='slide');kIdx=-1;return}
+  const step=()=>{
+    if(kIdx>=0){const o=slides[kIdx];o.className='slide out';setTimeout(()=>{if(o.classList.contains('out'))o.className='slide'},760)}
+    kIdx=(kIdx+1)%slides.length;
+    const s=slides[kIdx];s.className='slide';void s.offsetWidth;s.className='slide in';
+    dots.forEach((d,i)=>d.classList.toggle('on',i===kIdx));
+    kTimer=setTimeout(step,kIdx===0?4200:5500);
+  };
+  step();
 }
 document.querySelectorAll('#panel [data-v]').forEach(b=>b.onclick=()=>show(b.dataset.v));
 
@@ -269,9 +319,9 @@ async function fullscreen(){try{document.fullscreenElement?await document.exitFu
 $('#fs').onclick=fullscreen;$('#hd').onclick=togglePanel;
 addEventListener('dblclick',e=>{if(!e.target.closest('#panel'))togglePanel()});
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();
-  if(k==='1')show('a');else if(k==='2')show('b');else if(k==='3')show('c');
+  if(k==='4')show('d');else if(k==='1')show('a');else if(k==='2')show('b');else if(k==='3')show('c');
   else if(k==='f'||k==='ㄹ'){e.preventDefault();fullscreen()}else if(k==='h'||k==='ㅗ')togglePanel();});
-show(location.hash.slice(1)||'a');
+show(location.hash.slice(1)||'d');
 </script>
 </body>
 </html>
