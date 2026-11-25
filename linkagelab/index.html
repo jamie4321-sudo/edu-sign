@@ -722,6 +722,11 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 #edu-prog .steps5 div{transition:background-color .5s ease,color .5s ease}
 #edu-prog .steps5 div small{transition:color .5s ease}
 .metric b .hlt{display:inline;font:inherit;color:inherit;letter-spacing:inherit;margin:0}
+/* 마지막 장 QR: 양쪽으로 더 크게 */
+#contact .qrs{gap:clamp(56px,12vw,180px);margin-top:44px}
+#contact .qr{width:240px;padding:16px}
+#contact .qr b{font-size:16px}
+@media (max-width:640px){#contact .qrs{gap:16px}#contact .qr{width:160px}}
 </style>
 </head>
 <body>
@@ -1182,7 +1187,8 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
   // 모먼트 2: 마무리 문장이 단어마다 짙어짐
   var q=document.getElementById('quote');
   var words=q.textContent.trim().split(/\s+/);
-  q.innerHTML=words.map(function(w){return '<span class="w">'+w+'</span>'}).join(' ');
+  var hw=[];for(var wi=0;wi<words.length;wi++){if(words[wi]==='최적의'&&words[wi+1]==='직업재활'){hw.push('<span class="w hlt">최적의 직업재활</span>');wi++;}else hw.push('<span class="w">'+words[wi]+'</span>');}
+  q.innerHTML=hw.join(' ');
   var ws=[].slice.call(q.querySelectorAll('.w'));
   function lit(){var r=q.getBoundingClientRect(),vh=innerHeight;var k=Math.min(1,Math.max(0,(vh*.85-r.top)/(vh*.5)));var n=Math.round(k*ws.length);ws.forEach(function(w,i){w.classList.toggle('lit',reduce||i<n)});}
   addEventListener('scroll',lit,{passive:true});lit();
