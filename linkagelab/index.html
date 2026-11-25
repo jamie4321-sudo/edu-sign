@@ -672,6 +672,20 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 @media (max-width:960px){.fair-grid{grid-template-columns:1fr}.hire-iv{grid-template-columns:1fr}.hire-iv .arr{transform:rotate(90deg);justify-self:center}}
 .bench-pic{position:relative}
 .pic-cap{position:absolute;left:14px;bottom:14px;display:inline-flex;align-items:center;min-height:32px;padding:0 14px;border-radius:999px;background:rgba(11,11,12,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:14px;font-weight:800;pointer-events:none}
+
+/* 마지막 장: 점점 화이트로 · 문장은 블랙으로 */
+#contact{transition:background-color 1.8s ease}
+#contact .kicker,#contact .lead,#contact .thanks,#contact .qr,#contact .qr b{transition:color 1.4s ease,background-color 1.4s ease,border-color 1.4s ease}
+#contact.light{background:#FAFAF7}
+#contact.light .close-pic img{filter:none}
+#contact.light .kicker{color:#0B0B0C}
+#contact.light .kicker::before{background:#0B0B0C}
+#contact.light .lead{color:#55555A}
+#contact.light .thanks{color:#55555A}
+#contact.light .qr{background:#fff;border-color:#E4E4E0}
+#contact.light .qr b{color:#0B0B0C}
+#contact.light blockquote .w{color:#0B0B0C!important;transition:color .5s ease}
+#contact.dim blockquote .w{color:#3A3A3E!important;transition:none}
 </style>
 </head>
 <body>
@@ -684,7 +698,6 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 <!-- 1. 히어로 -->
 <section class="hero" id="top" data-enter>
   <div class="hero-pic"><img src="img/smudge-cafe.jpg" width="1600" height="833" alt="링키지랩 크루 현장 사진" fetchpriority="high"></div>
-  <div class="hero-fact e e4"><b>63%</b><span>장애크루 비율</span></div>
   <div class="wrap">
     <h1 class="e">카카오의 자회사형<br><em>장애인 표준사업장</em>,<br>링키지랩</h1>
     <div class="hero-row">
@@ -1155,6 +1168,17 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
     }
     reset();
     new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>=.4){if(!crew.classList.contains('play'))play();}else if(e.intersectionRatio===0){reset();}})},{threshold:[0,.45]}).observe(crew);
+  })();
+
+  // 마지막 장: 배경 화이트 → 문장 한 단어씩 블랙
+  (function(){
+    var c=document.getElementById('contact');if(!c)return;
+    var ws=[].slice.call(c.querySelectorAll('blockquote .w'));
+    ws.forEach(function(w,i){w.style.transitionDelay=(reduce?0:1.1+i*.16)+'s'});
+    new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting&&e.intersectionRatio>=.5){c.classList.add('dim');void c.offsetWidth;c.classList.remove('dim');c.classList.add('light');}
+      else if(e.intersectionRatio===0){c.classList.remove('light');}
+    })},{threshold:[0,.5]}).observe(c);
   })();
 
   // 넘버스 도입 전/후
