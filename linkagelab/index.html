@@ -297,7 +297,8 @@ a.photo:hover img,.zoom:hover img{transform:scale(1.03)}
 .roles span{font-size:14.5px;color:var(--ink-2)}
 .roles .goal{background:var(--accent);border-color:var(--accent);color:#0B0B0C}
 .roles .goal small,.roles .goal span{color:#2A2A2E}
-.skills{margin-top:56px;border-top:1.5px solid var(--ink)}
+.skills{margin-top:56px}
+.skills .skill:first-of-type{border-top:1.5px solid var(--ink)}
 .skill{display:grid;grid-template-columns:60px 220px 1fr;gap:18px;padding:22px 0;border-bottom:1.5px solid var(--line)}
 .skill em{font-style:normal;font-size:15px;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums}
 .skill b{font-size:19px;font-weight:900;letter-spacing:-.02em}
@@ -578,6 +579,23 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
 .fp-sub{font-size:13px!important;color:var(--ink-3)!important}
 .fair-peek .ht-shot{opacity:.92;transition:opacity .2s ease,transform .2s var(--ease)}
 .fair-peek .ht-shot:hover{opacity:1}
+
+/* ===== 발표 모드: 섹션 = 한 장, 화면에 맞춤 ===== */
+body.presenting main > section:not(#snack){height:100svh;min-height:0;padding:0;display:flex;flex-direction:column;justify-content:center;overflow:hidden;scroll-margin-top:0}
+body.presenting main > section > .sl-fit{width:100%;zoom:var(--z,1)}
+body.presenting main > section.hero > .sl-fit{height:100%;display:flex;flex-direction:column;justify-content:flex-end;zoom:1}
+body.presenting .hist{grid-template-columns:1fr;gap:20px}
+body.presenting .hist .side{position:static}
+body.presenting .years{display:grid;grid-template-columns:1fr 1fr;column-gap:40px}
+body.presenting .years .yr.now{grid-column:1/-1}
+body.presenting .years .hist-logo{bottom:auto;top:-62px}
+
+body.presenting .close-pic img{max-height:34svh;width:100%;object-fit:cover;object-position:50% 30%}
+body.presenting .close{justify-content:center}
+@media (max-width:960px){body.presenting .years{grid-template-columns:1fr}}
+.years-26{border-top:0;margin-top:28px}
+.years-26 .yr.now{margin-top:0}
+body.presenting .years-26{display:block}
 </style>
 </head>
 <body>
@@ -666,6 +684,16 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
       <div class="yr"><b>2023</b><ul><li>카카오 스낵큐레이션 업무 시작</li><li>대한민국 일자리 으뜸 기업 선정</li><li>장애인 고용 우수 기업 선정</li></ul></div>
       <div class="yr"><b>2024</b><ul><li>대한민국 일생활균형 우수 기업 선정</li><li>카카오 AI품질 운영</li></ul></div>
       <div class="yr"><b>2025</b><ul><li>일자리 창출 유공 표창 대통령 표창</li><li>청년 미래 내일 일경험 고용노동부 장관 표창</li><li>카카오 조경관리 · 카카오VX 총무지원</li></ul></div>
+      
+    </div>
+  </div>
+</section>
+
+<section id="history-2026">
+  <div class="wrap">
+    <span class="kicker">History</span>
+    <h2 class="title">링키지랩 연혁</h2>
+    <div class="years years-26">
       <div class="yr now"><b>2026</b><div class="y26">
         <div class="g"><span class="tag26">표창</span><ul><li>청년일자리 사회공헌 <em>국무총리 표창</em></li><li>장애인 복지 유공 <em>보건복지부 장관 표창</em></li><li>디지털 접근성 R&amp;D 기여 <em>과학기술정보통신부 장관 표창</em></li></ul></div>
         <div class="g"><span class="tag26">선정</span><ul><li>장애인고용우수사업주 선정</li><li>서울 영커리언스 26년 상반기 우수운영기관<small>오세훈 서울시장 간담회</small></li></ul></div>
@@ -730,8 +758,8 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
     <div class="chapters">
       <div class="ch-pics" aria-hidden="true">
         <div class="pg on"><img class="m" src="img/snack-shelf.jpg" width="1109" height="1400" alt="" style="object-position:50% 40%"><img class="m m2" src="img/bev-crew.jpg" width="1280" height="1570" alt="" style="object-position:50% 30%"></div>
-        <div class="pg"><img class="m" src="img/bev-fridge.jpg" width="1060" height="1003" alt="" style="object-position:50% 50%"></div>
-        <div class="pg"><img class="m" src="img/bev-fridge.jpg" width="1060" height="1003" alt="" style="object-position:50% 50%"></div>
+        <div class="pg"><img class="m" src="img/bev-m2.jpg" width="286" height="348" alt="" style="object-position:50% 40%"></div>
+        <div class="pg"><img class="m" src="img/kep-9.jpg" width="1396" height="959" alt="" style="object-position:60% 50%"></div>
         <div class="pg"><img class="m" src="img/rotation.jpg" width="1015" height="1400" alt="" style="object-position:50% 35%"><img class="m m2" src="img/bev-crew.jpg" width="1280" height="1570" alt="" style="object-position:50% 30%"></div>
         <div class="pg"><img class="m" src="img/buddy.jpg" width="1379" height="1141" alt="" style="object-position:50% 40%"></div>
         <div class="pg"><img class="m" src="img/bev-m3.jpg" width="319" height="388" alt="" style="object-position:50% 40%"><img class="m m2" src="img/bev-after.jpg" width="551" height="817" alt="" style="object-position:50% 50%"></div>
@@ -739,14 +767,19 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
       <div class="ch-steps">
         <article class="ch on" data-pic="0"><span class="no">SYSTEM 01</span><h3>버디 제도</h3><p>비장애 크루가 1~2명을 전담하여 정기 면담으로 역량 성장을 돕습니다.</p><div class="tags"><span>#전담_버디_매칭</span><span>#정기_면담</span><span>#역량_성장</span></div><div class="ch-mini two"><img src="img/snack-shelf.jpg" width="1109" height="1400" alt="간식 진열대를 정리하는 링키지랩 크루" loading="lazy"><img src="img/bev-crew.jpg" width="1280" height="1570" alt="음료 쇼케이스에 간식을 진열하는 링키지랩 크루" loading="lazy" style="object-position:50% 30%"></div></article>
         <article class="ch" data-pic="1"><span class="no">SYSTEM 02</span><h3>로테이션</h3><p>운영방식 (SYSTEM)</p><div class="ch-mini"><img src="img/bev-fridge.jpg" width="1060" height="1003" alt="링키지랩 크루 현장 사진" loading="lazy"></div></article>
-        <article class="ch" data-pic="2"><span class="no">SYSTEM 03</span><h3>품질매니징</h3><p>운영방식 (SYSTEM)</p><div class="ch-mini"><img src="img/bev-fridge.jpg" width="1060" height="1003" alt="음료가 가득 진열된 쇼케이스" loading="lazy"></div></article>
+        <article class="ch" data-pic="2"><span class="no">SYSTEM 03</span><h3>품질매니징</h3><p>운영방식 (SYSTEM)</p><div class="ch-mini"><img src="img/kep-9.jpg" width="1396" height="959" alt="커피머신 화면을 누르는 모습" loading="lazy" style="object-position:60% 50%"></div></article>
         <article class="ch" data-pic="3"><span class="no">ROLE 04</span><h3>간식 인프라 실시간 운영</h3><p>주요 역할 (ROLE)</p><div class="ch-mini two"><img src="img/rotation.jpg" width="1015" height="1400" alt="간식을 카트로 옮기는 링키지랩 크루" loading="lazy" style="object-position:50% 35%"><img src="img/bev-crew.jpg" width="1280" height="1570" alt="음료 쇼케이스에 간식을 진열하는 링키지랩 크루" loading="lazy" style="object-position:50% 30%"></div></article>
         <article class="ch" data-pic="4"><span class="no">ROLE 05</span><h3>장애인 크루와의 협업</h3><p>주요 역할 (ROLE)</p><div class="ch-mini"><img src="img/buddy.jpg" width="1379" height="1141" alt="장애크루와 함께 일하는 링키지랩 크루" loading="lazy" style="object-position:50% 40%"></div></article>
         <article class="ch" data-pic="5"><span class="no">ROLE 06</span><h3>백오피스 물류 및 설비 유지보수</h3><p>주요 역할 (ROLE)</p><div class="ch-mini two"><img src="img/bev-m3.jpg" width="319" height="388" alt="원두를 머신에 넣는 링키지랩 크루" loading="lazy"><img src="img/bev-after.jpg" width="551" height="817" alt="링키지랩 크루 현장 사진" loading="lazy"></div></article>
       </div>
     </div>
 
-    <div class="ramen" style="margin-top:72px">
+  </div>
+</section>
+
+<section id="ramen">
+  <div class="wrap">
+    <div class="ramen">
       <div class="photo zoom"><img src="img/ramen.jpg" width="1600" height="1600" alt="라면존 사진" loading="lazy"></div>
       <div>
         <span class="kicker">Special space</span>
@@ -781,6 +814,11 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<section id="edu-prog" style="background:var(--paper)">
+  <div class="wrap">
     <div class="prog">
       <h3>대상별 체계적 교육 및 다층 면담 프로세스</h3>
       <div class="prog-2">
@@ -855,7 +893,12 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
       <div class="next"><small>NEXT LEVEL</small><b>2026</b><h3>전문성 강화</h3><p>AI 기술 접목을 통한 실무 역량 및 기획력 확장</p><div class="tags"><span>#상품기획</span><span>#콘텐츠제작</span><span>#AI활용기술습득</span><span>#실무전문성강화</span></div></div>
     </div>
 
-    <div class="case">
+  </div>
+</section>
+
+<section id="ai-case">
+  <div class="wrap">
+    <div class="case" style="margin-top:0">
       <div>
         <span class="sub">AI 활용 사례 1</span>
         <h3>진열 수량 기입 어플 ‘넘버스’</h3>
@@ -888,6 +931,13 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
       </div>
     </div>
 
+  </div>
+</section>
+
+<section id="ai-more">
+  <div class="wrap">
+    <span class="kicker">Job deep dive</span>
+    <h2 class="title">AI 활용 사례 2 · 3</h2>
     <div class="duo">
       <div><div class="t"><small>AI 활용 사례 2</small><h3>오아시스 설비 수리 &amp; 자산 관리</h3><p>AI 어플리케이션을 통한 간편한 설비 고장 접수 및 자산 이력 관리</p></div><div class="photo zoom"><img src="img/oasis.jpg" width="1237" height="864" alt="오아시스 설비 수리 & 자산 관리 화면" loading="lazy"></div></div>
       <div class="cart-card"><img class="cart-ride" src="chars/cart.png" width="553" height="625" alt="" aria-hidden="true"><div class="t"><small>AI 활용 사례 3</small><h3>‘카트정리완료시간’</h3><p>업무 완료시간을 장애크루 스스로 입력하여 데이터 누적 관리</p></div><div class="photo zoom"><img src="img/cart-time.jpg" width="709" height="473" alt="카트정리완료시간 화면" loading="lazy"></div></div>
@@ -930,15 +980,26 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
       <div><small>STEP 04</small><b>사업 기여</b><span>기업의 실질적 성과 창출 동참</span></div>
       <div class="goal"><small>GOAL</small><b>자기발전 및 전문성 성장</b><span>비지니스 환경에서의 직업재활 전문가로서의 개인 역량 확장</span></div>
     </div>
-    <div class="skills">
-      <p class="kicker" style="margin:26px 0 6px">Talent fit · 현장에서 활용되는 직업재활 전공 역량</p>
+  </div>
+</section>
+
+<section id="role-skills">
+  <div class="wrap">
+    <div class="skills" style="margin-top:0">
+      <span class="kicker">Talent fit</span>
+      <h2 class="title" style="margin-bottom:26px">현장에서 활용되는<br>직업재활 전공 역량</h2>
       <div class="skill"><em>01</em><b>장애 특성 이해</b><span>같은 발달장애라도 크루마다 알아듣는 방식이 다릅니다. 크루별 특성을 알면 말, 그림, 직접 시범 중 맞는 안내 방법을 고를 수 있습니다.</span></div>
       <div class="skill"><em>02</em><b>긍정적 행동 지원</b><span>크루의 행동에는 이유가 있습니다. 원인을 먼저 살피고, 업무 환경이나 안내 방식을 바꿔 같은 상황이 반복되지 않도록 지원합니다.</span></div>
       <div class="skill"><em>03</em><b>관찰과 기록</b><span>크루의 평소와 다른 모습을 알아차리고 구체적으로 기록하면, 동료들과 함께 같은 방향으로 지원을 이어갈 수 있습니다.</span></div>
       <div class="skill"><em>04</em><b>업무 적응 지원</b><span>입사 초기 적응뿐 아니라 생활이나 동료 관계의 어려움까지 함께 살펴, 크루가 오래 근무할 수 있도록 지원합니다.</span></div>
       <div class="skill"><em>05</em><b>존중과 배려</b><span>동료를 존중하고 바쁜 상황에서도 기본적인 예의를 지키는 태도를 지녀야 합니다.</span></div>
     </div>
-    <h3 class="title" style="font-size:clamp(1.6rem,3vw,2.4rem);margin-top:80px">재활상담사로서의 성장 관점 차이</h3>
+  </div>
+</section>
+
+<section id="role-compare" style="background:var(--paper)">
+  <div class="wrap">
+    <h2 class="title">재활상담사로서의 성장 관점 차이</h2>
     <p class="lead">어느 기관이 우월한 것이 아닌, 개인이 설정한 미래 성장 가치관에 맞추어 선택하는 것이 중요합니다.</p>
     <div class="compare" style="margin-top:28px">
       <div><small>BUSINESS &amp; EMPLOYMENT</small><h3>자회사형 표준사업장</h3><p>기업 운영 특성 이해 및 장애인 근로자의 원활한 <mark>업무 수행 지원</mark></p><p>비즈니스 관점에서의 <mark>자기개발</mark>과 <mark>실질적 일자리 창출</mark> 경험</p></div>
@@ -1011,12 +1072,33 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
     var on=true, stops=[], cur=0, raf=null, target=null;
     var bar=document.getElementById('phBar'), cnt=document.getElementById('phCount'), tog=document.getElementById('phToggle'), hint=document.getElementById('phHint');
     var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function wrapAll(){
+      document.querySelectorAll('main > section').forEach(function(sec){
+        if(sec.querySelector(':scope > .sl-fit'))return;
+        var w=document.createElement('div');w.className='sl-fit';
+        while(sec.firstChild)w.appendChild(sec.firstChild);
+        sec.appendChild(w);
+      });
+    }
+    function fit(){
+      var vh=innerHeight;
+      document.querySelectorAll('main > section').forEach(function(sec){
+        var f=sec.querySelector(':scope > .sl-fit'); if(!f)return;
+        if(!on||sec.classList.contains('hero')||sec.id==='snack'){f.style.removeProperty('--z');return;}
+        f.style.setProperty('--z',1);
+        var h=f.scrollHeight, avail=vh*0.9;
+        var z=Math.min(1, avail/h);
+        f.style.setProperty('--z',Math.max(.45,z).toFixed(3));
+      });
+    }
     function build(){
+      fit();
       var vh=innerHeight, list=[];
       document.querySelectorAll('main > section').forEach(function(sec){
         var top=sec.getBoundingClientRect().top+scrollY, h=sec.offsetHeight;
         list.push(top);
-        if(h>vh*1.15){ for(var y=top+vh*0.85; y<top+h-vh*0.9; y+=vh*0.85) list.push(Math.round(y)); }
+        if(on && sec.id==='snack'){ sec.querySelectorAll('.ch').forEach(function(c,i){ if(i===0)return; var r=c.getBoundingClientRect(); list.push(Math.round(r.top+scrollY+r.height/2-vh/2)); }); return; }
+        if(!on && h>vh*1.15){ for(var y=top+vh*0.85; y<top+h-vh*0.9; y+=vh*0.85) list.push(Math.round(y)); }
       });
       var max=document.documentElement.scrollHeight-vh;
       stops=list.map(function(y){return Math.min(Math.round(y),max)}).filter(function(y,i,a){return i===0||y-a[i-1]>40});
@@ -1047,11 +1129,13 @@ body.presenting a,body.presenting button,body.presenting [role="button"],body.pr
       else if(k==='Home'){e.preventDefault();go(0);}
       else if(k==='End'){e.preventDefault();go(stops.length-1);}
     });
-    tog.addEventListener('click',function(){on=!on;tog.setAttribute('aria-pressed',on?'true':'false');tog.textContent=on?'발표 모드':'발표 모드 꺼짐';document.body.classList.toggle('presenting',on);});
+    tog.addEventListener('click',function(){on=!on;tog.setAttribute('aria-pressed',on?'true':'false');tog.textContent=on?'발표 모드':'발표 모드 꺼짐';document.body.classList.toggle('presenting',on);build();});
+    wrapAll();
     document.body.classList.add('presenting');
     addEventListener('scroll',function(){if(target==null)sync();},{passive:true});
     addEventListener('resize',build);
     addEventListener('load',build);
+    document.querySelectorAll('main img').forEach(function(im){if(!im.complete)im.addEventListener('load',function(){clearTimeout(window.__fitT);window.__fitT=setTimeout(build,120)})});
     build();
     setTimeout(function(){hint.classList.add('hide')},4500);
   })();
