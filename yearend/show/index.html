@@ -217,6 +217,7 @@ body.clean{cursor:none}
   <span class="sep"></span>
   <button data-v="k">02 카운트다운 (2)</button>
   <button id="bgmBtn">음악 켜짐 (B)</button>
+  <button id="cdSongBtn">카운트다운 곡 선택</button><input type="file" id="cdSongFile" accept="audio/*" hidden>
   <button id="songBtn">스칼렛 입장곡 선택</button><input type="file" id="songFile" accept="audio/*" hidden>
   <span class="sep"></span>
   <a href="original.html">원본 보기</a>
@@ -233,6 +234,11 @@ body.clean{cursor:none}
   addEventListener('entrance-ready',label);label();
   btn.onclick=()=>input.click();
   input.onchange=async e=>{const f=e.target.files[0];if(!f)return;await Entrance.pick(f);label();e.target.value=''};
+  const cb=document.getElementById('cdSongBtn'),ci=document.getElementById('cdSongFile');
+  const cl=()=>{cb.textContent=CountSong.name?'카운트다운 곡 ✓':'카운트다운 곡 선택'};
+  addEventListener('countsong-ready',cl);cl();
+  cb.onclick=()=>ci.click();
+  ci.onchange=async e=>{const f=e.target.files[0];if(!f)return;await CountSong.pick(f);cl();e.target.value=''};
 })();
 </script>
 
@@ -266,13 +272,16 @@ const bgm=$('#bgm');let bgmOn=true;
 const cd={on:false,t:0,paused:false,last:0};
 const clamp=x=>Math.max(0,Math.min(1,x)),sm=x=>{x=clamp(x);return x*x*(3-2*x)},eo=x=>1-Math.pow(1-clamp(x),3);
 function setLayer(el,a,blur,scale){el.style.opacity=a.toFixed(3);el.style.filter=blur>.01?`blur(${blur.toFixed(2)}cqw)`:'none';el.style.transform=`scale(${scale.toFixed(4)})`}
-function playBgm(){if(!bgmOn)return;try{bgm.currentTime=cd.t}catch(e){}bgm.play().catch(()=>{})}
+// 카운트다운 곡을 골라 두었으면 그 곡, 아니면 원본 배경음(bgm.mp3)
+const useSong=()=>window.CountSong&&CountSong.name;
+function playBgm(){if(!bgmOn)return;if(useSong()){bgm.pause();CountSong.play(cd.t);return}try{bgm.currentTime=cd.t}catch(e){}bgm.play().catch(()=>{})}
+function stopBgm(fade){bgm.pause();if(window.CountSong)fade?CountSong.stop():CountSong.pause()}
 function countdown(on){
-  cd.on=on;cd.t=0;cd.paused=false;cd.last=performance.now();
-  if(on){renderCd();playBgm()}else{bgm.pause()}
+  const was=cd.on;cd.on=on;cd.t=0;cd.paused=false;cd.last=performance.now();
+  if(on){renderCd();playBgm()}else if(was){stopBgm(true)}
 }
-function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?bgm.pause():playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if(!bgmOn)bgm.pause();else if(cd.on&&!cd.paused)playBgm()}
+function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?stopBgm(false):playBgm()}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if(!bgmOn)stopBgm(false);else if(cd.on&&!cd.paused)playBgm()}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
