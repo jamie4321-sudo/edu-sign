@@ -773,6 +773,15 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 .fd-strip .ht-shot{width:auto!important}
 @media (max-width:960px){.fd-flow{grid-template-columns:1fr}.fd-strip{grid-template-columns:1fr 1fr}}
 @media (prefers-reduced-motion:reduce){.fd-x .fx2{animation:none}}
+/* 넘버스: 사진을 아래로 내려 단계 설명과 높이 맞춤 */
+#ai-case .case{align-items:end}
+#ai-case .case-pics{gap:12px}
+#ai-case .cp{margin:0}
+#ai-case .cp figcaption{margin-top:10px;font-size:14px;font-weight:700;color:var(--ink-2);line-height:1.4}
+#ai-case .cp figcaption i{display:block;font-style:normal;font-size:11.5px;font-weight:800;letter-spacing:.08em;color:var(--accent);margin-bottom:2px}
+@media (max-width:960px){#ai-case .case{align-items:start}}
+#contact .lead{max-width:none}
+@media (min-width:900px){#contact .lead{white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -1110,13 +1119,13 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
       </div>
       <div>
         <div class="pane on" data-k="before"><div class="case-pics">
-          <div class="photo zoom"><img src="img/before-1.jpg" width="1600" height="1200" alt="종이 체크리스트 수기 작성" loading="lazy"></div>
-          <div class="photo zoom"><img src="img/before-2.jpg" width="1600" height="1200" alt="A4 용지 대량 누적·보관" loading="lazy"></div>
-          <div class="photo zoom"><img src="img/before-3.jpg" width="1600" height="1200" alt="PC 엑셀 시트 수동 재입력" loading="lazy"></div>
+          <figure class="cp"><div class="photo zoom"><img src="img/before-1.jpg" width="1600" height="1200" alt="종이 체크리스트 수기 작성" loading="lazy"></div><figcaption><i>STEP 01</i>종이 체크리스트 수기 작성</figcaption></figure>
+          <figure class="cp"><div class="photo zoom"><img src="img/before-2.jpg" width="1600" height="1200" alt="A4 용지 대량 누적·보관" loading="lazy"></div><figcaption><i>STEP 02</i>A4 용지 대량 누적·보관</figcaption></figure>
+          <figure class="cp"><div class="photo zoom"><img src="img/before-3.jpg" width="1600" height="1200" alt="PC 엑셀 시트 수동 재입력" loading="lazy"></div><figcaption><i>STEP 03</i>PC 엑셀 시트 수동 재입력</figcaption></figure>
         </div></div>
         <div class="pane" data-k="after"><div class="case-pics two">
-          <div class="photo zoom"><img src="img/after-1.jpg" width="1600" height="1200" alt="넘버스 어플 데이터 입력" loading="lazy"></div>
-          <div class="photo zoom"><img src="img/after-2.jpg" width="1600" height="1200" alt="신속하고 정확한 재고 파악" loading="lazy"></div>
+          <figure class="cp"><div class="photo zoom"><img src="img/after-1.jpg" width="1600" height="1200" alt="넘버스 어플 데이터 입력" loading="lazy"></div><figcaption><i>STEP 01</i>넘버스 어플 데이터 입력</figcaption></figure>
+          <figure class="cp"><div class="photo zoom"><img src="img/after-2.jpg" width="1600" height="1200" alt="신속하고 정확한 재고 파악" loading="lazy"></div><figcaption><i>STEP 02</i>신속하고 정확한 재고 파악</figcaption></figure>
         </div></div>
       </div>
     </div>
