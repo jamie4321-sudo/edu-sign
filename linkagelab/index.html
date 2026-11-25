@@ -715,6 +715,9 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
 .v-pop{transform-origin:50% 100%;animation:vPop 3.2s ease-in-out infinite}
 @keyframes vPop{0%,100%{transform:rotate(0) translateY(0)}25%{transform:rotate(-2deg) translateY(-1px)}50%{transform:rotate(0) translateY(-2px)}75%{transform:rotate(2deg) translateY(-1px)}}
 @media (prefers-reduced-motion:reduce){.v-pop{animation:none}}
+/* 교육 방향성 제목: 한 줄 + 라임 형광펜 */
+@media (min-width:900px){.edu-t{white-space:nowrap}}
+.hlt{background:linear-gradient(180deg,transparent 56%,rgba(191,240,0,.6) 56%,rgba(191,240,0,.6) 92%,transparent 92%);padding:0 .08em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 </style>
 </head>
 <body>
@@ -918,7 +921,7 @@ body.presenting #history-2026.pop .y26 .g:nth-child(3){transition-delay:.44s}
     <div class="edu solo">
       <div>
         <span class="kicker">Core values</span>
-        <div class="edu-head"><h2 class="title">장애·비장애 크루 통합<br>교육 방향성</h2></div>
+        <div class="edu-head"><h2 class="title edu-t">장애·비장애 크루 통합 <span class="hlt">교육 방향성</span></h2></div>
         <div class="cv">
           <div><small>RESPECT</small><b>상호존중</b></div>
           <div><small>SAFETY</small><b>심리적 안정감</b></div>
