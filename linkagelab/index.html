@@ -335,6 +335,7 @@ footer b{color:var(--ink)}
 /* 크게 보기 */
 .lb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .3s ease;overscroll-behavior:contain}
 .lb.on{opacity:1}
+.lb[hidden]{display:none}.lb:not(.on){pointer-events:none}
 .lb img{max-width:min(1100px,94vw);max-height:86vh;border-radius:14px;transform:scale(.96);transition:transform .45s var(--ease)}
 .lb.on img{transform:none}
 .lb-close{position:absolute;top:max(16px,env(safe-area-inset-top));right:16px;width:48px;height:48px;border-radius:14px;border:0;background:var(--accent);color:#0B0B0C;font-size:24px;cursor:pointer}
