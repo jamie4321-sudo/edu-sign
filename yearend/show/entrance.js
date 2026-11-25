@@ -34,6 +34,15 @@
       resume(){if(url&&audio.currentTime>0)audio.play().catch(()=>{})}
     };
   }
+  // 03 오프닝 사진 묶음 — 크루 사진도 링크에 올리지 않고 노트북 브라우저에만 저장
+  window.Photos=(function(){
+    const KEY='opening-photos';let urls=[];
+    function use(files){urls.forEach(u=>URL.revokeObjectURL(u));urls=(files||[]).map(f=>URL.createObjectURL(f))}
+    const ready=load(KEY).then(use).catch(()=>{}).then(()=>window.dispatchEvent(new Event('photos-ready')));
+    return {ready,get list(){return urls.slice()},
+      async pick(fileList){const files=[...fileList].filter(f=>/^image\//.test(f.type));use(files);try{await save(KEY,files)}catch(e){}window.dispatchEvent(new Event('photos-ready'))},
+      async clear(){use([]);try{await save(KEY,[])}catch(e){}window.dispatchEvent(new Event('photos-ready'))}};
+  })();
   window.Entrance=slot('scarlett-song',86,'entrance-ready');
   window.CountSong=slot('countdown-song',0,'countsong-ready');
 })();

@@ -124,6 +124,21 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vk .bar i{position:absolute;inset:0;background:var(--grad);transform-origin:left;transform:scaleX(0)}
 #vk .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
 
+/* ───────── 03 · 오프닝 (키노트 사진 벽) ───────── */
+#vo{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%)}
+#vo .plane{position:absolute;left:50%;top:50%;width:113cqw;height:200cqh;margin:-100cqh 0 0 -56.5cqw;display:flex;gap:1.2cqw;justify-content:center;transform-origin:50% 50%;will-change:transform,opacity}
+#vo .col{width:15cqw;flex:none;position:relative;height:100%}
+#vo .strip{position:absolute;left:0;top:0;width:100%;display:flex;flex-direction:column;gap:1.2cqw;will-change:transform}
+#vo .tile{width:15cqw;height:18.75cqw;flex:none;border-radius:1.1cqw;overflow:hidden;position:relative;background:var(--ph)}
+#vo .tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#vo .veil{position:absolute;inset:0;background:radial-gradient(ellipse 62% 58% at 50% 50%,#000f 0%,#000d 42%,#0007 100%);opacity:0;pointer-events:none}
+#vo .title{position:absolute;inset:0;display:grid;place-content:center;text-align:center;opacity:0;will-change:opacity,filter,transform}
+#vo .yr{font-weight:900;font-size:2.6cqw;letter-spacing:.02em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:1.4cqw}
+#vo h1{margin:0;font-weight:800;font-size:9.6cqw;letter-spacing:-.05em;line-height:1}
+#vo h1 .amp{color:var(--grey);font-weight:400}
+#vo .title p{margin:2.2cqw 0 0;font-size:2.2cqw;font-weight:500;color:var(--grey);letter-spacing:-.02em}
+#vo .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700;opacity:0}
+
 /* 운영 패널 */
 #panel{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:20;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;padding:8px;border-radius:14px;background:#111114ee;border:1px solid #ffffff1f;box-shadow:0 12px 40px #0009;font-family:"Kakao Big Sans","Malgun Gothic",sans-serif;max-width:calc(100vw - 20px);transition:opacity .2s}
 #panel.hide{opacity:0;pointer-events:none}
@@ -159,6 +174,14 @@ body.clean{cursor:none}
   <div class="layer fin" id="kFin"><p>시작합니다.</p></div>
   <div class="bar" id="kBar"><i></i></div>
   <div class="foot">LINKAGELAB</div>
+</section>
+
+<!-- 03 오프닝 -->
+<section class="v" id="vo" aria-label="03 오프닝">
+  <div class="plane" id="oPlane" aria-hidden="true"></div>
+  <div class="veil" id="oVeil"></div>
+  <div class="title" id="oTitle"><div><div class="yr">2026</div><h1>SNACK <span class="amp">&amp;</span> GARDEN</h1><p>스낵앤가든사업팀</p></div></div>
+  <div class="foot" id="oFoot">LINKAGELAB</div>
 </section>
 
 <!-- A -->
@@ -216,9 +239,11 @@ body.clean{cursor:none}
   <button data-v="c">C LED</button>
   <span class="sep"></span>
   <button data-v="k">02 카운트다운 (2)</button>
+  <button data-v="o">03 오프닝 (3)</button>
   <button id="bgmBtn">음악 켜짐 (B)</button>
   <button id="cdSongBtn">카운트다운 곡 선택</button><input type="file" id="cdSongFile" accept="audio/*" hidden>
   <button id="songBtn">스칼렛 입장곡 선택</button><input type="file" id="songFile" accept="audio/*" hidden>
+  <button id="photoBtn">오프닝 사진 넣기</button><input type="file" id="photoFile" accept="image/*" multiple hidden>
   <span class="sep"></span>
   <a href="original.html">원본 보기</a>
   <button id="fs">전체 화면 (F)</button>
@@ -239,6 +264,11 @@ body.clean{cursor:none}
   addEventListener('countsong-ready',cl);cl();
   cb.onclick=()=>ci.click();
   ci.onchange=async e=>{const f=e.target.files[0];if(!f)return;await CountSong.pick(f);cl();e.target.value=''};
+  const pb=document.getElementById('photoBtn'),pi=document.getElementById('photoFile');
+  const pl=()=>{const n=Photos.list.length;pb.textContent=n?`오프닝 사진 ${n}장 ✓ (다시 고르기)`:'오프닝 사진 넣기'};
+  addEventListener('photos-ready',()=>{pl();if(window.buildWall)buildWall()});pl();
+  pb.onclick=()=>pi.click();
+  pi.onchange=async e=>{if(!e.target.files.length)return;await Photos.pick(e.target.files);e.target.value=''};
 })();
 </script>
 
@@ -250,9 +280,10 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ── 시안 전환 ── */
 let cur='',last01='d';
 function show(v,restart){
-  if(!['a','b','c','d','k'].includes(v))v='d';
-  if(v===cur&&!(restart&&v==='k'))return;cur=v;
-  if(v!=='k')last01=v;
+  if(!['a','b','c','d','k','o'].includes(v))v='d';
+  if(v===cur&&!(restart&&(v==='k'||v==='o')))return;
+  const prev=cur;cur=v;
+  if('abcd'.includes(v))last01=v;
   document.querySelectorAll('.v').forEach(s=>{
     const on=s.id==='v'+v;s.classList.toggle('on',on);
     if(on){ // 재진입 시 입장 모션 다시 재생
@@ -263,28 +294,29 @@ function show(v,restart){
   history.replaceState(null,'','#'+v);
   led.active=v==='c';
   keynote(v==='d');
-  countdown(v==='k');
+  countdown(v==='k',v==='o');
+  opening(v==='o',prev==='k');
 }
 
 /* ── 02: 카운트다운 — 안내 6초 → 10…1 → '시작합니다.' (원본 타이밍·음악 동기화 유지) ──
    카운트다운 곡(BBC 뉴스 카운트다운)은 1초 간격 '똑' 박자가 매초 x.61초에 떨어짐(분석값).
    → 곡을 0.61초 지점부터 틀고, 곡이 재생 중이면 화면 시계를 곡 위치에 묶어 숫자가 박자에 정확히 바뀌게 함. */
 const SONG_SYNC=0.61;
-const ATT=6,COUNT=10;
+const ATT=6,COUNT=10,HANDOFF=ATT+COUNT+1.9;
 const bgm=$('#bgm');let bgmOn=true;
 const cd={on:false,t:0,paused:false,last:0};
 const clamp=x=>Math.max(0,Math.min(1,x)),sm=x=>{x=clamp(x);return x*x*(3-2*x)},eo=x=>1-Math.pow(1-clamp(x),3);
 function setLayer(el,a,blur,scale){el.style.opacity=a.toFixed(3);el.style.filter=blur>.01?`blur(${blur.toFixed(2)}cqw)`:'none';el.style.transform=`scale(${scale.toFixed(4)})`}
 // 카운트다운 곡을 골라 두었으면 그 곡, 아니면 원본 배경음(bgm.mp3)
 const useSong=()=>window.CountSong&&CountSong.name;
-function playBgm(){if(!bgmOn)return;if(useSong()){bgm.pause();CountSong.play(cd.t+SONG_SYNC);return}try{bgm.currentTime=cd.t}catch(e){}bgm.play().catch(()=>{})}
+function playBgm(at=cd.t){if(!bgmOn)return;if(useSong()){bgm.pause();CountSong.play(at+SONG_SYNC);return}try{bgm.currentTime=at}catch(e){}bgm.play().catch(()=>{})}
 function stopBgm(fade){bgm.pause();if(window.CountSong)fade?CountSong.stop():CountSong.pause()}
-function countdown(on){
+function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는 음악을 끊지 않음
   const was=cd.on;cd.on=on;cd.t=0;cd.paused=false;cd.last=performance.now();
-  if(on){renderCd();playBgm()}else if(was){stopBgm(true)}
+  if(on){renderCd();playBgm()}else if(was&&!keepMusic){stopBgm(true)}
 }
 function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?stopBgm(false):playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if(!bgmOn)stopBgm(false);else if(cd.on&&!cd.paused)playBgm()}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if(!bgmOn)stopBgm(false);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
@@ -310,7 +342,59 @@ function renderCd(){
   const s=useSong()&&bgmOn?CountSong.state:null;
   if(s&&!s.paused&&s.time>SONG_SYNC)cd.t=s.time-SONG_SYNC; // 곡 위치 = 화면 시계
   else if(!(s&&!s.paused))cd.t+=dt;                          // 곡이 없거나 막히면 자체 시계
-  renderCd()}})(performance.now());
+  renderCd();
+  if(cd.t>=HANDOFF)show('o')}})(performance.now()); // '시작합니다.' 뒤 자동으로 03 오프닝
+
+/* ── 03: 오프닝 — 기울어진 사진 벽이 흐르다 빨라짐 → 정면으로 멀어지며 감속 → 어두워지고 제목 ──
+   타임라인(초): 0~0.8 암전 · 0.8~2.6 사진 벽 등장 · 2.6~9 가속 · 9~11.5 정면으로 당겨지며 감속 · 10~12 어둡게 · 11.3~ 제목 */
+const COLS=7,PER=6,TILE=15+1.2,LOOP=PER*(18.75+1.2); // 단위 cqw
+const op={on:false,t:0,paused:false,last:0};
+function speed(t){ // cqw/초
+  if(t<.8)return 0;
+  if(t<2.6)return 4*sm((t-.8)/1.8);
+  if(t<9)return 4+56*Math.pow((t-2.6)/6.4,2);
+  if(t<11.5)return 60-56*eo((t-9)/2.5);
+  return 4;
+}
+const travelTab=(()=>{const a=[0],h=1/120;let x=0;for(let i=1;i<=120*60;i++){x+=speed((i-.5)*h)*h;a.push(x)}return a})();
+const travel=t=>{const i=Math.min(travelTab.length-2,Math.max(0,t*120)),k=Math.floor(i);return travelTab[k]+(travelTab[k+1]-travelTab[k])*(i-k)};
+const HUES=[35,12,148,215,28,160,350];
+window.buildWall=function(){
+  const pics=window.Photos?Photos.list:[],plane=$('#oPlane');let html='';
+  for(let c=0;c<COLS;c++){
+    let tiles='';
+    for(let r=0;r<PER*2;r++){
+      const i=(c*PER+(r%PER)),h=HUES[(c*3+r)%HUES.length];
+      const ph=`linear-gradient(160deg,hsl(${h} 22% 24%),hsl(${h} 16% 11%))`;
+      const img=pics.length?`<img src="${pics[(i*7+c)%pics.length]}" alt="" decoding="async">`:'';
+      tiles+=`<div class="tile" style="--ph:${ph}">${img}</div>`;
+    }
+    html+=`<div class="col"><div class="strip">${tiles}</div></div>`;
+  }
+  plane.innerHTML=html;if(op.on)renderOp();
+};
+function renderOp(){
+  const t=op.t,plane=$('#oPlane'),strips=plane.querySelectorAll('.strip');
+  const x=reduced?0:travel(t);
+  strips.forEach((s,c)=>{const dir=c%2?1:-1,phase=c*LOOP*.37;let y=((dir*x+phase)%LOOP+LOOP)%LOOP;s.style.transform=`translateY(${(-y).toFixed(3)}cqw)`});
+  // 카메라: 기울어진 벽 → 정면으로 당겨짐
+  const e=reduced?1:sm((t-9)/2.5),inA=reduced?1:sm((t-.8)/1.8);
+  const W=$('.stage').clientWidth;
+  plane.style.transform=`perspective(${(W*1.4).toFixed(0)}px) rotateX(${(26*(1-e)).toFixed(2)}deg) rotateZ(${(-9*(1-e)).toFixed(2)}deg) scale(${(1.35-.53*e+.08*(1-inA)).toFixed(4)})`;
+  plane.style.opacity=inA.toFixed(3);
+  plane.style.filter=inA<.999?`blur(${((1-inA)*1).toFixed(2)}cqw)`:'none';
+  $('#oVeil').style.opacity=(reduced?1:sm((t-10)/2)).toFixed(3);
+  const ti=reduced?1:sm((t-11.3)/1.4);
+  setLayer($('#oTitle'),ti,(1-ti)*1.2,1.04-.04*ti);
+  $('#oFoot').style.opacity=ti.toFixed(3);
+}
+function opening(on,fromCountdown){
+  const was=op.on;op.on=on;op.t=0;op.paused=false;op.last=performance.now();
+  if(on){if(!$('#oPlane').children.length)buildWall();renderOp();if(!fromCountdown)playBgm(HANDOFF)}
+  else if(was)stopBgm(true);
+}
+function toggleOp(){if(!op.on)return;op.paused=!op.paused;op.last=performance.now();op.paused?stopBgm(false):playBgm(HANDOFF+op.t)}
+(function opLoop(now){requestAnimationFrame(opLoop);if(!op.on)return;const dt=Math.min(.1,(now-op.last)/1000);op.last=now;if(op.paused)return;op.t+=dt;renderOp()})(performance.now());
 
 /* ── D: 키노트 슬라이드 순환 (한 장 5.5초) ── */
 let kTimer=null,kIdx=-1;
@@ -412,8 +496,10 @@ $('#fs').onclick=fullscreen;$('#hd').onclick=togglePanel;
 addEventListener('dblclick',e=>{if(!e.target.closest('#panel'))togglePanel()});
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();
   if(k==='1')show(last01);else if(k==='2')show('k',true);
-  else if(k===' '){e.preventDefault();toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
-  else if(k==='arrowright'&&cur!=='k')show('k',true);else if(k==='arrowleft'&&cur==='k')show(last01);
+  else if(k==='3')show('o',true);
+  else if(k===' '){e.preventDefault();cur==='o'?toggleOp():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
+  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true)}
+  else if(k==='arrowleft'){if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
   else if(k==='f'||k==='ㄹ'){e.preventDefault();fullscreen()}else if(k==='h'||k==='ㅗ')togglePanel();});
 show(location.hash.slice(1)||'d');
 </script>
