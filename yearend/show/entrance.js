@@ -31,6 +31,8 @@
         fadeT=setInterval(()=>{audio.volume=Math.max(0,audio.volume-step);if(audio.volume<=0){clearInterval(fadeT);audio.pause()}},50);
       },
       pause(){audio.pause()},
+      get playing(){return !audio.paused},
+      onEnded(fn){audio.addEventListener('ended',fn)},
       resume(){if(url&&audio.currentTime>0)audio.play().catch(()=>{})}
     };
   }
@@ -44,5 +46,7 @@
       async clear(){use([]);try{await save(KEY,[])}catch(e){}window.dispatchEvent(new Event('photos-ready'))}};
   })();
   window.Entrance=slot('scarlett-song',86,'entrance-ready');
+  // 01 입장 대기 음악 2곡 — 번갈아 계속 재생
+  window.WelcomeSongs=[slot('welcome-song-1',0,'welcome-ready'),slot('welcome-song-2',0,'welcome-ready')];
   window.CountSong=slot('countdown-song',0,'countsong-ready');
 })();

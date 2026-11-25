@@ -133,11 +133,26 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vo .tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 #vo .veil{position:absolute;inset:0;background:radial-gradient(ellipse 62% 58% at 50% 50%,#000f 0%,#000d 42%,#0007 100%);opacity:0;pointer-events:none}
 #vo .title{position:absolute;inset:0;display:grid;place-content:center;text-align:center;opacity:0;will-change:opacity,filter,transform}
-#vo .yr{font-weight:900;font-size:2.6cqw;letter-spacing:.02em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:1.4cqw}
-#vo h1{margin:0;font-weight:800;font-size:9.6cqw;letter-spacing:-.05em;line-height:1}
+#vo .yr{font-weight:700;font-size:1.3cqw;letter-spacing:.32em;color:var(--grey);margin-bottom:1.6cqw}
+#vo h1{margin:0;font-weight:800;font-size:11cqw;letter-spacing:-.05em;line-height:1}
+#vo h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.04em}
 #vo h1 .amp{color:var(--grey);font-weight:400}
 #vo .title p{margin:2.2cqw 0 0;font-size:2.2cqw;font-weight:500;color:var(--grey);letter-spacing:-.02em}
 #vo .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700;opacity:0}
+
+/* ───────── 04 · 스칼렛 (키노트 + Vogue) ───────── */
+#vs{background:#000;color:#f5f5f7;--grey:#86868b}
+#vs .glow{position:absolute;left:50%;top:56%;width:90cqw;height:60cqh;transform:translate(-50%,-50%);background:radial-gradient(closest-side,#ff8a5c55,#ffb54722 45%,#3ddc8410 70%,#0000);filter:blur(2cqw);opacity:0;will-change:opacity,transform}
+#vs .copy{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+#vs .pw{margin:0 0 .6cqw;font-weight:500;font-size:2.8cqw;color:var(--grey);letter-spacing:-.02em;opacity:0;will-change:opacity,filter,transform}
+#vs svg{width:64cqw;height:auto;display:block;margin:0 auto;overflow:visible}
+#vs svg path{fill:none;stroke:url(#sigGrad);stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+#vs svg path.fine{stroke-width:2.1}
+#vs .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#vs canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#vs #sFx{mix-blend-mode:screen}
+#vs svg{filter:drop-shadow(0 0 .7cqw #ff8a5c66) drop-shadow(0 0 2cqw #ffb54733)}
+#vs .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
 
 /* 운영 패널 */
 #panel{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:20;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;padding:8px;border-radius:14px;background:#111114ee;border:1px solid #ffffff1f;box-shadow:0 12px 40px #0009;font-family:"Kakao Big Sans","Malgun Gothic",sans-serif;max-width:calc(100vw - 20px);transition:opacity .2s}
@@ -180,15 +195,40 @@ body.clean{cursor:none}
 <section class="v" id="vo" aria-label="03 오프닝">
   <div class="plane" id="oPlane" aria-hidden="true"></div>
   <div class="veil" id="oVeil"></div>
-  <div class="title" id="oTitle"><div><div class="yr">2026</div><h1>SNACK <span class="amp">&amp;</span> GARDEN</h1><p>스낵앤가든사업팀</p></div></div>
+  <div class="title" id="oTitle"><div><div class="yr">SNACK &amp; GARDEN</div><h1>Goodbye <em>2026</em></h1><p>함께한 2026, 다가올 2027</p></div></div>
   <div class="foot" id="oFoot">LINKAGELAB</div>
+</section>
+
+<!-- 04 스칼렛 -->
+<section class="v" id="vs" aria-label="04 스칼렛">
+  <canvas id="sBeams" aria-hidden="true"></canvas>
+  <div class="glow" id="sGlow" aria-hidden="true"></div>
+  <div class="copy">
+    <p class="pw" id="sPw">Please welcome.</p>
+    <svg id="sSig" viewBox="0 0 480 150" role="img" aria-label="Scarlett">
+      <defs><linearGradient id="sigGrad" x1="0" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffc56b"/><stop offset=".45" stop-color="#ff7a59"/><stop offset="1" stop-color="#3ddc84"/></linearGradient></defs>
+      <path pathLength="1" d="M110 32 C135 0 57 2 35 42 C17 75 100 62 94 92 C87 130 8 144 12 112 C14 100 33 94 49 96 C76 100 105 91 124 78"/>
+      <path pathLength="1" d="M124 78 C139 64 152 70 146 77 C138 65 115 83 119 98 C124 116 153 95 168 81"/>
+      <path pathLength="1" d="M168 81 C185 65 196 72 191 84 C183 67 162 82 161 99 C160 117 182 102 191 84 L185 103 Q185 114 206 91 L218 77"/>
+      <path pathLength="1" d="M218 77 Q210 96 206 105 Q221 86 230 76 Q237 70 238 80 Q237 88 250 83 L264 74"/>
+      <path pathLength="1" d="M264 74 C286 43 303 10 289 15 C269 21 249 70 249 97 C249 116 269 101 284 84"/>
+      <path pathLength="1" d="M284 84 Q307 77 306 68 C304 53 282 72 278 91 Q274 112 298 103 Q314 96 329 80"/>
+      <path pathLength="1" d="M329 80 L350 35 Q337 63 325 97 Q320 116 343 100 L363 80"/>
+      <path pathLength="1" d="M363 80 L382 36 Q368 66 359 97 Q355 113 377 102 Q407 82 427 78 Q447 75 463 80"/>
+      <path pathLength="1" class="fine" d="M311 66 Q347 57 397 58"/>
+      <path pathLength="1" class="fine" d="M108 130 Q233 116 369 117 Q425 116 462 108"/>
+    </svg>
+  </div>
+  <canvas id="sFx" aria-hidden="true"></canvas>
+  <div class="flash" id="sFlash"></div>
+  <div class="foot">LINKAGELAB</div>
 </section>
 
 <!-- A -->
 <section class="v" id="va" aria-label="A안 리소 포스터">
   <div class="rows" aria-hidden="true">
     <div class="row big solid" style="--d:70s"><div class="track"><span>SNACK<i class="star">✱</i>SNACK<i class="star">✱</i></span><span>SNACK<i class="star">✱</i>SNACK<i class="star">✱</i></span></div></div>
-    <div class="row mid r" style="--d:46s"><div class="track"><span>함께한 2026, 함께할 2027</span><span>웰컴 드링크 받아 가세요</span><span>함께한 2026, 함께할 2027</span><span>웰컴 드링크 받아 가세요</span></div></div>
+    <div class="row mid r" style="--d:46s"><div class="track"><span>함께한 2026, 다가올 2027</span><span>웰컴 드링크 받아 가세요</span><span>함께한 2026, 다가올 2027</span><span>웰컴 드링크 받아 가세요</span></div></div>
     <div class="row big line r" style="--d:80s"><div class="track"><span>GARDEN<i class="star">✱</i>GARDEN<i class="star">✱</i></span><span>GARDEN<i class="star">✱</i>GARDEN<i class="star">✱</i></span></div></div>
   </div>
   <svg class="badge" viewBox="0 0 200 200" aria-hidden="true">
@@ -214,7 +254,7 @@ body.clean{cursor:none}
   <div class="top"><span>LINKAGELAB</span><span>2026 → 2027</span></div>
   <div class="chrome">
     <h1>SNACK <span class="amp">&amp;</span><br>GARDEN<span class="shine" aria-hidden="true">SNACK <span class="amp">&amp;</span><br>GARDEN</span></h1>
-    <div class="chips"><span class="chip">12.04 FRI 17:00</span><span class="chip dark">함께한 2026, 함께할 2027</span></div>
+    <div class="chips"><span class="chip">12.04 FRI 17:00</span><span class="chip dark">함께한 2026, 다가올 2027</span></div>
   </div>
   <div id="sparks" aria-hidden="true"></div>
   <div class="grain"></div>
@@ -240,9 +280,12 @@ body.clean{cursor:none}
   <span class="sep"></span>
   <button data-v="k">02 카운트다운 (2)</button>
   <button data-v="o">03 오프닝 (3)</button>
+  <button data-v="s">04 스칼렛 (4)</button>
   <button id="bgmBtn">음악 켜짐 (B)</button>
   <button id="cdSongBtn">카운트다운 곡 선택</button><input type="file" id="cdSongFile" accept="audio/*" hidden>
   <button id="songBtn">스칼렛 입장곡 선택</button><input type="file" id="songFile" accept="audio/*" hidden>
+  <button id="wSong1">입장곡 1 선택</button><input type="file" id="wFile1" accept="audio/*" hidden>
+  <button id="wSong2">입장곡 2 선택</button><input type="file" id="wFile2" accept="audio/*" hidden>
   <button id="photoBtn">오프닝 사진 넣기</button><input type="file" id="photoFile" accept="image/*" multiple hidden>
   <span class="sep"></span>
   <a href="original.html">원본 보기</a>
@@ -264,6 +307,10 @@ body.clean{cursor:none}
   addEventListener('countsong-ready',cl);cl();
   cb.onclick=()=>ci.click();
   ci.onchange=async e=>{const f=e.target.files[0];if(!f)return;await CountSong.pick(f);cl();e.target.value=''};
+  // 01 입장 음악 2곡
+  WelcomeSongs.forEach((w,i)=>{const b=document.getElementById('wSong'+(i+1)),f=document.getElementById('wFile'+(i+1));
+    const l=()=>{b.textContent=w.name?`입장곡 ${i+1} ✓`:`입장곡 ${i+1} 선택`};addEventListener('welcome-ready',l);l();
+    b.onclick=()=>f.click();f.onchange=async e=>{const x=e.target.files[0];if(!x)return;await w.pick(x);l();e.target.value='';if(window.welcomeMusic&&'abcd'.includes(cur))welcomeMusic(true)}});
   const pb=document.getElementById('photoBtn'),pi=document.getElementById('photoFile');
   const pl=()=>{const n=Photos.list.length;pb.textContent=n?`오프닝 사진 ${n}장 ✓ (다시 고르기)`:'오프닝 사진 넣기'};
   addEventListener('photos-ready',()=>{pl();if(window.buildWall)buildWall()});pl();
@@ -280,8 +327,8 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ── 시안 전환 ── */
 let cur='',last01='d';
 function show(v,restart){
-  if(!['a','b','c','d','k','o'].includes(v))v='d';
-  if(v===cur&&!(restart&&(v==='k'||v==='o')))return;
+  if(!['a','b','c','d','k','o','s'].includes(v))v='d';
+  if(v===cur&&!(restart&&'kos'.includes(v)))return;
   const prev=cur;cur=v;
   if('abcd'.includes(v))last01=v;
   document.querySelectorAll('.v').forEach(s=>{
@@ -294,9 +341,22 @@ function show(v,restart){
   history.replaceState(null,'','#'+v);
   led.active=v==='c';
   keynote(v==='d');
+  welcomeMusic('abcd'.includes(v),'abcd'.includes(prev));
   countdown(v==='k',v==='o');
   opening(v==='o',prev==='k');
+  scarlett(v==='s');
 }
+
+/* ── 01 입장 음악: 고른 곡(최대 2곡)을 번갈아 반복. 시안끼리 바꿀 때는 끊지 않음, 다른 장면으로 가면 줄이며 멈춤 ── */
+let wIdx=0,wOn=false;
+function welcomeMusic(on,stay){
+  const list=(window.WelcomeSongs||[]).filter(w=>w.name);
+  if(!on){if(wOn)(window.WelcomeSongs||[]).forEach(w=>w.stop());wOn=false;return}
+  if(stay&&wOn&&list.some(w=>w.playing))return;
+  wOn=true;if(!list.length||!bgmOn)return;
+  WelcomeSongs.forEach(w=>w.pause());wIdx=wIdx%list.length;list[wIdx].play();
+}
+(window.WelcomeSongs||[]).forEach(w=>w.onEnded(()=>{if(!wOn)return;const list=WelcomeSongs.filter(x=>x.name);if(!list.length)return;wIdx=(list.indexOf(w)+1)%list.length;list[wIdx].play()}));
 
 /* ── 02: 카운트다운 — 안내 6초 → 10…1 → '시작합니다.' (원본 타이밍·음악 동기화 유지) ──
    카운트다운 곡(BBC 뉴스 카운트다운)은 1초 간격 '똑' 박자가 매초 x.61초에 떨어짐(분석값).
@@ -316,7 +376,7 @@ function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는
   if(on){renderCd();playBgm()}else if(was&&!keepMusic){stopBgm(true)}
 }
 function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?stopBgm(false):playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if(!bgmOn)stopBgm(false);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn)stopBgm(false);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
@@ -359,8 +419,11 @@ function speed(t){ // cqw/초
 const travelTab=(()=>{const a=[0],h=1/120;let x=0;for(let i=1;i<=120*60;i++){x+=speed((i-.5)*h)*h;a.push(x)}return a})();
 const travel=t=>{const i=Math.min(travelTab.length-2,Math.max(0,t*120)),k=Math.floor(i);return travelTab[k]+(travelTab[k+1]-travelTab[k])*(i-k)};
 const HUES=[35,12,148,215,28,160,350];
+// 기본 사진 = 그동안 제안서·PPT에 쓴 크루 사진(photos/). 패널에서 사진을 넣으면 그 사진이 우선.
+let DEFAULT_PICS=[];
+fetch('photos/list.json').then(r=>r.json()).then(l=>{DEFAULT_PICS=l.map(n=>'photos/'+n);buildWall()}).catch(()=>{});
 window.buildWall=function(){
-  const pics=window.Photos?Photos.list:[],plane=$('#oPlane');let html='';
+  const mine=window.Photos?Photos.list:[],pics=mine.length?mine:DEFAULT_PICS,plane=$('#oPlane');let html='';
   for(let c=0;c<COLS;c++){
     let tiles='';
     for(let r=0;r<PER*2;r++){
@@ -394,6 +457,83 @@ function opening(on,fromCountdown){
   else if(was)stopBgm(true);
 }
 function toggleOp(){if(!op.on)return;op.paused=!op.paused;op.last=performance.now();op.paused?stopBgm(false):playBgm(HANDOFF+op.t)}
+/* ── 04: 스칼렛 — Vogue(1:26~) 116.5 BPM, 첫 박 0.258초, 한 박 0.515초 (분석값) ──
+   1박 'Please welcome.' → 5박 카메라 플래시 + 서명 그리기(6박) → 11박 밑줄·t 가로획 → 이후 박마다 빛이 은은하게 맥박 */
+const BEAT=60/116.5,B0=.258,beat=n=>B0+BEAT*n;
+const sc={on:false,t:0,paused:false,last:0};
+const sigPaths=[...document.querySelectorAll('#sSig path')],sigMain=sigPaths.filter(p=>!p.classList.contains('fine')),sigFine=sigPaths.filter(p=>p.classList.contains('fine'));
+const sigLen=sigMain.map(p=>p.getTotalLength()),sigTotal=sigLen.reduce((a,b)=>a+b,0);
+function drawSig(main,fine){
+  let d=clamp(main)*sigTotal;
+  sigMain.forEach((p,i)=>{const f=clamp(d/sigLen[i]);p.style.strokeDashoffset=(1-f).toFixed(4);p.style.opacity=f>0?1:0;d-=sigLen[i]});
+  sigFine.forEach((p,i)=>{const f=clamp(fine*2-i);p.style.strokeDashoffset=(1-f).toFixed(4);p.style.opacity=f>0?1:0});
+}
+function renderSc(){
+  const t=reduced?99:sc.t;
+  const pw=sm((t-beat(1))/.5);setLayer($('#sPw'),pw,(1-pw)*.8,1.03-.03*pw);
+  drawSig(eo((t-beat(5))/(BEAT*6)),sm((t-beat(11))/(BEAT*2)));
+  const fl=t>=beat(5)?Math.exp(-(t-beat(5))/.12):0;$('#sFlash').style.opacity=(reduced?0:.85*fl).toFixed(3);
+  // 박마다 맥박: 박 직후 밝았다가 0.25초에 걸쳐 가라앉음
+  const since=t-B0<0?9:((t-B0)%BEAT),on=sm((t-beat(5))/1.2);
+  const pulse=reduced?0:Math.exp(-since/.25);
+  const g=$('#sGlow');g.style.opacity=(on*(.55+.35*pulse)).toFixed(3);g.style.transform=`translate(-50%,-50%) scale(${(1+.03*pulse*on).toFixed(4)})`;
+  renderFx(t);
+}
+/* 화려함 레이어 (모두 sc.t 의 함수 → 일시정지·되감기에도 같은 화면)
+   · 스포트라이트 2줄기: 5박에 켜지고 8박 주기로 교차하며 흔들림
+   · 파파라치 플래시: 0.5~4.5박 반박마다 점점 많아짐 → 11박 이후 박마다 가장자리에서 번쩍
+   · 반짝이: 11박에 서명 주변으로 터지고 이후 박마다 반짝
+   · 컨페티: 11박부터 금·코랄·그린·화이트 조각이 계속 내려옴 */
+const rnd=n=>{const x=Math.sin(n*127.1+311.7)*43758.5453;return x-Math.floor(x)};
+const fxC=$('#sFx'),fx=fxC.getContext('2d'),bmC=$('#sBeams'),bm=bmC.getContext('2d');
+function fxSize(){const r=$('.stage').getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);[fxC,bmC].forEach(c=>{c.width=Math.round(r.width*d);c.height=Math.round(r.height*d)})}
+addEventListener('resize',()=>{if(sc.on){fxSize();renderSc()}});
+const FLASHES=(()=>{const a=[];let k=0;
+  for(let h=1;h<=9;h++){const n=1+Math.floor(h/3);for(let j=0;j<n;j++)a.push({t:beat(h/2)+rnd(++k)*.06,x:rnd(++k),y:rnd(++k)})}
+  for(let b=11;b<400;b++){const n=rnd(++k)<.35?2:1;for(let j=0;j<n;j++)a.push({t:beat(b)+j*BEAT/2,x:rnd(++k),y:rnd(++k)})}
+  return a.map(f=>{const edge=rnd(f.x*99)<.5;return {...f,x:edge?(f.x<.5?f.x*.22:1-f.x*.22)*1600:f.x*1600,y:edge?f.y*900:(f.y<.5?f.y*.3:1-f.y*.3)*900,r:60+rnd(f.t)*90}})})();
+const SPARKS=Array.from({length:16},(_,i)=>({x:330+rnd(i+500)*940,y:330+rnd(i+600)*260,d:rnd(i+700)*BEAT*2,s:10+rnd(i+800)*18}));
+const CONF=Array.from({length:170},(_,i)=>({x:rnd(i+1000)*1600,v:70+rnd(i+1100)*90,sw:20+rnd(i+1200)*40,ph:rnd(i+1300)*6.28,rs:2+rnd(i+1400)*5,
+  st:rnd(i+1500)*12,w:6+rnd(i+1600)*7,c:['#ffd479','#ffc56b','#ff7a59','#3ddc84','#ffffff','#ffe9b0'][i%6]}));
+function star(x,y,s,a){fx.globalAlpha=a;fx.fillStyle='#fff';fx.beginPath();fx.moveTo(x,y-s);fx.quadraticCurveTo(x,y,x+s,y);fx.quadraticCurveTo(x,y,x,y+s);fx.quadraticCurveTo(x,y,x-s,y);fx.quadraticCurveTo(x,y,x,y-s);fx.fill()}
+function renderFx(t){
+  if(!fxC.width)fxSize();
+  const sx=fxC.width/1600,sy=fxC.height/900;
+  // 스포트라이트
+  bm.setTransform(1,0,0,1,0,0);bm.clearRect(0,0,bmC.width,bmC.height);bm.setTransform(sx,0,0,sy,0,0);
+  const beamOn=sm((t-beat(5))/.6)*(reduced?.6:1);
+  if(beamOn>0){bm.globalCompositeOperation='lighter';
+    [[180,960,'255,181,71',0],[1420,960,'61,220,132',Math.PI]].forEach(([bx,by,col,ph])=>{
+      const sw=reduced?0:.32*Math.sin(2*Math.PI*(t-beat(5))/(BEAT*8)+ph);
+      const ang=-Math.PI/2+(bx<800?.42:-.42)+sw,len=1250,half=.11;
+      const g=bm.createRadialGradient(bx,by,0,bx,by,len);g.addColorStop(0,`rgba(${col},${.34*beamOn})`);g.addColorStop(.55,`rgba(${col},${.12*beamOn})`);g.addColorStop(1,`rgba(${col},0)`);
+      bm.fillStyle=g;bm.beginPath();bm.moveTo(bx,by);bm.lineTo(bx+Math.cos(ang-half)*len,by+Math.sin(ang-half)*len);bm.lineTo(bx+Math.cos(ang+half)*len,by+Math.sin(ang+half)*len);bm.closePath();bm.fill()});
+    bm.globalCompositeOperation='source-over'}
+  // 앞쪽 효과
+  fx.setTransform(1,0,0,1,0,0);fx.clearRect(0,0,fxC.width,fxC.height);fx.setTransform(sx,0,0,sy,0,0);
+  if(reduced)return;
+  for(const f of FLASHES){const age=t-f.t;if(age<0||age>.5)continue;const a=Math.exp(-age/.09);
+    const g=fx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r);g.addColorStop(0,`rgba(255,255,255,${.95*a})`);g.addColorStop(.25,`rgba(255,240,220,${.4*a})`);g.addColorStop(1,'rgba(255,240,220,0)');
+    fx.globalAlpha=1;fx.fillStyle=g;fx.fillRect(f.x-f.r,f.y-f.r,f.r*2,f.r*2);star(f.x,f.y,f.r*.55,a)}
+  const since=t<B0?9:((t-B0)%BEAT);
+  for(const p of SPARKS){const age=t-beat(11)-p.d;if(age<0)continue;
+    const burst=Math.exp(-age/.35),tw=Math.exp(-((since+p.d*3)%BEAT)/.18);star(p.x,p.y,p.s*(.6+.9*burst+.35*tw),Math.min(1,.25+burst+.6*tw))}
+  const ct=t-beat(11);
+  if(ct>0){for(const c of CONF){const age=ct-c.st*.25;if(age<0)continue;const fall=age*c.v,y=-30+(fall%990),x=c.x+Math.sin(age*1.6+c.ph)*c.sw,rot=age*c.rs+c.ph;
+      fx.save();fx.translate(x,y);fx.rotate(rot);fx.globalAlpha=Math.min(1,age*2)*.9;fx.fillStyle=c.c;const w=c.w*Math.abs(Math.cos(rot*1.3));fx.fillRect(-w/2,-c.w*.3,w,c.w*.6);fx.restore()}}
+  fx.globalAlpha=1;
+}
+function scarlett(on){
+  const was=sc.on;sc.on=on;sc.t=0;sc.paused=false;sc.last=performance.now();
+  if(on){renderSc();if(window.Entrance)Entrance.play()}else if(was&&window.Entrance)Entrance.stop();
+}
+function toggleSc(){if(!sc.on)return;sc.paused=!sc.paused;sc.last=performance.now();if(window.Entrance)sc.paused?Entrance.pause():Entrance.resume()}
+(function scLoop(now){requestAnimationFrame(scLoop);if(!sc.on)return;const dt=Math.min(.1,(now-sc.last)/1000);sc.last=now;if(sc.paused)return;
+  const s=window.Entrance&&Entrance.name?Entrance.state:null;
+  if(s&&!s.paused&&s.time>Entrance.START)sc.t=s.time-Entrance.START; // 곡 위치 = 화면 시계 (박자 정확히)
+  else if(!(s&&!s.paused))sc.t+=dt;
+  renderSc()})(performance.now());
+
 (function opLoop(now){requestAnimationFrame(opLoop);if(!op.on)return;const dt=Math.min(.1,(now-op.last)/1000);op.last=now;if(op.paused)return;op.t+=dt;renderOp()})(performance.now());
 
 /* ── D: 키노트 슬라이드 순환 (한 장 5.5초) ── */
@@ -436,7 +576,7 @@ const led={active:false};
   const cv=$('#led'),gl=$('#ledGlow'),cx=cv.getContext('2d'),gx=gl.getContext('2d');
   cv.width=gl.width=COLS;cv.height=gl.height=ROWS;
   const F='"Kakao Big Sans","Malgun Gothic",sans-serif';
-  const MSG='  WELCOME ✱ 2026 스낵앤가든 송년회 ✱ 함께한 2026, 함께할 2027 ✱ 웰컴 드링크 받아 가세요 ✱';
+  const MSG='  WELCOME ✱ 2026 스낵앤가든 송년회 ✱ 함께한 2026, 다가올 2027 ✱ 웰컴 드링크 받아 가세요 ✱';
   let msgW=0,msgCanvas=null;
   function buildMsg(){
     const m=document.createElement('canvas'),g=m.getContext('2d');g.font=`700 17px ${F}`;
@@ -495,11 +635,11 @@ async function fullscreen(){try{document.fullscreenElement?await document.exitFu
 $('#fs').onclick=fullscreen;$('#hd').onclick=togglePanel;
 addEventListener('dblclick',e=>{if(!e.target.closest('#panel'))togglePanel()});
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();
-  if(k==='1')show(last01);else if(k==='2')show('k',true);
-  else if(k==='3')show('o',true);
-  else if(k===' '){e.preventDefault();cur==='o'?toggleOp():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
-  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true)}
-  else if(k==='arrowleft'){if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
+  if(k==='1'){if('abcd'.includes(cur))welcomeMusic(true,true);else show(last01)}else if(k==='2')show('k',true);
+  else if(k==='3')show('o',true);else if(k==='4')show('s',true);
+  else if(k===' '){e.preventDefault();cur==='o'?toggleOp():cur==='s'?toggleSc():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
+  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true)}
+  else if(k==='arrowleft'){if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
   else if(k==='f'||k==='ㄹ'){e.preventDefault();fullscreen()}else if(k==='h'||k==='ㅗ')togglePanel();});
 show(location.hash.slice(1)||'d');
 </script>
