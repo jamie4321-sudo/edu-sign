@@ -972,7 +972,8 @@ function toggleSc(){if(!sc.on)return;sc.paused=!sc.paused;sc.last=performance.no
    음성 크기에 맞춰 VU 계기판 바늘 2개가 움직임 → (멘트 후) Enter → 다이얼 어두워지고 네온 'David.' 깜빡이며 켜짐 */
 const rd={on:false,t:0,u:0,phase:'radio',paused:false,last:0,lvl:[0,0],voice:false,bed:false};
 // 음성이 끝나기 0.8초 전부터 배경음을 2.5초에 걸쳐 키워 자연스럽게 이어 붙임 (음성 없으면 자막 끝난 뒤)
-function bedIn(){if(rd.bed||!window.RadioBed||!RadioBed.name||!bgmOn)return;rd.bed=true;rd.bedT=rd.t;rd.bedOut=false;RadioBed.play(0,3.5)} // 곡 18초 지점부터 3.5초에 걸쳐 페이드인
+function bedIn(low){if(rd.bed||!window.RadioBed||!RadioBed.name||!bgmOn)return;rd.bed=true;rd.bedLow=!!low;rd.bedFull=!low;rd.bedT=rd.t;rd.bedOut=false;RadioBed.play(0,low?0:3.5);if(low)RadioBed.el.volume=0}
+const BED_LOW_AT=4.8,BED_LOW=.14; // 11-26 Jamie: 진행자 '2016년에 문을 열었다고요?'(음성 4.8초)부터 배경음을 작게(14%) 깔고, 음성이 끝나면 크게 → 10초 뒤 페이드아웃 // 곡 18초 지점부터 3.5초에 걸쳐 페이드인
 const rC=$('#rC'),rg=rC.getContext('2d'),LOCK=2.6,FREQ=98.6;
 let actx=null,an=null,anData=null,noiseGain=null;
 function rdAudio(){
@@ -1069,10 +1070,13 @@ function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.no
     if(rd.t>.3&&rd.t<LOCK)noise(Math.random()<.18?.75:.32+.2*Math.random(),.02); // 레트로 지지직 크게(가끔 확 튐)
     if(before<LOCK&&rd.t>=LOCK){noise(0,.25);if(window.RadioVoice&&RadioVoice.name&&bgmOn){RadioVoice.play(0,.25);rd.voice=true}}
   }
+  if(!rd.bed&&rd.voice&&rd.phase==='radio'&&RadioVoice.el.currentTime>=BED_LOW_AT)bedIn(true); // 멘트 밑에 작게
+  if(rd.bed&&rd.bedLow&&!rd.bedFull){const v=RadioVoice.el;if(rd.phase==='name'||v.ended||(v.duration&&v.duration-v.currentTime<.8)){rd.bedFull=true;rd.bedT=rd.t}} // 음성 끝 → 크게
+  if(rd.bed&&rd.bedLow&&!rd.bedOut){const e=RadioBed.el,tg=rd.bedFull?1:BED_LOW;e.volume=Math.max(0,Math.min(1,e.volume+(tg-e.volume)*Math.min(1,dt*(rd.bedFull?1.1:1.4))))}
   if(!rd.bed&&rd.t>LOCK+1){const v=RadioVoice.el;if(rd.voice?(v.duration&&(v.ended||v.duration-v.currentTime<.8)):rd.t>LOCK+21.6)bedIn()}
   // 음성(없으면 자막)이 끝나는 순간 Enter 없이 자동으로 네온 'David.' + 한글 '데이빗'
   if(rd.phase==='radio'&&rd.t>LOCK+1){const v=RadioVoice.el;if(rd.voice?(v.duration&&(v.ended||v.duration-v.currentTime<.15)):rd.t>LOCK+22.2)radioName()}
-  if(rd.bed&&!rd.bedOut&&rd.t-rd.bedT>=10){rd.bedOut=true;RadioBed.stop(4)} // 10초 흐른 뒤 4초에 걸쳐 페이드아웃
+  if(rd.bed&&rd.bedFull&&!rd.bedOut&&rd.t-rd.bedT>=10){rd.bedOut=true;RadioBed.stop(4)} // 10초 흐른 뒤 4초에 걸쳐 페이드아웃
   renderRd()})(performance.now());
 
 
