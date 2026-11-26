@@ -50,6 +50,8 @@
   window.Entrance=slot('scarlett-song',86,'entrance-ready');
   // 05 데이빗 라디오 음성 (처음부터)
   window.RadioVoice=slot('radio-voice',0,'radio-ready');
+  // 05 데이빗 음성이 끝나면 이어서 깔리는 배경음 (반복)
+  window.RadioBed=slot('radio-bed',0,'radiobed-ready');RadioBed.el.loop=true;
   // 01 입장 대기 음악 2곡 — 번갈아 계속 재생
   window.WelcomeSongs=[slot('welcome-song-1',0,'welcome-ready'),slot('welcome-song-2',0,'welcome-ready')];
   window.CountSong=slot('countdown-song',0,'countsong-ready');
