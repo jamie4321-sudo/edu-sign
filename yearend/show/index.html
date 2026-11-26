@@ -561,7 +561,7 @@ html.calm *{animation-duration:0s!important;animation-iteration-count:1!importan
   <span class="hint">1 입장 · 2 카운트다운(다시 누르면 처음부터) · Space 일시정지 · 더블클릭 = 패널 표시</span>
 </nav>
 <audio id="bgm" src="bgm.mp3" preload="auto"></audio>
-<script src="entrance.js?v=1126c"></script>
+<script src="entrance.js?v=1126d"></script>
 <script>
 (function(){ // 입장곡은 여기서 골라도 원본 상영본(04 스칼렛)과 같이 쓰입니다
   const btn=document.getElementById('songBtn'),input=document.getElementById('songFile');
@@ -963,7 +963,7 @@ function scarlett(on){
 function toggleSc(){if(!sc.on)return;sc.paused=!sc.paused;sc.last=performance.now();if(window.Entrance)sc.paused?Entrance.pause():Entrance.resume()}
 (function scLoop(now){requestAnimationFrame(scLoop);if(!sc.on)return;const dt=Math.min(.1,(now-sc.last)/1000);sc.last=now;if(sc.paused)return;
   const s=window.Entrance&&Entrance.name?Entrance.state:null;
-  if(s&&!s.paused&&s.time>Entrance.START)sc.t=s.time-Entrance.START; // 곡 위치 = 화면 시계 (박자 정확히)
+  if(s&&!s.paused&&s.time>=Entrance.base)sc.t=s.time-Entrance.base; // 곡 위치 = 화면 시계 (박자 정확히)
   else if(!(s&&!s.paused))sc.t+=dt;
   renderSc()})(performance.now());
 

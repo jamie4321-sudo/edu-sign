@@ -55,16 +55,17 @@
     }
   };
 
-  const DEF={'countdown-song':'audio/countdown.mp3','scarlett-song':'audio/scarlett.mp3','welcome-song-1':'audio/welcome1.mp3',
-    'radio-voice':'audio/david-voice.m4a','radio-bed':'audio/david-bed.mp3','julian-song':'audio/julian.mp3','closing-song':'audio/closing.mp3'};
+  const DEF={'countdown-song':'audio/countdown.mp3','scarlett-song':['audio/scarlett-86.mp3',86],'welcome-song-1':'audio/welcome1.mp3',
+    'radio-voice':'audio/david-voice.m4a','radio-bed':['audio/david-bed-18.mp3',18],'julian-song':'audio/julian.mp3','closing-song':'audio/closing.mp3'};
+  // [주소, 잘라 둔 초] = 그 지점부터 미리 잘라 둔 파일 (아이패드·아이폰 사파리는 곡 중간으로 멀리 건너뛰기를 자주 실패 → 건너뛸 필요 없게)
   function slot(key,START,event){
     const audio=new Audio();audio.preload='auto';ELS.add(audio);
-    let url=null,name='',fadeT=null;
-    function use(file){if(url&&url.startsWith('blob:'))URL.revokeObjectURL(url);url=URL.createObjectURL(file);audio.src=url;name=file.name||key}
-    function useDef(){if(url||!DEF[key])return;url=DEF[key];audio.src=url;name='기본 음원'}
+    let url=null,name='',fadeT=null,base=START; // base = 이 파일에서 실제로 건너뛸 지점
+    function use(file){if(url&&url.startsWith('blob:'))URL.revokeObjectURL(url);url=URL.createObjectURL(file);audio.src=url;name=file.name||key;base=START}
+    function useDef(){if(url||!DEF[key])return;const d=[].concat(DEF[key]);url=d[0];base=START-(d[1]||0);audio.src=url;name='기본 음원'}
     const ready=load(key).then(f=>{if(f)use(f)}).catch(()=>{}).then(()=>{useDef();window.dispatchEvent(new Event(event))});
     return {
-      START,ready,
+      START,ready,get base(){return base},
       get name(){return url?name:''},
       get state(){return {time:+audio.currentTime.toFixed(2),paused:audio.paused,volume:audio.volume}},
       async pick(file){use(file);try{await save(key,file)}catch(e){}},
@@ -72,7 +73,10 @@
         if(!url)return false;
         clearInterval(fadeT);audio.volume=fadeIn>0?0:1;
         if(fadeIn>0){const step=1/(fadeIn*20);fadeT=setInterval(()=>{audio.volume=Math.min(1,audio.volume+step);if(audio.volume>=1)clearInterval(fadeT)},50)}
-        const go=()=>{try{audio.currentTime=START+offset}catch(e){}audio.play().catch(()=>{})};
+        const at=Math.max(0,base+offset);
+        const go=()=>{try{audio.currentTime=at}catch(e){}audio.play().catch(()=>{});
+          // 사파리가 건너뛰기를 무시하면 재생이 시작된 뒤 한 번 더 맞춤
+          if(at>1)audio.addEventListener('playing',()=>{if(Math.abs(audio.currentTime-at)>1.5)try{audio.currentTime=at}catch(e){}},{once:true})};
         audio.readyState>=1?go():audio.addEventListener('loadedmetadata',go,{once:true});
         return true;
       },
@@ -102,7 +106,7 @@
   window.RadioVoice=slot('radio-voice',0,'radio-ready');
   // 05 데이빗 음성이 끝나면 이어서 깔리는 배경음 (반복)
   window.RadioBed=slot('radio-bed',18,'radiobed-ready'); // 18초부터 (JunTankrillex 믹스)
-  RadioBed.el.addEventListener('ended',()=>{RadioBed.el.currentTime=18;RadioBed.el.play().catch(()=>{})}); // 끝나면 다시 18초부터
+  RadioBed.el.addEventListener('ended',()=>{RadioBed.el.currentTime=RadioBed.base;RadioBed.el.play().catch(()=>{})}); // 끝나면 다시 18초부터
   // 01 입장 대기 음악 2곡 — 번갈아 계속 재생
   window.WelcomeSongs=[slot('welcome-song-1',0,'welcome-ready'),slot('welcome-song-2',0,'welcome-ready')];
   window.CountSong=slot('countdown-song',0,'countsong-ready');
