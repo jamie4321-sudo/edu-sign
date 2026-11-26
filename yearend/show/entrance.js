@@ -57,6 +57,8 @@
   window.JulianSong=slot('julian-song',0,'julian-ready');
   // 07B 베스트 드레서 투표 배경음 (반복) · 투표 QR 이미지
   window.VoteSong=slot('vote-song',0,'votesong-ready');VoteSong.el.loop=true;
+  // 11 마무리 곡
+  window.ClosingSong=slot('closing-song',0,'closing-ready');
   window.VoteQR=(function(){const KEY='vote-qr';let url='';
     function use(f){if(url)URL.revokeObjectURL(url);url=f?URL.createObjectURL(f):''}
     const ready=load(KEY).then(use).catch(()=>{}).then(()=>window.dispatchEvent(new Event('voteqr-ready')));

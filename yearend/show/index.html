@@ -210,6 +210,20 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vg h1 em{font-style:normal;background:var(--grad,linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%));-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em}
 #vg .sub{margin:2cqw 0 0;font-weight:700;font-size:2.4cqw;letter-spacing:-.03em;color:#d2d2d7}
 #vg .an{opacity:0;animation:qIn 1.2s var(--ease-out) both}
+/* 11 Thank you — 키노트 마지막 장: 'Thank you.' 한 마디가 가운데 → 위로 올라가며 감사 인사·귀가 안내가 차례로 */
+#vt{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%)}
+#vt .glow{position:absolute;left:50%;bottom:-40cqh;width:120cqw;height:70cqh;transform:translateX(-50%);background:radial-gradient(closest-side,#ff9f4a22,#3ddc8412 55%,#0000);filter:blur(2cqw);opacity:0;animation:tGlow 3s 2.6s ease both}
+@keyframes tGlow{to{opacity:1}}
+#vt .wrap{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+#vt .hero{animation:tUp 1.3s 2.6s var(--ease-io) both}
+@keyframes tUp{from{transform:translateY(9cqh)}to{transform:none}}
+#vt .kick{margin:0 0 1.4cqw;font-weight:700;font-size:1.4cqw;letter-spacing:.34em;text-indent:.34em;color:var(--grey)}
+#vt h2{margin:0;font-weight:900;font-size:15cqw;line-height:.95;letter-spacing:-.06em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em}
+#vt .msg{margin:2.4cqw 0 0;font-weight:800;font-size:3cqw;letter-spacing:-.04em}
+#vt .guide{margin:3.2cqw auto 0;font-weight:500;font-size:1.8cqw;line-height:1.6;letter-spacing:-.02em;color:#a1a1a6}
+#vt .guide b{color:#f5f5f7;font-weight:700}
+#vt .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
+#vt .an{opacity:0;animation:qIn 1.2s var(--ease-out) both}
 #vj{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%)}
 #vj canvas{position:absolute;inset:0;width:100%;height:100%}
 #vj .pw{position:absolute;left:0;right:0;top:27%;margin:0;text-align:center;font-weight:500;font-size:2.8cqw;letter-spacing:-.02em;color:var(--grey);opacity:0;will-change:opacity,filter,transform}
@@ -303,6 +317,18 @@ body.clean{cursor:none}
 </section>
 
 <!-- A -->
+<!-- 11 Thank you -->
+<section class="v" id="vt" aria-label="11 감사 · 귀가 안내">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="wrap"><div class="hero">
+    <p class="kick an" style="animation-delay:3.1s">UNTIL WE MEET AGAIN</p>
+    <h2 class="an" style="animation-delay:.5s;animation-duration:1.6s">Thank you.</h2>
+    <p class="msg an" style="animation-delay:3.4s">함께해 주셔서 감사합니다.</p>
+    <p class="guide an" style="animation-delay:4.2s">안전하게 귀가하시고,<br>귀가 후 <b>카카오워크로 귀가 완료</b>를 공유해 주세요.</p>
+  </div></div>
+  <div class="foot an" style="animation-delay:5s">함께한 2026, 다가올 2027 · LINKAGELAB</div>
+</section>
+
 <!-- 10 단체사진 -->
 <section class="v" id="vg" aria-label="10 단체사진">
   <div class="aur" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -404,6 +430,7 @@ body.clean{cursor:none}
   <button data-v="j">07 줄리앙 (7)</button>
   <button data-v="q">07B 베스트 드레서 (V)</button>
   <button data-v="g">10 단체사진 (0)</button>
+  <button data-v="t">11 Thank you (-)</button>
   <button id="bgmBtn">음악 켜짐 (B)</button>
   <button id="cdSongBtn">카운트다운 곡 선택</button><input type="file" id="cdSongFile" accept="audio/*" hidden>
   <button id="songBtn">스칼렛 입장곡 선택</button><input type="file" id="songFile" accept="audio/*" hidden>
@@ -413,6 +440,7 @@ body.clean{cursor:none}
   <button id="jSongBtn">줄리앙 입장곡 선택</button><input type="file" id="jSongFile" accept="audio/*" hidden>
   <button id="qQrBtn">투표 QR 넣기</button><input type="file" id="qQrFile" accept="image/*" hidden>
   <button id="qSongBtn">투표 배경음 선택</button><input type="file" id="qSongFile" accept="audio/*" hidden>
+  <button id="tSongBtn">마무리 곡 선택</button><input type="file" id="tSongFile" accept="audio/*" hidden>
   <button id="photoBtn">오프닝 사진 넣기</button><input type="file" id="photoFile" accept="image/*" multiple hidden>
   <span class="sep"></span>
   <a href="original.html">원본 보기</a>
@@ -447,6 +475,9 @@ body.clean{cursor:none}
   addEventListener('voteqr-ready',ql);ql();qb.onclick=()=>qf.click();qf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await VoteQR.pick(x);e.target.value=''};
   const qsl=()=>{qs.textContent=VoteSong.name?'투표 배경음 ✓':'투표 배경음 선택'};addEventListener('votesong-ready',qsl);qsl();
   qs.onclick=()=>qsf.click();qsf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await VoteSong.pick(x);qsl();e.target.value='';if(cur==='q'&&bgmOn)VoteSong.play(0,1.2)};
+  const tb=document.getElementById('tSongBtn'),tf=document.getElementById('tSongFile');
+  const tl=()=>{tb.textContent=ClosingSong.name?'마무리 곡 ✓':'마무리 곡 선택'};addEventListener('closing-ready',tl);tl();
+  tb.onclick=()=>tf.click();tf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await ClosingSong.pick(x);tl();e.target.value='';if(cur==='t'&&bgmOn)ClosingSong.play(0,1.5)};
   const rb=document.getElementById('rvBtn'),rf=document.getElementById('rvFile');
   const rl=()=>{rb.textContent=RadioVoice.name?'데이빗 라디오 음성 ✓':'데이빗 라디오 음성 선택'};addEventListener('radio-ready',rl);rl();
   rb.onclick=()=>rf.click();rf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await RadioVoice.pick(x);rl();e.target.value=''};
@@ -466,14 +497,14 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ── 시안 전환 ── */
 let cur='',last01='d';
 function show(v,restart){
-  if(!['a','b','c','d','k','o','s','r','j','q','g'].includes(v))v='d';
-  if(v===cur&&!(restart&&'kosrjqg'.includes(v)))return;
+  if(!['a','b','c','d','k','o','s','r','j','q','g','t'].includes(v))v='d';
+  if(v===cur&&!(restart&&'kosrjqgt'.includes(v)))return;
   const prev=cur;cur=v;
   if('abcd'.includes(v))last01=v;
   document.querySelectorAll('.v').forEach(s=>{
     const on=s.id==='v'+v;s.classList.toggle('on',on);
     if(on){ // 재진입 시 입장 모션 다시 재생
-      s.querySelectorAll('.ticket,.chrome>*,#vq .an,#vg .an').forEach(el=>{el.style.animation='none';el.offsetWidth;el.style.animation=''});
+      s.querySelectorAll('.ticket,.chrome>*,#vq .an,#vg .an,#vt .an,#vt .hero,#vt .glow').forEach(el=>{el.style.animation='none';el.offsetWidth;el.style.animation=''});
     }
   });
   document.querySelectorAll('#panel [data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
@@ -487,7 +518,10 @@ function show(v,restart){
   radio(v==='r');
   julian(v==='j');
   vote(v==='q');
+  closing(v==='t');
 }
+/* ── 11: 마무리 곡(골랐으면) — 천천히 커지며 재생, 떠날 때 줄이며 멈춤 ── */
+let tOn=false;function closing(on){if(on&&!tOn&&window.ClosingSong&&bgmOn)ClosingSong.play(0,2);else if(!on&&tOn&&window.ClosingSong)ClosingSong.stop();tOn=on}
 /* ── 07B: 투표 화면 — 배경음(골랐으면) 반복 재생, 떠날 때 줄이며 멈춤 ── */
 let qOn=false;function vote(on){if(on&&!qOn&&window.VoteSong&&bgmOn)VoteSong.play(0,1.2);else if(!on&&qOn&&window.VoteSong)VoteSong.stop();qOn=on}
 
@@ -520,7 +554,7 @@ function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는
   if(on){renderCd();playBgm()}else if(was&&!keepMusic){stopBgm(true)}
 }
 function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?stopBgm(false):playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause()}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause()}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
@@ -1005,11 +1039,11 @@ $('#fs').onclick=fullscreen;$('#hd').onclick=togglePanel;
 addEventListener('dblclick',e=>{if(!e.target.closest('#panel'))togglePanel()});
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();
   if(k==='1'){if('abcd'.includes(cur))welcomeMusic(true,true);else show(last01)}else if(k==='2')show('k',true);
-  else if(k==='3')show('o',true);else if(k==='4')show('s',true);else if(k==='5')show('r',true);else if(k==='7')show('j',true);else if(k==='v'||k==='ㅍ')show('q',true);else if(k==='0')show('g',true);
+  else if(k==='3')show('o',true);else if(k==='4')show('s',true);else if(k==='5')show('r',true);else if(k==='7')show('j',true);else if(k==='v'||k==='ㅍ')show('q',true);else if(k==='0')show('g',true);else if(k==='-')show('t',true);
   else if(k==='enter'&&cur==='r'){e.preventDefault();radioName()}
   else if(k===' '){e.preventDefault();cur==='o'?toggleOp():cur==='s'?toggleSc():cur==='r'?toggleRd():cur==='j'?toggleJl():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
-  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true);else if(cur==='r')show('j',true);else if(cur==='j')show('q',true);else if(cur==='q')show('g',true)}
-  else if(k==='arrowleft'){if(cur==='g')show('q',true);else if(cur==='q')show('j',true);else if(cur==='j')show('r',true);else if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
+  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true);else if(cur==='r')show('j',true);else if(cur==='j')show('q',true);else if(cur==='q')show('g',true);else if(cur==='g')show('t',true)}
+  else if(k==='arrowleft'){if(cur==='t')show('g',true);else if(cur==='g')show('q',true);else if(cur==='q')show('j',true);else if(cur==='j')show('r',true);else if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
   else if(k==='f'||k==='ㄹ'){e.preventDefault();fullscreen()}else if(k==='h'||k==='ㅗ')togglePanel();});
 show(location.hash.slice(1)||'d');
 </script>
