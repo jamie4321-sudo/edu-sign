@@ -103,7 +103,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 @keyframes kOut{from{opacity:1;filter:blur(0)}to{opacity:0;filter:blur(.8cqw);transform:scale(.985)}}
 #vd .hero{font-weight:900;font-size:21cqw;letter-spacing:-.06em;line-height:.9;margin:0;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em}
 #vd .say{font-weight:800;font-size:6.6cqw;letter-spacing:-.045em;line-height:1.12;margin:0}
-#vd .say em{font-style:normal;color:#ffd23f;text-shadow:0 0 1.2cqw #ffd23f40} /* Jamie: '함께여서' 노란색 포인트 */
+#vd .say em{font-style:normal;color:#ffb547;text-shadow:0 0 1.2cqw #ffb54740} /* Jamie: '함께여서' 앰버 골드 포인트 (줄리앙과 같은 색) */
 #vd .lock{font-weight:800;font-size:9.6cqw;letter-spacing:-.05em;line-height:1;margin:0}
 #vd .lock .amp{color:var(--grey);font-weight:400}
 #vd .cap{margin:2.2cqw 0 0;font-size:2.2cqw;font-weight:500;color:var(--grey);letter-spacing:-.02em}
@@ -1050,10 +1050,10 @@ function renderJl(){
     l.style.opacity=(1-sOut).toFixed(3);l.style.filter=sOut>.01?`blur(${(sOut*.8).toFixed(2)}cqw)`:'none';
     key.style.opacity=(t<P?0:pop).toFixed(3);key.style.transform=`scale(${(1.7-.7*pop).toFixed(4)})`;
     // 처음엔 흰 글자 → 나머지 글자가 붙는 동안 브랜드 그라데이션으로 물듦
-    // 포인트: 나머지 글자가 붙는 순간 핵심 단어가 흰색 → 노란색(#FFD23F, 키노트 '함께여서'와 같은 색)으로 물듦 (Jamie 선택)
+    // 포인트: 나머지 글자가 붙는 순간 핵심 단어가 흰색 → 앰버 골드(#FFB547, 키노트 '함께여서'와 같은 색)로 물듦 (Jamie 선택)
     const h=reduced?1:eo((t-JA(i)-.3)/.45),glo=reduced?0:Math.exp(-Math.max(0,t-P)/.3),bl=(1-pop)*1.2;
-    key.style.filter=`${bl>.01?`blur(${bl.toFixed(2)}cqw) `:''}drop-shadow(0 0 ${(1*glo).toFixed(2)}cqw rgba(255,255,255,${(.7*glo).toFixed(2)})) drop-shadow(0 0 ${(1.2*h).toFixed(2)}cqw rgba(255,210,63,${(.35*h).toFixed(2)}))`;
-    const w=`rgb(${Math.round(245+10*h)},${Math.round(245-35*h)},${Math.round(247-184*h)})`;
+    key.style.filter=`${bl>.01?`blur(${bl.toFixed(2)}cqw) `:''}drop-shadow(0 0 ${(1*glo).toFixed(2)}cqw rgba(255,255,255,${(.7*glo).toFixed(2)})) drop-shadow(0 0 ${(1.2*h).toFixed(2)}cqw rgba(255,181,71,${(.35*h).toFixed(2)}))`;
+    const w=`rgb(${Math.round(245+10*h)},${Math.round(245-64*h)},${Math.round(247-176*h)})`;
     key.style.color=w;
 
     for(const c of jl.ch[i]){const q=eo((t-JA(i)-c.d*.055)/.5);
