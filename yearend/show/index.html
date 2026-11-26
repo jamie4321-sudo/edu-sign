@@ -652,13 +652,13 @@ const ScCredit=(()=>{
 })();
 const creditAudio=()=>window.CreditSong&&CreditSong.name?CreditSong:ScCredit; // 파일을 골라 두었으면 파일, 아니면 SoundCloud
 const ce={on:false,t:0,paused:false,last:0,items:null,end:0,done:false,vol:0};
-// 크레딧 곡: 장면 10초 뒤부터 살며시 페이드인 → 크레딧 내내 점점 커지다(최대 60%) → 'Jamie.'(곡 52.42초) 뜨는 순간 100%로 클라이맥스
+// 크레딧 곡: 곡 0초부터 잔잔히 깔림 → 크레딧 내내 점점 커지다(최대 60%) → 'Jamie.' 멈추는 순간(곡 52.42초) 100%로 클라이맥스
 const CE_NAME_AT=52.42; // 'Jamie.'가 뜨는 순간 = 곡의 52.42초(00:52:42) (곡 위치를 크레딧 시계에 묶음)
-const ceSongPos=()=>Math.max(0,CE_NAME_AT-ce.end+ce.t);
-function ceVolume(dt){if(!bgmOn)return;const t=ce.t,q=Math.max(0,t-10),tg=t>=ce.end?1:Math.min(1,q/4)*(.15+.45*Math.pow(Math.min(1,q/Math.max(1,ce.end-10)),1.6));
+const ceSongPos=()=>Math.max(0,ce.t); // 곡 위치 = 크레딧 시간 (0초부터)
+function ceVolume(dt){if(!bgmOn)return;const t=ce.t,tg=t>=ce.end?1:Math.min(1,t/3)*(.22+.38*Math.pow(Math.min(1,t/ce.end),1.8)); // 처음부터 잔잔히(22%) → 점점 커짐(60%) → Jamie. 순간 100%
   ce.vol+=(tg-ce.vol)*Math.min(1,dt*(t>=ce.end?2.2:1.5));const a=creditAudio();
   if(a===ScCredit)ScCredit.setVol(ce.vol);else{a.el.volume=Math.max(0,Math.min(1,ce.vol));const want=ceSongPos();if(!a.el.paused&&!a.el.seeking&&Math.abs(a.el.currentTime-want)>.25)a.el.currentTime=want}}
-const CV=10.5,CE_DEC=3; // CE_DEC = 맨 끝 Jamie.에서 멈출 때 감속 시간(초)
+let CV=10.5;const CE_DEC=3; // CE_DEC = 맨 끝 Jamie.에서 멈출 때 감속 시간(초)
 function ceDist(t){if(t<=ce.t1)return CV*t;const k=Math.min(t-ce.t1,CE_DEC);return CV*ce.t1+CV*(k-k*k/(2*CE_DEC))} // 크레딧이 올라가는 속도(화면 높이 % / 초)
 function ceR(k){const x=Math.sin(k*91.7+7.1)*43758.5453;return x-Math.floor(x)}
 function ceBuild(){
@@ -677,7 +677,8 @@ function ceBuild(){
   ce.items=items;ce.len=y;ce.pics=false;cePhotos();
   y+=24;add('<h1>Jamie.</h1><p class="kr">제이미</p>','jm',{});
   // Jamie.가 화면 가운데(50%)에 오면 멈춤: 일정 속도로 오다가 마지막 CE_DEC초 동안 부드럽게 감속
-  ce.t1=(50+y)/CV-CE_DEC/2;ce.end=ce.t1+CE_DEC;
+  // 곡을 0초부터 틀고, Jamie.가 멈추는 순간이 곡 52.42초(클라이맥스)가 되도록 흐르는 속도를 맞춤
+  ce.end=CE_NAME_AT;ce.t1=ce.end-CE_DEC;CV=(50+y)/(ce.t1+CE_DEC/2);
 }
 // 양옆 폴라로이드 사진 (오프닝에 쓴 크루 사진, 흑백) — 이름보다 1.3배 빠르게. 사진 목록이 늦게 오면 그때 추가
 function cePhotos(){
