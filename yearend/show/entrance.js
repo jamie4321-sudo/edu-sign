@@ -55,4 +55,13 @@
   window.CountSong=slot('countdown-song',0,'countsong-ready');
   // 07 줄리앙 입장곡 (처음부터)
   window.JulianSong=slot('julian-song',0,'julian-ready');
+  // 07B 베스트 드레서 투표 배경음 (반복) · 투표 QR 이미지
+  window.VoteSong=slot('vote-song',0,'votesong-ready');VoteSong.el.loop=true;
+  window.VoteQR=(function(){const KEY='vote-qr';let url='';
+    function use(f){if(url)URL.revokeObjectURL(url);url=f?URL.createObjectURL(f):''}
+    const ready=load(KEY).then(use).catch(()=>{}).then(()=>window.dispatchEvent(new Event('voteqr-ready')));
+    return {ready,get url(){return url},
+      async pick(f){use(f);try{await save(KEY,f)}catch(e){}window.dispatchEvent(new Event('voteqr-ready'))},
+      async clear(){use(null);try{await save(KEY,null)}catch(e){}window.dispatchEvent(new Event('voteqr-ready'))}};
+  })();
 })();
