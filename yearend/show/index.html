@@ -725,14 +725,16 @@ const JR=k=>{const x=Math.sin(k*91.7+17.3)*43758.5453;return x-Math.floor(x)};
 const JSP=Array.from({length:8},(_,k)=>Array.from({length:46},(_,i)=>({ang:JR(k*100+i)*6.283,v:500+JR(k*100+i+50)*900,s:3+JR(k*100+i+99)*7,c:JR(k*100+i+7)})));
 const JST=Array.from({length:110},(_,i)=>{let x=JR(i*3+1)*1600,y=JR(i*3+2)*640;if(x>250&&x<1350&&y>240&&y<600)y=y<420?y-200:y+150;
   return {x,y,r:.7+JR(i*3+3)*1.4,per:2.5+JR(i+400)*5,ph:JR(i+500)*6.28,max:.35+JR(i+600)*.5,glint:JR(i+700)<.12,c:JR(i+800)<.2?'#ffd9a8':JR(i+800)<.32?'#bff5d6':'#ffffff'}});
-function jBurst(cx,cy,a,k,big){ // a: 터진 뒤 지난 초
-  const fl=Math.exp(-a/.16)*.55*big;
-  if(fl>.01){const g=jg.createRadialGradient(cx,cy,0,cx,cy,700*big);g.addColorStop(0,`rgba(255,250,240,${fl})`);g.addColorStop(.25,`rgba(255,160,100,${fl*.45})`);g.addColorStop(1,'rgba(255,160,100,0)');jg.fillStyle=g;jg.fillRect(0,0,1600,900)}
-  const rr=120+eo(a/1.1)*900*big,ra=(1-sm(a/1.1))*.7;
-  if(ra>.01){const g=jg.createLinearGradient(cx-rr,0,cx+rr,0);g.addColorStop(0,'#ffb547');g.addColorStop(.45,'#ff7a59');g.addColorStop(1,'#3ddc84');
-    jg.globalAlpha=ra;jg.strokeStyle=g;jg.lineWidth=3*(1-a/1.6)+.5;jg.beginPath();jg.ellipse(cx,cy,rr,rr*.42,0,0,6.283);jg.stroke();jg.globalAlpha=1}
-  for(const p of JSP[k%8]){const d=p.v*(1-Math.exp(-a*2.6))/2.6*big,x=cx+Math.cos(p.ang)*d*1.25,y=cy+Math.sin(p.ang)*d*.7+a*a*60,al=Math.max(0,1-a/1.4);
-    if(al<=0)continue;const c=jGrad(420+p.c*760),r=p.s*(1-a/1.6);jg.globalAlpha=al;jg.fillStyle=p.c<.3?'#fff':`rgb(${c.map(Math.round)})`;
+function jBurst(cx,cy,a,k,big){ // a: 터진 뒤 지난 초 — 가로로 '쨍' 스치는 얇은 빛줄기(렌즈 플레어) + 작은 반짝이
+  const fl=Math.exp(-a/.32);
+  if(fl>.01){const L=(260+1400*eo(a/.3))*big,h=Math.max(1.2,4*big*fl);
+    jg.save();jg.globalCompositeOperation='lighter';
+    let g=jg.createLinearGradient(cx-L,0,cx+L,0);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.5,`rgba(255,255,255,${.95*fl})`);g.addColorStop(1,'rgba(255,255,255,0)');
+    jg.fillStyle=g;jg.fillRect(cx-L,cy-h/2,L*2,h);
+    g=jg.createLinearGradient(cx-L*.8,0,cx+L*.8,0);g.addColorStop(0,'rgba(255,181,71,0)');g.addColorStop(.3,`rgba(255,122,89,${.28*fl})`);g.addColorStop(.7,`rgba(61,220,132,${.22*fl})`);g.addColorStop(1,'rgba(61,220,132,0)');
+    jg.fillStyle=g;jg.fillRect(cx-L*.8,cy-9*big,L*1.6,18*big);jg.restore()}
+  for(const p of JSP[k%8].slice(0,22)){const d=p.v*(1-Math.exp(-a*3))/3*big,x=cx+Math.cos(p.ang)*d*1.5,y=cy+Math.sin(p.ang)*d*.35,al=Math.max(0,1-a/1.1);
+    if(al<=0)continue;const r=p.s*.7*(1-a/1.2);jg.globalAlpha=al;jg.fillStyle='#fff';
     jg.beginPath();jg.moveTo(x,y-r);jg.quadraticCurveTo(x,y,x+r,y);jg.quadraticCurveTo(x,y,x,y+r);jg.quadraticCurveTo(x,y,x-r,y);jg.quadraticCurveTo(x,y,x,y-r);jg.fill()}
   jg.globalAlpha=1;
 }
@@ -746,9 +748,13 @@ function renderJl(){
   JLN.forEach((l,i)=>{const P=JP(i),pop=eo((t-P)/.28),key=l.querySelector('.key');
     l.style.opacity=(1-sOut).toFixed(3);l.style.filter=sOut>.01?`blur(${(sOut*.8).toFixed(2)}cqw)`:'none';
     key.style.opacity=(t<P?0:pop).toFixed(3);key.style.transform=`scale(${(1.7-.7*pop).toFixed(4)})`;
-    const glo=reduced?.15:.15+.85*Math.exp(-Math.max(0,t-P)/.3),bl=(1-pop)*1.2;
-    key.style.filter=`${bl>.01?`blur(${bl.toFixed(2)}cqw) `:''}drop-shadow(0 0 ${(1.2*glo).toFixed(2)}cqw rgba(255,138,92,${(.8*glo).toFixed(2)})) drop-shadow(0 0 ${(4*glo).toFixed(2)}cqw rgba(255,181,71,${(.4*glo).toFixed(2)}))`;
-    const sh=sm((t-6.6-i*.14)/.6);key.style.backgroundPosition=`${(130-160*sh).toFixed(1)}% 0,0 0`;
+    // 처음엔 흰 글자 → 나머지 글자가 붙는 동안 브랜드 그라데이션으로 물듦
+    const wh=1-sm((t-JA(i)-.05)/.7),glo=reduced?0:Math.exp(-Math.max(0,t-P)/.3),bl=(1-pop)*1.2;
+    key.style.filter=`${bl>.01?`blur(${bl.toFixed(2)}cqw) `:''}drop-shadow(0 0 ${(1*glo).toFixed(2)}cqw rgba(255,255,255,${(.7*glo).toFixed(2)})) drop-shadow(0 0 ${(.8*(1-wh)).toFixed(2)}cqw rgba(255,138,92,${(.45*(1-wh)).toFixed(2)}))`;
+    const sh=sm((t-6.6-i*.14)/.6),w=`rgba(245,245,247,${wh.toFixed(3)})`;
+    key.style.backgroundImage=`linear-gradient(100deg,#fff0 42%,#fffe 50%,#fff0 58%),linear-gradient(${w},${w}),var(--grad)`;
+    key.style.backgroundSize='300% 100%,100% 100%,100% 100%';key.style.backgroundRepeat='no-repeat';
+    key.style.backgroundPosition=`${(130-160*sh).toFixed(1)}% 0,0 0,0 0`;
     for(const c of jl.ch[i]){const q=eo((t-JA(i)-c.d*.055)/.5);
       c.el.style.opacity=sm(q/.6).toFixed(3);
       c.el.style.transform=`translateX(${(c.side*(1-q)*(2.5+c.d*.9)).toFixed(3)}cqw) scale(${(1+.9*(1-q)).toFixed(4)})`;
