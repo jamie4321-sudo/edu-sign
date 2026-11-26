@@ -22,7 +22,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"Kakao Big Sans","Malgun Gothic",sans-serif;word-break:keep-all}
 #show{position:fixed;inset:0;display:grid;place-items:center}
-.stage{width:min(100vw,177.7778vh);height:min(100vh,56.25vw);position:relative;overflow:hidden;container-type:size;isolation:isolate}
+.stage{--silver:linear-gradient(180deg,#ffffff 0%,#ffffff 45%,#c7c7cc 100%);width:min(100vw,177.7778vh);height:min(100vh,56.25vw);position:relative;overflow:hidden;container-type:size;isolation:isolate}
 .v{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .7s cubic-bezier(.4,0,.2,1),visibility 0s linear .7s}
 /* 장면 전환: 앞 장면이 0.7초에 걸쳐 어두워진 뒤, 새 장면이 0.4초 늦게 0.9초에 걸쳐 밝아짐 (키노트식 암전 전환, 겹쳐 지저분하지 않게) */
 .v.on{opacity:1;visibility:visible;transition:opacity .9s cubic-bezier(.4,0,.2,1) .4s,visibility 0s}
@@ -101,9 +101,9 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vd .slide.out{animation:kOut .7s ease-in both}
 @keyframes kIn{from{opacity:0;filter:blur(1.2cqw);transform:scale(1.04)}to{opacity:1;filter:blur(0);transform:none}}
 @keyframes kOut{from{opacity:1;filter:blur(0)}to{opacity:0;filter:blur(.8cqw);transform:scale(.985)}}
-#vd .hero{font-weight:900;font-size:21cqw;letter-spacing:-.06em;line-height:.9;margin:0;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em}
+#vd .hero{font-weight:900;font-size:21cqw;letter-spacing:-.06em;line-height:.9;margin:0;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em}
 #vd .say{font-weight:800;font-size:6.6cqw;letter-spacing:-.045em;line-height:1.12;margin:0}
-#vd .say em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#vd .say em{font-style:normal;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent}
 #vd .lock{font-weight:800;font-size:9.6cqw;letter-spacing:-.05em;line-height:1;margin:0}
 #vd .lock .amp{color:var(--grey);font-weight:400}
 #vd .cap{margin:2.2cqw 0 0;font-size:2.2cqw;font-weight:500;color:var(--grey);letter-spacing:-.02em}
@@ -119,9 +119,9 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vk .att h2{margin:0;font-weight:800;font-size:6.6cqw;letter-spacing:-.045em;line-height:1.1}
 #vk .att p{margin:2cqw 0 0;font-size:2.2cqw;font-weight:500;color:var(--grey);letter-spacing:-.02em}
 #vk .num{font-weight:900;font-size:36cqw;letter-spacing:-.07em;line-height:.8;font-variant-numeric:tabular-nums;padding:0 .06em .04em}
-#vk .num.hot{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#vk .num.hot{background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent}
 #vk .fin p{margin:0;font-weight:800;font-size:6.6cqw;letter-spacing:-.045em}
-#vk .fin em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#vk .fin em{font-style:normal;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent}
 #vk .bar{position:absolute;left:50%;bottom:10.5cqh;width:24cqw;height:.18cqw;margin-left:-12cqw;background:#2a2a2e;border-radius:1cqw;overflow:hidden;opacity:0;transition:opacity .5s}
 #vk .bar i{position:absolute;inset:0;background:var(--grad);transform-origin:left;transform:scaleX(0)}
 #vk .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
@@ -137,7 +137,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vo .title{position:absolute;inset:0;display:grid;place-content:center;text-align:center;opacity:0;will-change:opacity,filter,transform}
 #vo .yr{font-weight:700;font-size:1.3cqw;letter-spacing:.32em;color:var(--grey);margin-bottom:1.6cqw}
 #vo h1{margin:0;font-weight:800;font-size:11cqw;letter-spacing:-.05em;line-height:1}
-#vo h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.04em}
+#vo h1 em{font-style:normal;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.04em}
 #vo h1 .amp{color:var(--grey);font-weight:400}
 #vo .title p{margin:2.2cqw 0 0;font-size:2.2cqw;font-weight:500;color:var(--grey);letter-spacing:-.02em}
 #vo .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700;opacity:0}
@@ -154,7 +154,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vs .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 #vs canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #vs #sFx{mix-blend-mode:screen}
-#vs svg{filter:drop-shadow(0 0 .7cqw #ff8a5c66) drop-shadow(0 0 2cqw #ffb54733)}
+#vs svg{filter:drop-shadow(0 0 .7cqw #ffffff55) drop-shadow(0 0 2cqw #ffffff22)}
 #vs .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
 
 /* ───────── 05 · 데이빗 (레트로 라디오) ───────── */
@@ -178,7 +178,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 @keyframes qBlink{50%{opacity:.2}}
 #vq h1{margin:0;font-weight:900;font-size:11.5cqw;line-height:.86;letter-spacing:-.06em}
 #vq h1 span{display:block}
-#vq h1 .g b{font-weight:900;background:linear-gradient(100deg,#fff0 40%,#fffe 50%,#fff0 60%) 150% 0/250% 100% no-repeat,var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .08em 0;animation:qShine 7s 3s ease-in-out infinite}
+#vq h1 .g b{font-weight:900;background:linear-gradient(100deg,#fff0 40%,#fffe 50%,#fff0 60%) 150% 0/250% 100% no-repeat,var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .08em 0;animation:qShine 7s 3s ease-in-out infinite}
 @keyframes qShine{0%{background-position:150% 0,0 0}22%,100%{background-position:-60% 0,0 0}}
 #vq .ask{margin:3.2cqw 0 0;font-weight:800;font-size:2.5cqw;letter-spacing:-.035em}
 #vq .hint{margin:.9cqw 0 0;font-weight:500;font-size:1.5cqw;color:var(--grey);letter-spacing:-.02em}
@@ -209,7 +209,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vg .lock{position:absolute;left:0;right:0;top:8.5cqh;text-align:center}
 #vg .kick{margin:0 0 1.6cqw;font-weight:700;font-size:1.6cqw;letter-spacing:.34em;text-indent:.34em;color:#a1a1a6}
 #vg h1{margin:0;font-weight:900;font-size:10.6cqw;line-height:.9;letter-spacing:-.055em;white-space:nowrap}
-#vg h1 em{font-style:normal;background:var(--grad,linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%));-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em}
+#vg h1 em{font-style:normal;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em}
 #vg .sub{margin:2cqw 0 0;font-weight:700;font-size:2.4cqw;letter-spacing:-.03em;color:#d2d2d7}
 #vg .an{opacity:0;animation:qIn 1.2s var(--ease-out) both}
 /* 11 Thank you — 키노트 마지막 장: 'Thank you.' 한 마디가 가운데 → 위로 올라가며 감사 인사·귀가 안내가 차례로 */
@@ -220,7 +220,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vt .hero{animation:tUp 1.3s 2.6s var(--ease-io) both}
 @keyframes tUp{from{transform:translateY(9cqh)}to{transform:none}}
 #vt .kick{margin:0 0 1.4cqw;font-weight:700;font-size:1.4cqw;letter-spacing:.34em;text-indent:.34em;color:var(--grey)}
-#vt h2{margin:0;font-weight:900;font-size:15cqw;line-height:.95;letter-spacing:-.06em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em}
+#vt h2{margin:0;font-weight:900;font-size:15cqw;line-height:.95;letter-spacing:-.06em;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em}
 #vt .msg{margin:2.4cqw 0 0;font-weight:800;font-size:3cqw;letter-spacing:-.04em}
 #vt .guide{margin:3.2cqw auto 0;font-weight:500;font-size:1.8cqw;line-height:1.6;letter-spacing:-.02em;color:#a1a1a6}
 #vt .guide b{color:#f5f5f7;font-weight:700}
@@ -230,10 +230,10 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vj canvas{position:absolute;inset:0;width:100%;height:100%}
 #vj .pw{position:absolute;left:0;right:0;top:27%;margin:0;text-align:center;font-weight:500;font-size:2.8cqw;letter-spacing:-.02em;color:var(--grey);opacity:0;will-change:opacity,filter,transform}
 #vj .fact{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-weight:900;letter-spacing:-.05em;line-height:1;opacity:0;will-change:opacity,transform,filter}
-#vj .ln span{white-space:pre}
+#vj .ln span{white-space:pre;color:#8e8e93}
 #vj .ln i{display:inline-block;font-style:normal;white-space:pre;opacity:0;will-change:transform,opacity,filter}
 #vj .ln .key{display:inline-block;opacity:0;will-change:transform,opacity,filter}
-#vj .key{background:linear-gradient(100deg,#fff0 42%,#fffe 50%,#fff0 58%) 130% 0/300% 100% no-repeat,var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:.04em 0 .08em}
+#vj .key{background:linear-gradient(100deg,#fff0 42%,#fffe 50%,#fff0 58%) 130% 0/300% 100% no-repeat,var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:.04em 0 .08em}
 #vj .ln{position:absolute;left:0;right:0;transform:translateY(-50%);display:flex;justify-content:center;white-space:nowrap;font-weight:800;font-size:4.6cqw;letter-spacing:-.05em;line-height:1;opacity:0}
 #vj .kr{position:absolute;left:0;right:0;top:67%;margin:0;transform:translateY(-50%);text-align:center;font-weight:800;font-size:2.8cqw;letter-spacing:.32em;text-indent:.32em;color:#f5f5f7;opacity:0}
 #vj .cap{position:absolute;left:0;right:0;bottom:6cqh;margin:0;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700;opacity:0}
@@ -292,7 +292,7 @@ body.clean{cursor:none}
   <div class="copy">
     <p class="pw" id="sPw" hidden></p><!-- Jamie: Please welcome. 문구 전부 삭제 -->
     <svg id="sSig" viewBox="0 0 480 150" role="img" aria-label="Scarlett">
-      <defs><linearGradient id="sigGrad" x1="0" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffc56b"/><stop offset=".45" stop-color="#ff7a59"/><stop offset="1" stop-color="#3ddc84"/></linearGradient></defs>
+      <defs><linearGradient id="sigGrad" x1="0" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#f2f2f7"/><stop offset="1" stop-color="#d1d1d6"/></linearGradient></defs>
       <path pathLength="1" d="M110 32 C135 0 57 2 35 42 C17 75 100 62 94 92 C87 130 8 144 12 112 C14 100 33 94 49 96 C76 100 105 91 124 78"/>
       <path pathLength="1" d="M124 78 C139 64 152 70 146 77 C138 65 115 83 119 98 C124 116 153 95 168 81"/>
       <path pathLength="1" d="M168 81 C185 65 196 72 191 84 C183 67 162 82 161 99 C160 117 182 102 191 84 L185 103 Q185 114 206 91 L218 77"/>
@@ -875,9 +875,9 @@ function renderJl(){
     key.style.opacity=(t<P?0:pop).toFixed(3);key.style.transform=`scale(${(1.7-.7*pop).toFixed(4)})`;
     // 처음엔 흰 글자 → 나머지 글자가 붙는 동안 브랜드 그라데이션으로 물듦
     const wh=1-sm((t-JA(i)-.05)/.7),glo=reduced?0:Math.exp(-Math.max(0,t-P)/.3),bl=(1-pop)*1.2;
-    key.style.filter=`${bl>.01?`blur(${bl.toFixed(2)}cqw) `:''}drop-shadow(0 0 ${(1*glo).toFixed(2)}cqw rgba(255,255,255,${(.7*glo).toFixed(2)})) drop-shadow(0 0 ${(.8*(1-wh)).toFixed(2)}cqw rgba(255,138,92,${(.45*(1-wh)).toFixed(2)}))`;
+    key.style.filter=`${bl>.01?`blur(${bl.toFixed(2)}cqw) `:''}drop-shadow(0 0 ${(1*glo).toFixed(2)}cqw rgba(255,255,255,${(.7*glo).toFixed(2)})) drop-shadow(0 0 ${(.8*(1-wh)).toFixed(2)}cqw rgba(255,255,255,${(.22*(1-wh)).toFixed(2)}))`;
     const sh=sm((t-6.6-i*.14)/.6),w=`rgba(245,245,247,${wh.toFixed(3)})`;
-    key.style.backgroundImage=`linear-gradient(100deg,#fff0 42%,#fffe 50%,#fff0 58%),linear-gradient(${w},${w}),var(--grad)`;
+    key.style.backgroundImage=`linear-gradient(100deg,#fff0 42%,#fffe 50%,#fff0 58%),linear-gradient(${w},${w}),var(--silver)`;
     key.style.backgroundSize='300% 100%,100% 100%,100% 100%';key.style.backgroundRepeat='no-repeat';
     key.style.backgroundPosition=`${(130-160*sh).toFixed(1)}% 0,0 0,0 0`;
     for(const c of jl.ch[i]){const q=eo((t-JA(i)-c.d*.055)/.5);
@@ -907,7 +907,7 @@ function renderJl(){
       const tw=.5+.5*Math.sin(t*(.7+p.u*1.3)+p.ph),spark=Math.pow(tw,10),sw=Math.exp(-Math.pow((p.ex-sweepX)/120,2))*settled;
       const a=Math.min(1,(f>0?.72:.9)+.14*tw+.22*spark*settled+.3*sw)*appear*(1-.3*lift*(1-f));
       if(a<=.01)continue;
-      const gc=p.key?jGrad(p.sx):[245,245,247],wc=p.u<.12?[255,214,170]:p.u<.2?[190,245,215]:[255,255,255],c=gc.map((v,k)=>Math.round(v+(wc[k]-v)*f));
+      const gc=p.key?[255,255,255]:[200,200,205],wc=p.u<.12?[255,214,170]:p.u<.2?[190,245,215]:[255,255,255],c=gc.map((v,k)=>Math.round(v+(wc[k]-v)*f));
       jg.globalAlpha=a;jg.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`;
       const r=(1.35+.55*p.u)*(1+.25*sw);jg.beginPath();jg.arc(x,y,r,0,6.283);jg.fill();
       if(p.u>.94&&settled>0){const gl=settled*(.7*spark+.4*sw);if(gl>.2){const l=r*2.6;jg.globalAlpha=gl*.8;jg.strokeStyle='#fff';jg.lineWidth=.6;jg.beginPath();jg.moveTo(x-l,y);jg.lineTo(x+l,y);jg.moveTo(x,y-l);jg.lineTo(x,y+l);jg.stroke()}}
