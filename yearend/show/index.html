@@ -178,11 +178,11 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vr{background:radial-gradient(120% 100% at 50% 45%,#2a1a0e 0%,#140c06 55%,#070402 100%);color:#f3e3c3;--amber:#ffb547;--cream:#f6e6c6}
 #vr canvas{position:absolute;inset:0;width:100%;height:100%}
 /* 라디오 음성 자막 — 배경에 컴퓨터 화면처럼 한 글자씩 타이핑(커서 깜빡), 지난 줄은 흐리게 */
-#vr .sub{position:absolute;left:6cqw;right:6cqw;top:5cqh;font-weight:700;font-size:2.4cqw;line-height:1.55;letter-spacing:-.01em;color:#ffb547}
+#vr .sub{position:absolute;left:5cqw;right:5cqw;top:6cqh;font-weight:800;font-size:3.9cqw;line-height:1.38;word-break:keep-all;letter-spacing:-.01em;color:#ffb547}
 #vr .shade{position:absolute;inset:0;background:#050302;opacity:0;pointer-events:none} /* 자막 뜰 때 라디오를 아주 어둡게 */
 #vr .sub div{opacity:.3;white-space:pre-wrap}#vr .sub div.now{opacity:.95;text-shadow:0 0 .8cqw #ffb54766}
 #vr .sub .host{color:#cfe3ff}#vr .sub .host.now{text-shadow:0 0 .8cqw #8fbaff66}#vr .sub .host i{background:#cfe3ff} /* 진행자 = 차가운 하늘색, 게스트(데이빗) = 호박색 — 이름은 숨겨 '누구 목소리지?' 궁금하게 */
-#vr .sub b{font-weight:800;letter-spacing:.18em;font-size:.72em;margin-right:.8em;color:#f3e3c3}
+#vr .sub b{font-weight:800;letter-spacing:.18em;font-size:.5em;margin-right:.8em;vertical-align:.25em;color:#f3e3c3}
 #vr .sub i{display:inline-block;width:.55em;height:1.05em;vertical-align:-.15em;background:#ffb547;animation:rCur 1s steps(1) infinite}
 @keyframes rCur{50%{opacity:0}}
 #vr .lamp{position:absolute;left:50%;top:13%;transform:translateX(-50%);padding:1cqw 2.6cqw;border-radius:1.2cqw;font-weight:900;font-size:2.6cqw;letter-spacing:.22em;text-indent:.22em;color:#3a0d08;background:#3a1410;border:.25cqw solid #5a2018;transition:none}
