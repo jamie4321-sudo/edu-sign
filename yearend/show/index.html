@@ -172,10 +172,10 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vj canvas{position:absolute;inset:0;width:100%;height:100%}
 #vj .pw{position:absolute;left:0;right:0;top:27%;margin:0;text-align:center;font-weight:500;font-size:2.8cqw;letter-spacing:-.02em;color:var(--grey);opacity:0;will-change:opacity,filter,transform}
 #vj .fact{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-weight:900;letter-spacing:-.05em;line-height:1;opacity:0;will-change:opacity,transform,filter}
-#vj .fact span,#vj .ln span{display:inline-flex;overflow:hidden;white-space:pre}
-#vj .fact .pre{justify-content:flex-end}
-#vj .key{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:.04em 0 .08em}
-#vj .ln{position:absolute;left:0;right:0;transform:translateY(-50%);display:flex;justify-content:center;white-space:nowrap;font-weight:800;font-size:4.5cqw;letter-spacing:-.05em;line-height:1;opacity:0}
+#vj .ln span{display:inline-flex;overflow:hidden;white-space:pre}
+#vj .ln .pre{justify-content:flex-end}
+#vj .key{background:linear-gradient(100deg,#fff0 42%,#fffe 50%,#fff0 58%) 130% 0/300% 100% no-repeat,var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:.04em 0 .08em}
+#vj .ln{position:absolute;left:0;right:0;transform:translateY(-50%);display:flex;justify-content:center;white-space:nowrap;font-weight:800;font-size:4.2cqw;will-change:transform,opacity,filter;letter-spacing:-.05em;line-height:1;opacity:0}
 #vj .cap{position:absolute;left:0;right:0;bottom:6cqh;margin:0;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700;opacity:0}
 
 
@@ -263,13 +263,12 @@ body.clean{cursor:none}
 <!-- 07 줄리앙 -->
 <section class="v" id="vj" aria-label="07 줄리앙">
   <canvas id="jC" aria-hidden="true"></canvas>
-  <div class="fact" id="jF0"><span class="pre">고용사업주 </span><b class="key">3</b><span class="post">회</span></div>
-  <div class="fact" id="jF1"><span class="pre"></span><b class="key">철탑</b><span class="post"> 훈장</span></div>
-  <div class="fact" id="jF2"><span class="pre"></span><b class="key">접근성</b><span class="post"> 이벤트</span></div>
   <div id="jSum">
-    <div class="ln" style="top:36.667%"><span>고용사업주 </span><b class="key">3</b><span>회</span></div>
-    <div class="ln" style="top:50.000%"><span></span><b class="key">철탑</b><span> 훈장</span></div>
-    <div class="ln" style="top:63.333%"><span></span><b class="key">접근성</b><span> 이벤트</span></div>
+    <div class="ln" style="top:27.778%"><span class="pre">고용사업주 </span><b class="key">3</b><span class="post">회</span></div>
+    <div class="ln" style="top:38.889%"><span class="pre"></span><b class="key">철탑</b><span class="post"> 훈장</span></div>
+    <div class="ln" style="top:50.000%"><span class="pre"></span><b class="key">접근성</b><span class="post"> 이벤트</span></div>
+    <div class="ln" style="top:61.111%"><span class="pre">링키지랩 창립 </span><b class="key">10</b><span class="post">주년</span></div>
+    <div class="ln" style="top:72.222%"><span class="pre"></span><b class="key">제주</b><span class="post">미션트립 4월 23~25일</span></div>
   </div>
   <p class="pw" id="jPw">Please welcome.</p>
   <p class="cap" id="jCap">함께한 2026, 다가올 2027</p>
@@ -693,21 +692,25 @@ function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.no
    → 세 줄이 함께 정리 → 별빛 입자로 흩어져 'Julian.'으로 모임 · 아래로 2027 새벽 지평선 → 'Please welcome.' */
 const jl={on:false,t:0,paused:false,last:0,dots:null,em:null};
 const jC=$('#jC'),jg=jC.getContext('2d');
-const JF=[0,1,2].map(i=>$('#jF'+i)),JLN=[...document.querySelectorAll('#vj .ln')];
-const JT=k=>.4+k*3.9,JS=12.2,J0=15; // 단어 시작 · 세 줄 정리 · 입자 시작
+const JLN=[...document.querySelectorAll('#vj .ln')],JY=[250,350,450,550,650];
+const JP=i=>.5+i*.55,JU=i=>4+i*.06,J0=8.8; // 단어가 꽂히는 때 · 문장으로 풀리는 때 · 입자 시작
+const FA=8.5,FF=4.2,JGAP=3.6; // 한 줄로 꽂힐 때 / 문장일 때 글자 크기(cqw), 단어 사이 간격
 function jlSize(){const b=$('.stage').getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);jC.width=Math.round(b.width*d);jC.height=Math.round(b.height*d)}
 addEventListener('resize',()=>{if(jl.on){jlSize();renderJl()}});
 function jlBuild(){
   // 양옆 글자 폭(em) 측정 — 풀릴 때 이 폭까지 열림
-  jl.em=JF.map(f=>{const fs=parseFloat(getComputedStyle(f).fontSize)||1;return [...f.querySelectorAll('span')].map(sp=>{sp.style.width='auto';const w=sp.scrollWidth/fs;return w})});
+  jl.em=JLN.map(f=>{const fs=parseFloat(getComputedStyle(f).fontSize)||1;return [...f.children].map(sp=>{sp.style.width='auto';return sp.scrollWidth/fs})});
+  // 한 줄로 꽂힐 때 각 단어의 가로 자리(가운데 기준 cqw)
+  const kw=jl.em.map(e=>e[1]*FA),tot=kw.reduce((a,b)=>a+b,0)+JGAP*(kw.length-1);let acc=-tot/2;
+  jl.dx=kw.map(w=>{const c=acc+w/2;acc+=w+JGAP;return c});
   const c=document.createElement('canvas');c.width=1600;c.height=900;const g=c.getContext('2d',{willReadFrequently:true});
   g.textBaseline='middle';g.textAlign='left';
   const pts=step=>{const d=g.getImageData(0,0,1600,900).data,a=[];for(let y=0;y<900;y+=step)for(let x=0;x<1600;x+=step)if(d[(y*1600+x)*4+3]>140)a.push([x,y]);return a};
-  // 세 줄 정리 화면과 같은 자리의 점 (핵심 단어 / 나머지 따로)
-  g.font='800 72px "Kakao Big Sans"';try{g.letterSpacing='-3.6px'}catch(e){}
+  // 다섯 줄 정리 화면과 같은 자리의 점 (핵심 단어 / 나머지 따로)
+  g.font='800 67px "Kakao Big Sans"';try{g.letterSpacing='-3.35px'}catch(e){}
   const parts=JLN.map(l=>[...l.children].map(x=>x.textContent));
   const keyPts=[],restPts=[];
-  [330,450,570].forEach((y,i)=>{const [p,k,q]=parts[i],wp=g.measureText(p).width,wk=g.measureText(k).width,wq=g.measureText(q).width,x0=800-(wp+wk+wq)/2;
+  JY.forEach((y,i)=>{const [p,k,q]=parts[i],wp=g.measureText(p).width,wk=g.measureText(k).width,wq=g.measureText(q).width,x0=800-(wp+wk+wq)/2;
     g.clearRect(0,0,1600,900);g.fillStyle='#fff';g.fillText(k,x0+wp,y+4);keyPts.push(...pts(4));
     g.clearRect(0,0,1600,900);g.fillText(p,x0,y+4);g.fillText(q,x0+wp+wk,y+4);restPts.push(...pts(4))});
   const from=[...keyPts.map(p=>[...p,1]),...restPts.map(p=>[...p,0])].sort((a,b)=>a[1]-b[1]||a[0]-b[0]);
@@ -718,29 +721,49 @@ function jlBuild(){
     return {sx:fx+(R(i+1)-.5)*2,sy:fy+(R(i+2)-.5)*2,key,ex,ey,ph:i*2.399963,u,dl:(ex-300)/1000*.7+R(i+9)*.25,dx:(R(i+3)-.5)*260,dy:-120-R(i+5)*220}});
 }
 const jGrad=x=>{const q=clamp((x-420)/760);return q<.45?[255,181+(122-181)*q/.45,71+(89-71)*q/.45]:[255+(61-255)*(q-.45)/.55,122+(220-122)*(q-.45)/.55,89+(132-89)*(q-.45)/.55]};
+const JR=k=>{const x=Math.sin(k*91.7+17.3)*43758.5453;return x-Math.floor(x)};
+const JSP=Array.from({length:8},(_,k)=>Array.from({length:46},(_,i)=>({ang:JR(k*100+i)*6.283,v:500+JR(k*100+i+50)*900,s:3+JR(k*100+i+99)*7,c:JR(k*100+i+7)})));
+const JST=Array.from({length:110},(_,i)=>{let x=JR(i*3+1)*1600,y=JR(i*3+2)*640;if(x>250&&x<1350&&y>240&&y<600)y=y<420?y-200:y+150;
+  return {x,y,r:.7+JR(i*3+3)*1.4,per:2.5+JR(i+400)*5,ph:JR(i+500)*6.28,max:.35+JR(i+600)*.5,glint:JR(i+700)<.12,c:JR(i+800)<.2?'#ffd9a8':JR(i+800)<.32?'#bff5d6':'#ffffff'}});
+function jBurst(cx,cy,a,k,big){ // a: 터진 뒤 지난 초
+  const fl=Math.exp(-a/.16)*.55*big;
+  if(fl>.01){const g=jg.createRadialGradient(cx,cy,0,cx,cy,700*big);g.addColorStop(0,`rgba(255,250,240,${fl})`);g.addColorStop(.25,`rgba(255,160,100,${fl*.45})`);g.addColorStop(1,'rgba(255,160,100,0)');jg.fillStyle=g;jg.fillRect(0,0,1600,900)}
+  const rr=120+eo(a/1.1)*900*big,ra=(1-sm(a/1.1))*.7;
+  if(ra>.01){const g=jg.createLinearGradient(cx-rr,0,cx+rr,0);g.addColorStop(0,'#ffb547');g.addColorStop(.45,'#ff7a59');g.addColorStop(1,'#3ddc84');
+    jg.globalAlpha=ra;jg.strokeStyle=g;jg.lineWidth=3*(1-a/1.6)+.5;jg.beginPath();jg.ellipse(cx,cy,rr,rr*.42,0,0,6.283);jg.stroke();jg.globalAlpha=1}
+  for(const p of JSP[k%8]){const d=p.v*(1-Math.exp(-a*2.6))/2.6*big,x=cx+Math.cos(p.ang)*d*1.25,y=cy+Math.sin(p.ang)*d*.7+a*a*60,al=Math.max(0,1-a/1.4);
+    if(al<=0)continue;const c=jGrad(420+p.c*760),r=p.s*(1-a/1.6);jg.globalAlpha=al;jg.fillStyle=p.c<.3?'#fff':`rgb(${c.map(Math.round)})`;
+    jg.beginPath();jg.moveTo(x,y-r);jg.quadraticCurveTo(x,y,x+r,y);jg.quadraticCurveTo(x,y,x,y+r);jg.quadraticCurveTo(x,y,x-r,y);jg.quadraticCurveTo(x,y,x,y-r);jg.fill()}
+  jg.globalAlpha=1;
+}
 const sty=(el,a,blur,tf)=>{el.style.opacity=a.toFixed(3);el.style.filter=blur>.01?`blur(${blur.toFixed(2)}cqw)`:'none';el.style.transform=tf};
 function renderJl(){
   if(!jC.width)jlSize();if(!jl.dots)return;
   const t=reduced?J0+12:jl.t,W=jC.width,H=jC.height;jg.setTransform(1,0,0,1,0,0);jg.clearRect(0,0,W,H);jg.setTransform(W/1600,0,0,H/900,0,0);
-  // ① 단어 하나씩: 크게 꽂힘 → 작아지며 양옆 글자가 풀림 → 위로 사라짐
-  JF.forEach((f,k)=>{const T=JT(k),inA=eo((t-T)/.42),unf=sm((t-T-1.3)/.8),out=sm((t-T-3.3)/.45);
-    if(t<T||out>=1){f.style.opacity=0;return}
-    f.style.fontSize=(24-14*unf).toFixed(3)+'cqw';
-    sty(f,inA*(1-out),(1-inA)*1.4+out*1.2,`translateY(${(-out*3).toFixed(2)}cqw) scale(${(1.22-.22*inA).toFixed(4)})`);
-    [...f.querySelectorAll('span')].forEach((sp,j)=>{sp.style.width=(jl.em[k][j]*unf).toFixed(4)+'em';sp.style.opacity=sm((unf-.15)/.7).toFixed(3);
-      const m=unf>=1?'none':`linear-gradient(${j?'to left':'to right'},#0000,#000 ${((1-unf)*75).toFixed(1)}%)`;sp.style.maskImage=sp.style.webkitMaskImage=m})});
-  // ② 세 줄 함께 정리
+  // ① 숫자·단어가 한 줄에 차례로 '딱딱딱' 꽂힘 (꽂힐 때마다 빛 터짐)
+  // ② 각 단어가 제 줄로 내려가며 양옆 글자가 풀려 문장 다섯 줄 완성 → 핵심 단어 위로 빛이 스침
   const sOut=sm((t-J0+.15)/.35);
-  JLN.forEach((l,i)=>{const a=eo((t-JS-i*.18)/.6);sty(l,a*(1-sOut),(1-a)*.8,`translateY(calc(-50% + ${((1-a)*1.2).toFixed(3)}cqw))`)});
+  JLN.forEach((l,i)=>{const P=JP(i),pop=eo((t-P)/.28),mv=sm((t-JU(i))/1),op=sm((t-JU(i)-.55)/.8);
+    if(t<P){l.style.opacity=0;return}
+    const dx=jl.dx[i]*(1-sm((t-JU(i)-.2)/.9)),dy=(450-JY[i])/9*(1-eo((t-JU(i))/.75)); // 위아래로 먼저 벌어진 뒤 가운데로 모여 겹치지 않게
+    l.style.fontSize=(FA+(FF-FA)*mv).toFixed(3)+'cqw';
+    l.style.opacity=(pop*(1-sOut)).toFixed(3);
+    l.style.transform=`translate(${dx.toFixed(3)}cqw,calc(-50% + ${dy.toFixed(3)}cqh)) scale(${(1.45-.45*pop).toFixed(4)})`;
+    const glo=reduced?.2:.2+.8*Math.exp(-Math.max(0,t-P)/.3),bl=(1-pop)*1.2;
+    l.style.filter=`${bl>.01?`blur(${bl.toFixed(2)}cqw) `:''}drop-shadow(0 0 ${(1.2*glo).toFixed(2)}cqw rgba(255,138,92,${(.75*glo).toFixed(2)})) drop-shadow(0 0 ${(4*glo).toFixed(2)}cqw rgba(255,181,71,${(.35*glo).toFixed(2)}))`;
+    const sh=sm((t-6.3-i*.14)/.6);l.querySelector('.key').style.backgroundPosition=`${(130-160*sh).toFixed(1)}% 0,0 0`;
+    [l.children[0],l.children[2]].forEach((sp,j)=>{sp.style.width=(jl.em[i][j*2]*op).toFixed(4)+'em';sp.style.opacity=sm((op-.1)/.7).toFixed(3);
+      const m=op>=1?'none':`linear-gradient(${j?'to left':'to right'},#0000,#000 ${((1-op)*75).toFixed(1)}%)`;sp.style.maskImage=sp.style.webkitMaskImage=m})});
+  if(!reduced)JLN.forEach((l,i)=>{const a=t-JP(i);if(a>=0&&a<1.6)jBurst(800+jl.dx[i]*16,450,a,i,.6)});
   // ③ 새벽 지평선
   const tt=t-J0,hz=sm((tt-.6)/3.5);
   if(hz>0){const lift=60*(1-eo((tt-.6)/3.5))+Math.sin(t*.2)*2,base=830+lift,apex=650+lift;
     jg.globalAlpha=hz;
-    const glow=jg.createRadialGradient(800,base,10,800,base,820);glow.addColorStop(0,'rgba(255,138,92,.6)');glow.addColorStop(.28,'rgba(255,181,71,.2)');glow.addColorStop(.62,'rgba(61,220,132,.05)');glow.addColorStop(1,'rgba(0,0,0,0)');
+    const glow=jg.createRadialGradient(800,base,10,800,base,820);glow.addColorStop(0,'rgba(255,138,92,.85)');glow.addColorStop(.28,'rgba(255,181,71,.3)');glow.addColorStop(.62,'rgba(61,220,132,.05)');glow.addColorStop(1,'rgba(0,0,0,0)');
     jg.fillStyle=glow;jg.fillRect(0,0,1600,900);
     jg.fillStyle='#000';jg.beginPath();jg.moveTo(-100,base);jg.quadraticCurveTo(800,apex*2-base,1700,base);jg.lineTo(1700,950);jg.lineTo(-100,950);jg.closePath();jg.fill();
     const edge=jg.createLinearGradient(0,0,1600,0);edge.addColorStop(0,'rgba(255,181,71,0)');edge.addColorStop(.25,'rgba(255,181,71,.55)');edge.addColorStop(.5,'rgba(255,236,214,.95)');edge.addColorStop(.75,'rgba(61,220,132,.55)');edge.addColorStop(1,'rgba(61,220,132,0)');
-    jg.strokeStyle=edge;jg.lineWidth=2.2;jg.shadowColor='rgba(255,170,110,.8)';jg.shadowBlur=18;jg.beginPath();jg.moveTo(-100,base);jg.quadraticCurveTo(800,apex*2-base,1700,base);jg.stroke();jg.shadowBlur=0;
+    jg.strokeStyle=edge;jg.lineWidth=3;jg.shadowColor='rgba(255,170,110,.95)';jg.shadowBlur=26;jg.beginPath();jg.moveTo(-100,base);jg.quadraticCurveTo(800,apex*2-base,1700,base);jg.stroke();jg.shadowBlur=0;
     jg.globalAlpha=1}
   // ④ 세 줄 → 별빛 입자 → 'Julian.'
   if(tt>-.15){
@@ -759,6 +782,12 @@ function renderJl(){
       if(p.u>.94&&settled>0){const gl=settled*(.7*spark+.4*sw);if(gl>.2){const l=r*2.6;jg.globalAlpha=gl*.8;jg.strokeStyle='#fff';jg.lineWidth=.6;jg.beginPath();jg.moveTo(x-l,y);jg.lineTo(x+l,y);jg.moveTo(x,y-l);jg.lineTo(x,y+l);jg.stroke()}}
     }
     jg.globalAlpha=1}
+  // 'Julian.' 완성 순간 빛 터짐 · 주변에 별빛
+  if(!reduced&&tt>3.4&&tt<5.2)jBurst(800,468,tt-3.4,7,1.6);
+  const amb=sm((tt-3.6)/1.5);
+  if(amb>0)for(const s of JST){const tw=.5+.5*Math.sin(t*2*Math.PI/s.per+s.ph);jg.globalAlpha=amb*s.max*(.2+.8*tw*tw);jg.fillStyle=s.c;jg.beginPath();jg.arc(s.x,s.y,s.r,0,6.283);jg.fill();
+    if(s.glint&&tw>.9){const l=s.r*6*(tw-.9)/.1;jg.strokeStyle=s.c;jg.lineWidth=.8;jg.beginPath();jg.moveTo(s.x-l,s.y);jg.lineTo(s.x+l,s.y);jg.moveTo(s.x,s.y-l);jg.lineTo(s.x,s.y+l);jg.stroke()}}
+  jg.globalAlpha=1;
   const pw=sm((tt-3.4)/1.1),pwEl=$('#jPw');pwEl.style.opacity=pw.toFixed(3);pwEl.style.filter=pw<.99?`blur(${((1-pw)*.8).toFixed(2)}cqw)`:'none';pwEl.style.transform=`translateY(${((1-eo((tt-3.4)/1.1))*1).toFixed(3)}cqw)`;
   $('#jCap').style.opacity=sm((tt-4.8)/1.2).toFixed(3);
 }
