@@ -760,7 +760,7 @@ function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는
   if(on){$('#kFri').style.opacity=1;renderPre()}else if(was&&!keepMusic){stopBgm(true)}
 }
 function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();if(cd.inPre)return;cd.paused?stopBgm(false):playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause();if(window.CreditSong)CreditSong.pause();if(window.RadioBed)RadioBed.pause();ScCredit.pause()}else if(rd.on&&rd.bed&&window.RadioBed){RadioBed.resume()}else if(ce.on){const a=creditAudio();(a===ScCredit?ScCredit.started:CreditSong.el.currentTime>0)?a.resume():a.play(0,1.5)}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused&&!cd.inPre)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause();if(window.CreditSong)CreditSong.pause();if(window.RadioBed)RadioBed.pause();ScCredit.pause()}else if(rd.on&&rd.bed&&!rd.bedOut&&window.RadioBed){RadioBed.resume()}else if(ce.on){const a=creditAudio();(a===ScCredit?ScCredit.started:CreditSong.el.currentTime>0)?a.resume():a.play(0,1.5)}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused&&!cd.inPre)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
@@ -927,7 +927,7 @@ function toggleSc(){if(!sc.on)return;sc.paused=!sc.paused;sc.last=performance.no
    음성 크기에 맞춰 VU 계기판 바늘 2개가 움직임 → (멘트 후) Enter → 다이얼 어두워지고 네온 'David.' 깜빡이며 켜짐 */
 const rd={on:false,t:0,u:0,phase:'radio',paused:false,last:0,lvl:[0,0],voice:false,bed:false};
 // 음성이 끝나기 0.8초 전부터 배경음을 2.5초에 걸쳐 키워 자연스럽게 이어 붙임 (음성 없으면 자막 끝난 뒤)
-function bedIn(){if(rd.bed||!window.RadioBed||!RadioBed.name||!bgmOn)return;rd.bed=true;RadioBed.play(0,3.5)} // 곡 18초 지점부터 3.5초에 걸쳐 페이드인
+function bedIn(){if(rd.bed||!window.RadioBed||!RadioBed.name||!bgmOn)return;rd.bed=true;rd.bedT=rd.t;rd.bedOut=false;RadioBed.play(0,3.5)} // 곡 18초 지점부터 3.5초에 걸쳐 페이드인
 const rC=$('#rC'),rg=rC.getContext('2d'),LOCK=2.6,FREQ=98.6;
 let actx=null,an=null,anData=null,noiseGain=null;
 function rdAudio(){
@@ -1017,7 +1017,7 @@ function radio(on){
   else if(was){noise(0,.3);if(window.RadioVoice)RadioVoice.stop();if(window.RadioBed)RadioBed.stop(1.5)}
 }
 function radioName(){if(rd.phase!=='radio')return;rd.phase='name';rd.u=0;noise(0,.2);if(window.RadioVoice)RadioVoice.stop(1.6);setTimeout(()=>{rd.voice=false},1600)}
-function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.now();if(rd.paused){noise(0,.05);RadioVoice.pause();RadioBed.pause()}else{if(rd.voice)RadioVoice.resume();if(rd.bed)RadioBed.resume()}}
+function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.now();if(rd.paused){noise(0,.05);RadioVoice.pause();RadioBed.pause()}else{if(rd.voice)RadioVoice.resume();if(rd.bed&&!rd.bedOut)RadioBed.resume()}}
 (function rdLoop(now){requestAnimationFrame(rdLoop);if(!rd.on)return;const dt=Math.min(.1,(now-rd.last)/1000);rd.last=now;if(rd.paused)return;
   const before=rd.t;rd.t+=dt;if(rd.phase==='name')rd.u+=dt;
   if(rd.phase==='radio'){
@@ -1025,6 +1025,7 @@ function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.no
     if(before<LOCK&&rd.t>=LOCK){noise(0,.25);if(window.RadioVoice&&RadioVoice.name&&bgmOn){RadioVoice.play(0,.25);rd.voice=true}}
   }
   if(!rd.bed&&rd.t>LOCK+1){const v=RadioVoice.el;if(rd.voice?(v.duration&&(v.ended||v.duration-v.currentTime<.8)):rd.t>LOCK+21.6)bedIn()}
+  if(rd.bed&&!rd.bedOut&&rd.t-rd.bedT>=10){rd.bedOut=true;RadioBed.stop(4)} // 10초 흐른 뒤 4초에 걸쳐 페이드아웃
   renderRd()})(performance.now());
 
 
