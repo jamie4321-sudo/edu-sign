@@ -567,7 +567,7 @@ body.clean{cursor:none}
   qs.onclick=()=>qsf.click();qsf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await VoteSong.pick(x);qsl();e.target.value='';if(cur==='q'&&bgmOn)VoteSong.play(0,1.2)};
   const eb=document.getElementById('eSongBtn'),ef=document.getElementById('eSongFile');
   const el=()=>{eb.textContent=CreditSong.name?'제이미 크레딧 곡 ✓ (파일)':'제이미 크레딧 곡: SoundCloud (파일로 바꾸기)'};addEventListener('credit-ready',el);el();
-  eb.onclick=()=>ef.click();ef.onchange=async e=>{const x=e.target.files[0];if(!x)return;await CreditSong.pick(x);el();e.target.value='';if(cur==='e'&&bgmOn)CreditSong.play(0,1.5)};
+  eb.onclick=()=>ef.click();ef.onchange=async e=>{const x=e.target.files[0];if(!x)return;await CreditSong.pick(x);el();e.target.value='';if(cur==='e'&&bgmOn){CreditSong.play(CE_SONG_AT,0);CreditSong.el.volume=0}};
   const tb=document.getElementById('tSongBtn'),tf=document.getElementById('tSongFile');
   const tl=()=>{tb.textContent=ClosingSong.name?'마무리 곡 ✓':'마무리 곡 선택'};addEventListener('closing-ready',tl);tl();
   tb.onclick=()=>tf.click();tf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await ClosingSong.pick(x);tl();e.target.value='';if(cur==='t'&&bgmOn)ClosingSong.play(0,1.5)};
@@ -638,14 +638,20 @@ const ScCredit=(()=>{
     fadeT=setInterval(()=>{vol+=step;const end=step>=0?vol>=target:vol<=target;if(end){vol=target;clearInterval(fadeT)}w.setVolume(Math.round(Math.max(0,Math.min(100,vol))));if(end&&done)done()},50)}
   return {
     name:'SoundCloud',get ready(){return ready},get started(){return started},
-    play(offset=0,fade=1.5){const go=()=>{vol=0;w.setVolume(0);w.seekTo(offset*1000);w.play();started=true;fadeTo(100,fade)};ready?go():want=go;return true},
+    play(offset=0,fade=1.5){const go=()=>{vol=0;w.setVolume(0);w.seekTo(offset*1000);w.play();started=true;if(fade>0)fadeTo(100,fade)};ready?go():want=go;return true},
     stop(fade=1.2){want=null;if(!ready)return;fadeTo(0,fade,()=>{w.pause();started=false})},
     pause(){want=null;if(ready){clearInterval(fadeT);w.pause()}},
-    resume(){if(ready&&started){w.play();fadeTo(100,.5)}}
+    resume(){if(ready&&started){w.play();fadeTo(100,.5)}},
+    setVol(v){if(!ready||!started)return;clearInterval(fadeT);const n=Math.round(v*100);if(Math.abs(n-vol)>=1){vol=n;w.setVolume(n)}}
   };
 })();
 const creditAudio=()=>window.CreditSong&&CreditSong.name?CreditSong:ScCredit; // 파일을 골라 두었으면 파일, 아니면 SoundCloud
-const ce={on:false,t:0,paused:false,last:0,items:null,end:0,done:false};
+const ce={on:false,t:0,paused:false,last:0,items:null,end:0,done:false,vol:0};
+// 크레딧 곡: 곡 10초 지점부터 · 처음 4초 동안 살며시 들어와 크레딧 내내 점점 커지다(최대 60%) → 'Jamie.' 뜨는 순간 100%로 클라이맥스
+const CE_SONG_AT=10;
+function ceVolume(dt){if(!bgmOn)return;const t=ce.t,tg=t>=ce.end?1:Math.min(1,t/4)*(.15+.45*Math.pow(Math.min(1,t/ce.end),1.6));
+  ce.vol+=(tg-ce.vol)*Math.min(1,dt*(t>=ce.end?2.2:1.5));const a=creditAudio();
+  if(a===ScCredit)ScCredit.setVol(ce.vol);else{a.el.volume=Math.max(0,Math.min(1,ce.vol))}}
 const CV=10.5; // 크레딧이 올라가는 속도(화면 높이 % / 초)
 function ceR(k){const x=Math.sin(k*91.7+7.1)*43758.5453;return x-Math.floor(x)}
 function ceBuild(){
@@ -690,12 +696,12 @@ function renderCe(){
 }
 function credits(on){
   const was=ce.on;Object.assign(ce,{on,t:0,paused:false,last:performance.now(),done:false});$('#ve').classList.remove('done','hold');
-  if(on){ceBuild();renderCe();if(bgmOn)creditAudio().play(0,1.5)}
+  if(on){ceBuild();renderCe();ce.vol=0;if(bgmOn){const a=creditAudio();a.play(CE_SONG_AT,0);if(a!==ScCredit)a.el.volume=0}}
   else if(was){if(window.CreditSong)CreditSong.stop();ScCredit.stop()}
 }
 function toggleCr(){if(!ce.on)return;ce.paused=!ce.paused;ce.last=performance.now();$('#ve').classList.toggle('hold',ce.paused);const a=creditAudio();ce.paused?a.pause():a.resume()}
 function skipCr(){if(!ce.on)return;ce.t=Math.max(ce.t,ce.end);renderCe()}
-(function ceLoop(now){requestAnimationFrame(ceLoop);if(!ce.on)return;const dt=Math.min(.1,(now-ce.last)/1000);ce.last=now;if(ce.paused)return;ce.t+=dt;renderCe()})(performance.now());
+(function ceLoop(now){requestAnimationFrame(ceLoop);if(!ce.on)return;const dt=Math.min(.1,(now-ce.last)/1000);ce.last=now;if(ce.paused)return;ce.t+=dt;renderCe();ceVolume(dt)})(performance.now());
 /* ── 11: 마무리 곡(골랐으면) — 천천히 커지며 재생, 떠날 때 줄이며 멈춤 ── */
 let tOn=false;function closing(on){if(on&&!tOn&&window.ClosingSong&&bgmOn)ClosingSong.play(0,2);else if(!on&&tOn&&window.ClosingSong)ClosingSong.stop();tOn=on}
 /* ── 07B: 투표 화면 — 배경음(골랐으면) 반복 재생, 떠날 때 줄이며 멈춤 ── */
@@ -760,7 +766,7 @@ function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는
   if(on){$('#kFri').style.opacity=1;renderPre()}else if(was&&!keepMusic){stopBgm(true)}
 }
 function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();if(cd.inPre)return;cd.paused?stopBgm(false):playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause();if(window.CreditSong)CreditSong.pause();if(window.RadioBed)RadioBed.pause();ScCredit.pause()}else if(rd.on&&rd.bed&&!rd.bedOut&&window.RadioBed){RadioBed.resume()}else if(ce.on){const a=creditAudio();(a===ScCredit?ScCredit.started:CreditSong.el.currentTime>0)?a.resume():a.play(0,1.5)}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused&&!cd.inPre)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause();if(window.CreditSong)CreditSong.pause();if(window.RadioBed)RadioBed.pause();ScCredit.pause()}else if(rd.on&&rd.bed&&!rd.bedOut&&window.RadioBed){RadioBed.resume()}else if(ce.on){const a=creditAudio();(a===ScCredit?ScCredit.started:CreditSong.el.currentTime>0)?a.resume():(a.play(CE_SONG_AT,0),a!==ScCredit&&(a.el.volume=0))}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused&&!cd.inPre)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
