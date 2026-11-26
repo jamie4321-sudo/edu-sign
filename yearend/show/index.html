@@ -166,6 +166,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vr .name{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
 #vr .name p{margin:0 0 .8cqw;font-weight:700;font-size:2.4cqw;letter-spacing:.3em;text-indent:.3em;color:#d9b98a;opacity:0}
 #vr .name h1{margin:0;font-weight:900;font-size:19cqw;letter-spacing:-.04em;line-height:.9;color:#fff1d6;opacity:0;text-shadow:0 0 .6cqw #ffcf8a,0 0 2.2cqw #ffb547cc,0 0 6cqw #ff8a3a88,0 0 12cqw #ff6a2a55}
+#vr .name p.kr{margin:1.4cqw 0 0;font-size:3.2cqw;font-weight:800;letter-spacing:.32em;text-indent:.32em;color:#fff1d6;text-shadow:0 0 .6cqw #ffcf8a,0 0 1.8cqw #ffb547aa}
 #vr .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,#0000 0 .28cqh,#00000038 .28cqh .56cqh);mix-blend-mode:multiply}
 #vr .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,#0000 55%,#000a 100%)}
 /* 07 줄리앙 — 순검정 키노트 · '2026'이 별빛 입자로 흩어져 'Julian.'으로 다시 모이고, 아래로 2027의 새벽 지평선 */
@@ -234,6 +235,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vj .ln .key{display:inline-block;opacity:0;will-change:transform,opacity,filter}
 #vj .key{background:linear-gradient(100deg,#fff0 42%,#fffe 50%,#fff0 58%) 130% 0/300% 100% no-repeat,var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:.04em 0 .08em}
 #vj .ln{position:absolute;left:0;right:0;transform:translateY(-50%);display:flex;justify-content:center;white-space:nowrap;font-weight:800;font-size:4.6cqw;letter-spacing:-.05em;line-height:1;opacity:0}
+#vj .kr{position:absolute;left:0;right:0;top:67%;margin:0;transform:translateY(-50%);text-align:center;font-weight:800;font-size:2.8cqw;letter-spacing:.32em;text-indent:.32em;color:#f5f5f7;opacity:0}
 #vj .cap{position:absolute;left:0;right:0;bottom:6cqh;margin:0;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700;opacity:0}
 
 
@@ -314,7 +316,7 @@ body.clean{cursor:none}
   <canvas id="rC" aria-hidden="true"></canvas>
   <div class="lamp" id="rLamp">ON AIR</div>
   <div class="readout" id="rRead">FM 98.6 MHz</div>
-  <div class="name"><div><p id="rPw" hidden></p><h1 id="rName">David.</h1></div></div>
+  <div class="name"><div><p id="rPw" hidden></p><h1 id="rName">David.</h1><p class="kr" id="rKr">데이빗</p></div></div>
   <div class="grain"></div><div class="scan"></div><div class="vig"></div>
 </section>
 
@@ -368,6 +370,7 @@ body.clean{cursor:none}
     <div class="ln" style="top:72.222%"><span class="pre"></span><b class="key">제주</b><span class="post">미션트립 4월 23~25일</span></div>
   </div>
   <p class="pw" id="jPw" hidden></p>
+  <p class="kr" id="jKr">줄리앙</p>
   <p class="cap" id="jCap">함께한 2026, 다가올 2027</p>
   <span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Julian</span>
 </section>
@@ -545,6 +548,7 @@ const SONG_SYNC=0.61;
 const ATT=6,COUNT=10,HANDOFF=ATT+COUNT+1.9;
 const bgm=$('#bgm');let bgmOn=true;
 const cd={on:false,t:0,paused:false,last:0};
+const bo=x=>{x=Math.max(0,Math.min(1,x));const c=2.2;return 1+(c+1)*(x-1)**3+c*(x-1)**2}; // 살짝 넘쳤다 돌아오는 이징
 const clamp=x=>Math.max(0,Math.min(1,x)),sm=x=>{x=clamp(x);return x*x*(3-2*x)},eo=x=>1-Math.pow(1-clamp(x),3);
 function setLayer(el,a,blur,scale){el.style.opacity=a.toFixed(3);el.style.filter=blur>.01?`blur(${blur.toFixed(2)}cqw)`:'none';el.style.transform=`scale(${scale.toFixed(4)})`}
 // 카운트다운 곡을 골라 두었으면 그 곡, 아니면 원본 배경음(bgm.mp3)
@@ -652,7 +656,8 @@ function renderSc(){
   const t=reduced?99:sc.t;
   const pw=sm((t-beat(1))/.5);setLayer($('#sPw'),pw,(1-pw)*.8,1.03-.03*pw);
   drawSig(eo((t-beat(5))/(BEAT*6)),sm((t-beat(11))/(BEAT*2)));
-  const kr=sm((t-beat(12))/(BEAT*1.5));setLayer($('#sKr'),kr,(1-kr)*.6,1.04-.04*kr); // 서명 밑줄이 그어진 뒤 한글 '스칼렛'
+  {const p=(t-beat(12))/(BEAT*1.5),kr=sm(p),bt=t<beat(12)?0:Math.exp(-((t-B0)%BEAT)/.18); // 서명 밑줄 뒤 한글 '스칼렛': 크게 튀어나왔다 자리 잡고, 박마다 커졌다 작아짐
+   setLayer($('#sKr'),kr,(1-kr)*.6,reduced?1:1.6-.6*bo(p)+.07*bt*kr)}
   const fl=t>=beat(5)?Math.exp(-(t-beat(5))/.12):0;$('#sFlash').style.opacity=(reduced?0:.85*fl).toFixed(3);
   // 박마다 맥박: 박 직후 밝았다가 0.25초에 걸쳐 가라앉음
   const since=t-B0<0?9:((t-B0)%BEAT),on=sm((t-beat(5))/1.2);
@@ -783,10 +788,12 @@ function renderRd(){
   meter(560,700,rd.lvl[0],dim*sm(t/.8));meter(1040,700,rd.lvl[1],dim*sm(t/.8));
   // ON AIR 램프: 고정 순간 깜빡깜빡 켜짐
   const k=t-LOCK,lit=k>=0&&!(k>.06&&k<.12)&&!(k>.2&&k<.26);$('#rLamp').classList.toggle('lit',reduced?t>=LOCK:lit);
-  $('#rRead').style.opacity=(sm((t-LOCK)/.5)*dim).toFixed(3);
+  $('#rRead').style.opacity=(sm((t-LOCK)/.5)*(name?1-sm(u/.4):1)).toFixed(3);
   // 네온 이름
   const seq=!name?0:u<.6?0:u<.66?1:u<.72?.15:u<.8?1:u<.86?.35:.95+.05*Math.sin(u*47)*Math.sin(u*13);
   $('#rName').style.opacity=(reduced&&name?1:seq).toFixed(3);
+  {const e=$('#rKr'),p=(u-1)/.5;e.style.opacity=(name?(reduced?1:sm(p)*(.96+.04*Math.sin(u*31))):0).toFixed(3); // 네온 이름이 켜진 뒤 한글 '데이빗': 튀어나왔다 자리 잡고 숨 쉬듯 커졌다 작아짐
+    e.style.transform=reduced||!name?'none':`scale(${(1.6-.6*bo(p)+.06*Math.sin(Math.max(0,u-1.5)*3.4)).toFixed(4)})`}
   $('#rPw').style.opacity=(name?sm((u-.25)/.5):0).toFixed(3);
 }
 function radio(on){
@@ -913,6 +920,8 @@ function renderJl(){
     if(s.glint&&tw>.9){const l=s.r*6*(tw-.9)/.1;jg.strokeStyle=s.c;jg.lineWidth=.8;jg.beginPath();jg.moveTo(s.x-l,s.y);jg.lineTo(s.x+l,s.y);jg.moveTo(s.x,s.y-l);jg.lineTo(s.x,s.y+l);jg.stroke()}}
   jg.globalAlpha=1;
   const pw=sm((tt-3.4)/1.1),pwEl=$('#jPw');pwEl.style.opacity=pw.toFixed(3);pwEl.style.filter=pw<.99?`blur(${((1-pw)*.8).toFixed(2)}cqw)`:'none';pwEl.style.transform=`translateY(${((1-eo((tt-3.4)/1.1))*1).toFixed(3)}cqw)`;
+  {const p=(tt-4.4)/.8,kr=sm(p);const e=$('#jKr');e.style.opacity=kr.toFixed(3);e.style.filter=kr<.99?`blur(${((1-kr)*.6).toFixed(2)}cqw)`:'none';
+   e.style.transform=`translateY(-50%) scale(${(reduced?1:1.6-.6*bo(p)+.06*Math.sin(Math.max(0,tt-5.2)*3.4)).toFixed(4)})`} // 'Julian.' 완성 뒤 한글 '줄리앙'
   $('#jCap').style.opacity=sm((tt-4.8)/1.2).toFixed(3);
 }
 function julian(on){
