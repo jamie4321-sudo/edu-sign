@@ -327,7 +327,8 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #panel .sep{width:1px;height:22px;background:#ffffff22;margin:0 2px}
 #panel .hint{font-size:11px;color:#9a9aa3;padding:0 4px}
 body.clean{cursor:none}
-@media (prefers-reduced-motion:reduce){*{animation-duration:0s!important;animation-iteration-count:1!important;transition:none!important}}
+/* 11-26: 아이패드·휴대폰 '동작 줄이기'가 켜져 있어도 모션이 보이도록 기기 설정은 따르지 않음 — 주소 끝에 ?calm 을 붙일 때만 모션 끔 */
+html.calm *{animation-duration:0s!important;animation-iteration-count:1!important;transition:none!important}
 /* 모바일·다른 PC: 첫 터치 전엔 브라우저가 소리를 막음 → 안내 한 줄, 누르면 사라짐 */
 #sndTap{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:30;font:inherit;font-size:13px;letter-spacing:.02em;color:#f1eee4;background:#000000b3;border:1px solid #ffffff33;border-radius:9px;padding:9px 14px;cursor:pointer;backdrop-filter:blur(6px);transition:opacity .5s}
 #sndTap b{color:#FFB547;font-weight:700}
@@ -609,7 +610,7 @@ body.clean{cursor:none}
 <script>
 'use strict';
 const $=s=>document.querySelector(s);
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduced=/[?&]calm\b/.test(location.search);if(reduced)document.documentElement.classList.add('calm'); // 기기 '동작 줄이기' 설정과 무관하게 모션 재생 (?calm 일 때만 끔)
 
 /* ── 시안 전환 ── */
 let cur='',last01='d';
