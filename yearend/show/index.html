@@ -226,6 +226,27 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vt .guide b{color:#f5f5f7;font-weight:700}
 #vt .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
 #vt .an{opacity:0;animation:qIn 1.2s var(--ease-out) both}
+/* 09 마무리 인사 · 제이미 — 영화 엔딩 크레딧: 올해 함께한 크루 이름(영문, 팀별)이 천천히 위로 흐름 → 끝나면 'Jamie.' / 제이미 */
+#ve{background:#000;color:#f5f5f7;--grey:#86868b}
+#ve .roll{position:absolute;inset:0;overflow:hidden;-webkit-mask-image:linear-gradient(#0000,#000 16%,#000 84%,#0000);mask-image:linear-gradient(#0000,#000 16%,#000 84%,#0000)}
+#ve .list{position:absolute;left:0;right:0;top:0;text-align:center;transform:translateY(100cqh);animation:eRoll 34s linear 1.2s both}
+@keyframes eRoll{to{transform:translateY(-100%)}}
+#ve .list .ttl{margin:0 0 1.2cqw;font-weight:700;font-size:1.3cqw;letter-spacing:.34em;text-indent:.34em;color:var(--grey)}
+#ve .list .big{margin:0 0 12cqh;font-weight:900;font-size:6cqw;letter-spacing:-.05em;line-height:1}
+#ve .list h3{margin:10cqh 0 3cqh;font-weight:700;font-size:1.2cqw;letter-spacing:.42em;text-indent:.42em;color:var(--grey)}
+#ve .list ul{list-style:none;margin:0 auto;padding:0;display:grid;grid-template-columns:repeat(2,22cqw);justify-content:center;column-gap:4cqw;row-gap:2.6cqh}
+#ve .list li{font-weight:700;font-size:2.7cqw;letter-spacing:-.02em;line-height:1.1}
+#ve .list li:nth-child(odd){text-align:right}#ve .list li:nth-child(even){text-align:left}
+#ve .list li:last-child:nth-child(odd){grid-column:1/-1;text-align:center}
+#ve .list .end{margin:16cqh 0 0;font-weight:700;font-size:1.3cqw;letter-spacing:.34em;text-indent:.34em;color:var(--grey)}
+#ve .fin{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
+#ve .fin h1{margin:0;font-weight:900;font-size:17cqw;letter-spacing:-.06em;line-height:.9;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em;opacity:0;animation:qIn 1.6s var(--ease-out) 35s both}
+#ve .fin .kr{margin:1.4cqw 0 0;font-weight:800;font-size:3.2cqw;letter-spacing:.32em;text-indent:.32em;color:#f5f5f7;opacity:0;animation:krPop .8s cubic-bezier(.34,1.56,.64,1) 36.2s both,krPulse 1.8s ease-in-out 37s infinite alternate}
+@keyframes krPop{from{opacity:0;transform:scale(1.6)}to{opacity:1;transform:scale(1)}}
+@keyframes krPulse{from{opacity:1;transform:scale(1)}to{opacity:1;transform:scale(1.06)}}
+#ve.skip .list{animation:none;opacity:0}
+#ve.skip .fin h1{animation-delay:.1s}#ve.skip .fin .kr{animation-delay:1.2s,2s}
+#ve.hold *{animation-play-state:paused!important}
 #vj{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#8e8e93 0%,#f5f5f7 50%,#8e8e93 100%)}
 #vj canvas{position:absolute;inset:0;width:100%;height:100%}
 #vj .pw{position:absolute;left:0;right:0;top:27%;margin:0;text-align:center;font-weight:500;font-size:2.8cqw;letter-spacing:-.02em;color:var(--grey);opacity:0;will-change:opacity,filter,transform}
@@ -324,6 +345,17 @@ body.clean{cursor:none}
 </section>
 
 <!-- A -->
+<!-- 09 마무리 인사 · 제이미 (엔딩 크레딧) -->
+<section class="v" id="ve" aria-label="마무리 인사 · 제이미">
+  <div class="roll"><div class="list">
+      <p class="ttl">2026</p><p class="big">SNACK &amp; GARDEN</p>
+      <h3>SNACK</h3><ul><li>nia</li><li>lyndsey</li><li>marin</li><li>vera</li><li>sara</li><li>samuel</li><li>sally</li><li>sam</li><li>smile</li><li>swan</li><li>asher</li><li>eric</li><li>eva</li><li>evan</li><li>enzo</li><li>ella</li><li>joy</li><li>connie</li><li>tori</li><li>thomas</li><li>tube</li><li>pes</li><li>hayden</li><li>halo</li></ul>
+      <h3>GARDEN</h3><ul><li>nicole</li><li>luca</li><li>edwin</li><li>ellie</li><li>oliver</li><li>clover</li><li>pine</li></ul>
+      <h3>SUPPORT</h3><ul><li>jetty</li><li>charles</li><li>kaju</li></ul>
+  </div></div>
+  <div class="fin"><div><h1>Jamie.</h1><p class="kr">제이미</p></div></div>
+</section>
+
 <!-- 11 Thank you -->
 <section class="v" id="vt" aria-label="11 감사 · 귀가 안내">
   <div class="glow" aria-hidden="true"></div>
@@ -438,6 +470,7 @@ body.clean{cursor:none}
   <button data-v="j">07 줄리앙 (7)</button>
   <button data-v="q">07B 베스트 드레서 (V)</button>
   <button data-v="g">10 단체사진 (0)</button>
+  <button data-v="e">마무리 인사 · 제이미 (9 → Enter)</button>
   <button data-v="t">11 Thank you (-)</button>
   <button id="bgmBtn">음악 켜짐 (B)</button>
   <button id="cdSongBtn">카운트다운 곡 선택</button><input type="file" id="cdSongFile" accept="audio/*" hidden>
@@ -448,6 +481,7 @@ body.clean{cursor:none}
   <button id="jSongBtn">줄리앙 입장곡 선택</button><input type="file" id="jSongFile" accept="audio/*" hidden>
   <button id="qQrBtn">투표 QR 넣기</button><input type="file" id="qQrFile" accept="image/*" hidden>
   <button id="qSongBtn">투표 배경음 선택</button><input type="file" id="qSongFile" accept="audio/*" hidden>
+  <button id="eSongBtn">제이미 크레딧 곡 선택</button><input type="file" id="eSongFile" accept="audio/*" hidden>
   <button id="tSongBtn">마무리 곡 선택</button><input type="file" id="tSongFile" accept="audio/*" hidden>
   <button id="photoBtn">오프닝 사진 넣기</button><input type="file" id="photoFile" accept="image/*" multiple hidden>
   <span class="sep"></span>
@@ -483,6 +517,9 @@ body.clean{cursor:none}
   addEventListener('voteqr-ready',ql);ql();qb.onclick=()=>qf.click();qf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await VoteQR.pick(x);e.target.value=''};
   const qsl=()=>{qs.textContent=VoteSong.name?'투표 배경음 ✓':'투표 배경음 선택'};addEventListener('votesong-ready',qsl);qsl();
   qs.onclick=()=>qsf.click();qsf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await VoteSong.pick(x);qsl();e.target.value='';if(cur==='q'&&bgmOn)VoteSong.play(0,1.2)};
+  const eb=document.getElementById('eSongBtn'),ef=document.getElementById('eSongFile');
+  const el=()=>{eb.textContent=CreditSong.name?'제이미 크레딧 곡 ✓':'제이미 크레딧 곡 선택'};addEventListener('credit-ready',el);el();
+  eb.onclick=()=>ef.click();ef.onchange=async e=>{const x=e.target.files[0];if(!x)return;await CreditSong.pick(x);el();e.target.value='';if(cur==='e'&&bgmOn)CreditSong.play(0,1.5)};
   const tb=document.getElementById('tSongBtn'),tf=document.getElementById('tSongFile');
   const tl=()=>{tb.textContent=ClosingSong.name?'마무리 곡 ✓':'마무리 곡 선택'};addEventListener('closing-ready',tl);tl();
   tb.onclick=()=>tf.click();tf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await ClosingSong.pick(x);tl();e.target.value='';if(cur==='t'&&bgmOn)ClosingSong.play(0,1.5)};
@@ -505,14 +542,15 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ── 시안 전환 ── */
 let cur='',last01='d';
 function show(v,restart){
-  if(!['a','b','c','d','k','o','s','r','j','q','g','t'].includes(v))v='d';
-  if(v===cur&&!(restart&&'kosrjqgt'.includes(v)))return;
+  if(!['a','b','c','d','k','o','s','r','j','q','g','e','t'].includes(v))v='d';
+  if(v===cur&&!(restart&&'kosrjqget'.includes(v)))return;
   const prev=cur;cur=v;
   if('abcd'.includes(v))last01=v;
   document.querySelectorAll('.v').forEach(s=>{
     const on=s.id==='v'+v;s.classList.toggle('on',on);
     if(on){ // 재진입 시 입장 모션 다시 재생
-      s.querySelectorAll('.ticket,.chrome>*,#vq .an,#vg .an,#vt .an,#vt .hero,#vt .glow').forEach(el=>{el.style.animation='none';el.offsetWidth;el.style.animation=''});
+      if(s.id==='ve')s.classList.remove('skip','hold');
+      s.querySelectorAll('.ticket,.chrome>*,#vq .an,#vg .an,#vt .an,#vt .hero,#vt .glow,#ve .list,#ve .fin h1,#ve .fin .kr').forEach(el=>{el.style.animation='none';el.offsetWidth;el.style.animation=''});
     }
   });
   document.querySelectorAll('#panel [data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
@@ -527,7 +565,11 @@ function show(v,restart){
   julian(v==='j');
   vote(v==='q');
   closing(v==='t');
+  credits(v==='e');
 }
+/* ── 09 마무리 인사(제이미) 크레딧: 곡(골랐으면) 천천히 커지며 재생 · Enter = 크레딧 건너뛰고 바로 이름 · Space = 멈춤 ── */
+let eOn=false;function credits(on){if(on&&!eOn&&window.CreditSong&&bgmOn)CreditSong.play(0,1.5);else if(!on&&eOn&&window.CreditSong)CreditSong.stop();eOn=on}
+function toggleCr(){const v=$('#ve'),h=v.classList.toggle('hold');if(window.CreditSong)h?CreditSong.pause():CreditSong.resume()}
 /* ── 11: 마무리 곡(골랐으면) — 천천히 커지며 재생, 떠날 때 줄이며 멈춤 ── */
 let tOn=false;function closing(on){if(on&&!tOn&&window.ClosingSong&&bgmOn)ClosingSong.play(0,2);else if(!on&&tOn&&window.ClosingSong)ClosingSong.stop();tOn=on}
 /* ── 07B: 투표 화면 — 배경음(골랐으면) 반복 재생, 떠날 때 줄이며 멈춤 ── */
@@ -563,7 +605,7 @@ function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는
   if(on){renderCd();playBgm()}else if(was&&!keepMusic){stopBgm(true)}
 }
 function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?stopBgm(false):playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause()}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause();if(window.CreditSong)CreditSong.pause()}else if(eOn&&window.CreditSong&&CreditSong.name){CreditSong.el.currentTime>0?CreditSong.resume():CreditSong.play(0,1.5)}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
@@ -1055,11 +1097,12 @@ $('#fs').onclick=fullscreen;$('#hd').onclick=togglePanel;
 addEventListener('dblclick',e=>{if(!e.target.closest('#panel'))togglePanel()});
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();
   if(k==='1'){if('abcd'.includes(cur))welcomeMusic(true,true);else show(last01)}else if(k==='2')show('k',true);
-  else if(k==='3')show('o',true);else if(k==='4')show('s',true);else if(k==='5')show('r',true);else if(k==='7')show('j',true);else if(k==='v'||k==='ㅍ')show('q',true);else if(k==='0')show('g',true);else if(k==='-')show('t',true);
+  else if(k==='3')show('o',true);else if(k==='4')show('s',true);else if(k==='5')show('r',true);else if(k==='7')show('j',true);else if(k==='v'||k==='ㅍ')show('q',true);else if(k==='0')show('g',true);else if(k==='9')show('e',true);else if(k==='-')show('t',true);
   else if(k==='enter'&&cur==='r'){e.preventDefault();radioName()}
-  else if(k===' '){e.preventDefault();cur==='o'?toggleOp():cur==='s'?toggleSc():cur==='r'?toggleRd():cur==='j'?toggleJl():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
-  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true);else if(cur==='r')show('j',true);else if(cur==='j')show('q',true);else if(cur==='q')show('g',true);else if(cur==='g')show('t',true)}
-  else if(k==='arrowleft'){if(cur==='t')show('g',true);else if(cur==='g')show('q',true);else if(cur==='q')show('j',true);else if(cur==='j')show('r',true);else if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
+  else if(k==='enter'&&cur==='e'){e.preventDefault();$('#ve').classList.add('skip')}
+  else if(k===' '){e.preventDefault();cur==='o'?toggleOp():cur==='s'?toggleSc():cur==='r'?toggleRd():cur==='j'?toggleJl():cur==='e'?toggleCr():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
+  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true);else if(cur==='r')show('j',true);else if(cur==='j')show('q',true);else if(cur==='q')show('g',true);else if(cur==='g')show('e',true);else if(cur==='e')show('t',true)}
+  else if(k==='arrowleft'){if(cur==='t')show('e',true);else if(cur==='e')show('g',true);else if(cur==='g')show('q',true);else if(cur==='q')show('j',true);else if(cur==='j')show('r',true);else if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
   else if(k==='f'||k==='ㄹ'){e.preventDefault();fullscreen()}else if(k==='h'||k==='ㅗ')togglePanel();});
 show(location.hash.slice(1)||'d');
 </script>

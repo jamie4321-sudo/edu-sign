@@ -59,6 +59,8 @@
   window.VoteSong=slot('vote-song',0,'votesong-ready');VoteSong.el.loop=true;
   // 11 마무리 곡
   window.ClosingSong=slot('closing-song',0,'closing-ready');
+  // 09 마무리 인사(제이미) 크레딧 곡
+  window.CreditSong=slot('credit-song',0,'credit-ready');
   window.VoteQR=(function(){const KEY='vote-qr';let url='';
     function use(f){if(url)URL.revokeObjectURL(url);url=f?URL.createObjectURL(f):''}
     const ready=load(KEY).then(use).catch(()=>{}).then(()=>window.dispatchEvent(new Event('voteqr-ready')));
