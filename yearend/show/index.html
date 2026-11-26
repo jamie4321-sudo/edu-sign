@@ -181,6 +181,17 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 /* 라디오 음성 자막 — 배경에 컴퓨터 화면처럼 한 글자씩 타이핑(커서 깜빡), 지난 줄은 흐리게 */
 #vr .sub{position:absolute;left:5cqw;right:5cqw;top:6cqh;font-weight:800;font-size:3.9cqw;line-height:1.38;word-break:keep-all;letter-spacing:-.01em;color:#ffb547}
 #vr .shade{position:absolute;inset:0;background:#050302;opacity:0;pointer-events:none} /* 자막 뜰 때 라디오를 아주 어둡게 */
+/* 자막 화면 우측 하단 ON AIR — 붉은 원이 숨 쉬듯 빛나고 바깥으로 전파가 퍼짐 */
+#vr .onair{position:absolute;right:4.5cqw;bottom:6cqh;display:flex;align-items:center;gap:1.6cqw;opacity:0;pointer-events:none}
+#vr .onair .dot{position:relative;width:3.4cqw;height:3.4cqw;border-radius:50%;background:radial-gradient(circle at 38% 35%,#ff8a70 0%,#ff2a14 45%,#b80f05 100%);box-shadow:0 0 1cqw #ff3a1acc,0 0 3cqw #ff2a1488,0 0 7cqw #ff1a0a44,inset 0 0 .6cqw #ffd0c088;animation:oaBeat 1.6s ease-in-out infinite}
+#vr .onair .dot i{position:absolute;inset:0;border-radius:50%;border:.18cqw solid #ff4a2a;animation:oaWave 1.6s ease-out infinite}
+#vr .onair .dot i+i{animation-delay:.8s}
+#vr .onair .tx{display:flex;flex-direction:column;line-height:1}
+#vr .onair b{font-weight:900;font-size:3.4cqw;letter-spacing:.16em;color:#fff1ea;text-shadow:0 0 .6cqw #ff5a3c,0 0 1.8cqw #ff3a1a99}
+#vr .onair small{margin-top:.7cqw;font-weight:800;font-size:1.1cqw;letter-spacing:.3em;color:#ff9a80}
+#vr .onair em{font-style:normal;color:#fff1ea;letter-spacing:.12em}
+@keyframes oaBeat{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.35)}}
+@keyframes oaWave{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.8);opacity:0}}
 #vr .sub div{opacity:.3;white-space:pre-wrap}#vr .sub div.now{opacity:.95;text-shadow:0 0 .8cqw #ffb54766}
 #vr .sub .host{color:#cfe3ff}#vr .sub .host.now{text-shadow:0 0 .8cqw #8fbaff66}#vr .sub .host i{background:#cfe3ff} /* 진행자 = 차가운 하늘색, 게스트(데이빗) = 호박색 — 이름은 숨겨 '누구 목소리지?' 궁금하게 */
 #vr .sub b{font-weight:800;letter-spacing:.18em;font-size:.5em;margin-right:.8em;vertical-align:.25em;color:#f3e3c3}
@@ -380,6 +391,7 @@ body.clean{cursor:none}
   <div class="readout" id="rRead">FM 98.6 MHz</div>
   <div class="shade" id="rShade" aria-hidden="true"></div>
   <div class="sub" id="rSub" aria-hidden="true"></div>
+  <div class="onair" id="rOnAir" aria-hidden="true"><span class="dot"><i></i><i></i></span><span class="tx"><b>ON AIR</b><small>FM 98.6 · LIVE <em id="rClock">00:00</em></small></span></div>
   <div class="name"><div><p id="rPw" hidden></p><h1 id="rName">David.</h1><p class="kr" id="rKr">데이빗</p></div></div>
   <div class="grain"></div><div class="scan"></div><div class="vig"></div>
 </section>
@@ -989,7 +1001,8 @@ function renderRd(){
    for(const [a,b,who,tx] of RSUB){if(st<a)break;const n=Math.min(tx.length,Math.floor((st-a)/Math.max(.05,Math.min((b-a)*.85,tx.length*.09))*tx.length));
      const now=st<b+.6;h+=`<div class="${now?'now':''} ${who==='진행자'?'host':'guest'}"><b>${who}</b>${tx.slice(0,n)}${now?'<i></i>':''}</div>`}
    if(box._h!==h){box.innerHTML=h;box._h=h}box.style.opacity=(name?1-sm(u/.6):1).toFixed(3);
-   $('#rShade').style.opacity=(h?.93*sm((st+.1)/.8)*(name?1-sm(u/.6):1):0).toFixed(3)}
+   const sh=h?sm((st+.1)/.8)*(name?1-sm(u/.6):1):0;$('#rShade').style.opacity=(.93*sh).toFixed(3);$('#rOnAir').style.opacity=sh.toFixed(3);
+   {const c=Math.max(0,Math.floor(st)),e=$('#rClock'),v=String(c/60|0).padStart(2,'0')+':'+String(c%60).padStart(2,'0');if(e.textContent!==v)e.textContent=v}}
   $('#rPw').style.opacity=(name?sm((u-.25)/.5):0).toFixed(3);
 }
 function radio(on){
