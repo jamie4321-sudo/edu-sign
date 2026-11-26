@@ -1,6 +1,7 @@
 // 행사용 음원(저작권 곡)은 링크에 올리지 않고, 행사 노트북 브라우저(IndexedDB)에만 저장합니다.
 //   Entrance  = 04 스칼렛 입장곡 (1:26 부터)
 //   CountSong = 02 카운트다운 곡 (처음부터, 카운트다운 시계와 맞춰 재생)
+// 11-26 Jamie 결정: 누가 링크를 열어도 소리가 나도록 기본 음원을 audio/ 폴더에 공개(노트북에서 고른 파일이 있으면 그 파일 우선).
 (function(){
   'use strict';
   const DB='yearend-show',STORE='files';
@@ -8,11 +9,14 @@
   async function save(key,file){const db=await idb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(file,key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
   async function load(key){const db=await idb();return new Promise(res=>{const r=db.transaction(STORE).objectStore(STORE).get(key);r.onsuccess=()=>res(r.result||null);r.onerror=()=>res(null)})}
 
+  const DEF={'countdown-song':'audio/countdown.mp3','scarlett-song':'audio/scarlett.mp3','welcome-song-1':'audio/welcome1.mp3',
+    'radio-voice':'audio/david-voice.m4a','radio-bed':'audio/david-bed.mp3','julian-song':'audio/julian.mp3','closing-song':'audio/closing.mp3'};
   function slot(key,START,event){
     const audio=new Audio();audio.preload='auto';
     let url=null,name='',fadeT=null;
-    function use(file){if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(file);audio.src=url;name=file.name||key}
-    const ready=load(key).then(f=>{if(f)use(f)}).catch(()=>{}).then(()=>window.dispatchEvent(new Event(event)));
+    function use(file){if(url&&url.startsWith('blob:'))URL.revokeObjectURL(url);url=URL.createObjectURL(file);audio.src=url;name=file.name||key}
+    function useDef(){if(url||!DEF[key])return;url=DEF[key];audio.src=url;name='기본 음원'}
+    const ready=load(key).then(f=>{if(f)use(f)}).catch(()=>{}).then(()=>{useDef();window.dispatchEvent(new Event(event))});
     return {
       START,ready,
       get name(){return url?name:''},
