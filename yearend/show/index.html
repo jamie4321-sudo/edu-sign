@@ -203,7 +203,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vr .name{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
 #vr .name p{margin:0 0 .8cqw;font-weight:700;font-size:2.4cqw;letter-spacing:.3em;text-indent:.3em;color:#d9b98a;opacity:0}
 #vr .name h1{margin:0;font-weight:900;font-size:19cqw;letter-spacing:-.04em;line-height:.9;color:#fff1d6;opacity:0;text-shadow:0 0 .6cqw #ffcf8a,0 0 2.2cqw #ffb547cc,0 0 6cqw #ff8a3a88,0 0 12cqw #ff6a2a55}
-#vr .name p.kr{margin:1.4cqw 0 0;font-size:3.2cqw;font-weight:800;letter-spacing:.32em;text-indent:.32em;color:#fff1d6;text-shadow:0 0 .6cqw #ffcf8a,0 0 1.8cqw #ffb547aa}
+#vr .name p.kr{margin:2.2cqw 0 0;font-size:5.6cqw;font-weight:900;letter-spacing:.42em;text-indent:.42em;color:#fff1d6;text-shadow:0 0 .5cqw #ffcf8a,0 0 1.6cqw #ffb547cc,0 0 4cqw #ff8a3a88,0 0 8cqw #ff6a2a44}
 #vr .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,#0000 0 .28cqh,#00000038 .28cqh .56cqh);mix-blend-mode:multiply}
 #vr .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,#0000 55%,#000a 100%)}
 /* 07 줄리앙 — 순검정 키노트 · '2026'이 별빛 입자로 흩어져 'Julian.'으로 다시 모이고, 아래로 2027의 새벽 지평선 */
@@ -1025,6 +1025,8 @@ function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.no
     if(before<LOCK&&rd.t>=LOCK){noise(0,.25);if(window.RadioVoice&&RadioVoice.name&&bgmOn){RadioVoice.play(0,.25);rd.voice=true}}
   }
   if(!rd.bed&&rd.t>LOCK+1){const v=RadioVoice.el;if(rd.voice?(v.duration&&(v.ended||v.duration-v.currentTime<.8)):rd.t>LOCK+21.6)bedIn()}
+  // 음성(없으면 자막)이 끝나는 순간 Enter 없이 자동으로 네온 'David.' + 한글 '데이빗'
+  if(rd.phase==='radio'&&rd.t>LOCK+1){const v=RadioVoice.el;if(rd.voice?(v.duration&&(v.ended||v.duration-v.currentTime<.15)):rd.t>LOCK+22.2)radioName()}
   if(rd.bed&&!rd.bedOut&&rd.t-rd.bedT>=10){rd.bedOut=true;RadioBed.stop(4)} // 10초 흐른 뒤 4초에 걸쳐 페이드아웃
   renderRd()})(performance.now());
 
