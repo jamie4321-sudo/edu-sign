@@ -55,6 +55,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #va .badge{position:absolute;right:7cqw;top:10cqh;width:15cqw;aspect-ratio:1;animation:spin 18s linear infinite}
 #va .badge .disc{fill:var(--pink)}
 #va .badge text{font:800 11.5px "Kakao Big Sans";letter-spacing:2.2px;fill:var(--ink)}
+#va .badge text.day{font-size:30px;letter-spacing:0}
 #va .badge .glass{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
 @keyframes spin{to{transform:rotate(360deg)}}
 #va .badge .inner{transform-origin:50% 50%;animation:spin 18s linear infinite reverse}
@@ -447,14 +448,14 @@ body.clean{cursor:none}
 <section class="v" id="va" aria-label="A안 리소 포스터">
   <div class="rows" aria-hidden="true">
     <div class="row big solid" style="--d:70s"><div class="track"><span>SNACK<i class="star">✱</i>SNACK<i class="star">✱</i></span><span>SNACK<i class="star">✱</i>SNACK<i class="star">✱</i></span></div></div>
-    <div class="row mid r" style="--d:46s"><div class="track"><span>함께한 2026, 다가올 2027</span><span>웰컴 드링크 받아 가세요</span><span>함께한 2026, 다가올 2027</span><span>웰컴 드링크 받아 가세요</span></div></div>
+    <div class="row mid r" style="--d:46s"><div class="track"><span>함께한 2026, 다가올 2027</span><span>2026 송년회 · 12.04</span><span>함께한 2026, 다가올 2027</span><span>2026 송년회 · 12.04</span></div></div>
     <div class="row big line r" style="--d:80s"><div class="track"><span>GARDEN<i class="star">✱</i>GARDEN<i class="star">✱</i></span><span>GARDEN<i class="star">✱</i>GARDEN<i class="star">✱</i></span></div></div>
   </div>
   <svg class="badge" viewBox="0 0 200 200" aria-hidden="true">
     <circle class="disc" cx="100" cy="100" r="98"/>
     <defs><path id="circ" d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"/></defs>
-    <text><textPath href="#circ">WELCOME DRINK ✱ 웰컴 드링크 ✱ WELCOME DRINK ✱ 웰컴 드링크 ✱</textPath></text>
-    <g class="inner"><path class="glass" d="M78 72h44l-6 52a10 10 0 0 1-10 9h-12a10 10 0 0 1-10-9z M80 90h40 M108 72l10-18"/></g>
+    <text><textPath href="#circ">WELCOME ✱ 2026 송년회 ✱ WELCOME ✱ 2026 송년회 ✱</textPath></text>
+    <g class="inner"><text class="day" x="100" y="110" text-anchor="middle">12.04</text></g>
   </svg>
   <article class="ticket" id="ticket">
     <div class="k"><span>LINKAGELAB</span><span>ADMIT ALL</span></div>
@@ -1188,7 +1189,7 @@ const led={active:false};
   const cv=$('#led'),gl=$('#ledGlow'),cx=cv.getContext('2d'),gx=gl.getContext('2d');
   cv.width=gl.width=COLS;cv.height=gl.height=ROWS;
   const F='"Kakao Big Sans","Malgun Gothic",sans-serif';
-  const MSG='  WELCOME ✱ 2026 스낵앤가든 송년회 ✱ 함께한 2026, 다가올 2027 ✱ 웰컴 드링크 받아 가세요 ✱';
+  const MSG='  WELCOME ✱ 2026 스낵앤가든 송년회 ✱ 함께한 2026, 다가올 2027 ✱ 12.04 FRI 17:00 ✱';
   let msgW=0,msgCanvas=null;
   function buildMsg(){
     const m=document.createElement('canvas'),g=m.getContext('2d');g.font=`700 17px ${F}`;
