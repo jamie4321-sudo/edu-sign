@@ -150,6 +150,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vs svg{width:64cqw;height:auto;display:block;margin:0 auto;overflow:visible}
 #vs svg path{fill:none;stroke:url(#sigGrad);stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
 #vs svg path.fine{stroke-width:2.1}
+#vs .kr{margin:1.2cqw 0 0;font-weight:800;font-size:3.4cqw;letter-spacing:.32em;text-indent:.32em;color:#f5f5f7;opacity:0;will-change:opacity,filter,transform}
 #vs .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 #vs canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #vs #sFx{mix-blend-mode:screen}
@@ -301,6 +302,7 @@ body.clean{cursor:none}
       <path pathLength="1" class="fine" d="M311 66 Q347 57 397 58"/>
       <path pathLength="1" class="fine" d="M108 130 Q233 116 369 117 Q425 116 462 108"/>
     </svg>
+    <p class="kr" id="sKr">스칼렛</p>
   </div>
   <canvas id="sFx" aria-hidden="true"></canvas>
   <div class="flash" id="sFlash"></div>
@@ -650,6 +652,7 @@ function renderSc(){
   const t=reduced?99:sc.t;
   const pw=sm((t-beat(1))/.5);setLayer($('#sPw'),pw,(1-pw)*.8,1.03-.03*pw);
   drawSig(eo((t-beat(5))/(BEAT*6)),sm((t-beat(11))/(BEAT*2)));
+  const kr=sm((t-beat(12))/(BEAT*1.5));setLayer($('#sKr'),kr,(1-kr)*.6,1.04-.04*kr); // 서명 밑줄이 그어진 뒤 한글 '스칼렛'
   const fl=t>=beat(5)?Math.exp(-(t-beat(5))/.12):0;$('#sFlash').style.opacity=(reduced?0:.85*fl).toFixed(3);
   // 박마다 맥박: 박 직후 밝았다가 0.25초에 걸쳐 가라앉음
   const since=t-B0<0?9:((t-B0)%BEAT),on=sm((t-beat(5))/1.2);
