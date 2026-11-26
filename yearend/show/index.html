@@ -272,7 +272,9 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #ve .nm{font-weight:700;letter-spacing:-.03em;line-height:1}
 #ve .nm.b{font-weight:900;letter-spacing:-.05em}
 #ve .nm.l{font-weight:500;color:#d1d1d6}
-#ve .nm{text-align:center}#ve .nm .en{display:block}
+#ve .nm{text-align:center}#ve .nm .en{display:block;position:relative}
+/* 크레딧 이름 모션: 큰 이름 = Box Reveal(흰 박스가 덮었다 걷힘) · 중간 = Letter Shuffle + Echo Trail(잔상) · 작은 이름·한글 = Mask Slide(선 아래서 쑥) */
+#ve .nm.b .en::after{content:'';position:absolute;left:-.06em;right:-.06em;top:.02em;bottom:-.04em;background:#f5f5f7;transform-origin:var(--bo,left);transform:scaleX(var(--bx,0))}
 #ve .nm .ko{display:block;margin-top:.28em;font-size:max(.36em,1.15cqw);font-weight:700;letter-spacing:.24em;text-indent:.24em;color:#8e8e93}
 #ve .tw{font-weight:900;font-size:24cqw;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:.12cqw rgba(255,255,255,.2)}
 #ve .tl{font-weight:700;font-size:1.25cqw;letter-spacing:.42em;color:var(--grey)}
@@ -690,9 +692,20 @@ function renderCe(){
     it.el.style.transform=`translate(calc(${it.x}cqw - 50%),calc(${yy}cqh - 50%)) rotate(${it.rot}deg)`;
     if(it.name){ // 아래에서 들어올 때 글자가 무작위 문자 → 이름으로 디코딩
       const p=reduced?1:Math.max(0,Math.min(1,(96-yy)/22)),n=it.name,show=Math.floor(p*(n.length+2));
-      if(p>=1){if(it.en.textContent!==n)it.en.textContent=n}
-      else{const f=Math.floor(t*14);let o='';for(let i=0;i<n.length;i++)o+=i<show?n[i]:SCR[Math.floor(ceR(f*31+i*7+it.y)*SCR.length)];it.en.textContent=o}
-      it.el.style.opacity=(.35+.65*p).toFixed(3);it.ko.style.opacity=Math.max(0,Math.min(1,(p-.6)/.4)).toFixed(3)} // 영문이 다 풀리면 한글이 따라 나타남
+      const kind=it.kind||(it.kind=it.size>5?'box':it.el.classList.contains('l')?'mask':'echo'),cl=v=>Math.max(0,Math.min(1,v));
+      if(kind==='echo'){ // Letter Shuffle 디코딩 + Echo Trail: 옆으로 끌리는 잔상 3겹이 이름에 겹쳐 사라짐
+        if(p>=1){if(it.en.textContent!==n)it.en.textContent=n}
+        else{const f=Math.floor(t*14);let o='';for(let i=0;i<n.length;i++)o+=i<show?n[i]:SCR[Math.floor(ceR(f*31+i*7+it.y)*SCR.length)];it.en.textContent=o}
+        const d=.26*(1-eo(cl(p))),dir=it.x<50?1:-1;
+        it.en.style.textShadow=d>.002?[1,2,3].map(k=>`${(dir*d*k).toFixed(3)}em 0 rgba(245,245,247,${(.42-.11*k)*(1-p)})`).join(','):'none';
+        it.el.style.opacity=(.35+.65*p).toFixed(3)}
+      else{if(it.en.textContent!==n)it.en.textContent=n;it.el.style.opacity='1';
+        if(kind==='box'){ // Box Reveal: 0~.5 흰 박스가 왼쪽부터 덮음(글자 숨김) → .5~1 오른쪽으로 걷히며 이름
+          const a=cl(p/.5),b=cl((p-.5)/.5);it.el.style.setProperty('--bo',p<.5?'left':'right');it.el.style.setProperty('--bx',(p<.5?eo(a):1-eo(b)).toFixed(3));it.en.style.color=p<.5?'transparent':''}
+        else{const e=eo(cl(p/.8)),T=((1-e)*105).toFixed(1); // Mask Slide: 보이지 않는 선 아래에서 올라옴
+          it.en.style.transform=`translateY(${T}%)`;it.en.style.clipPath=`inset(0 0 ${T}% 0)`}}
+      {const e=eo(cl((p-.55)/.45)),T=((1-e)*110).toFixed(1); // 한글 이름도 Mask Slide로 영문 뒤를 따라 올라옴
+        it.ko.style.opacity=e>0?'1':'0';it.ko.style.transform=`translateY(${T}%)`;it.ko.style.clipPath=`inset(0 0 ${T}% 0)`}}
   }
   const d=t>=ce.end;if(d!==ce.done){ce.done=d;$('#ve').classList.toggle('done',d)}
 }
