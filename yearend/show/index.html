@@ -194,6 +194,22 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 @keyframes qIn{from{opacity:0;transform:translateY(2.2cqw);filter:blur(.9cqw)}to{opacity:1;transform:none;filter:none}}
 @keyframes qCard{from{opacity:0;transform:scale(.92);filter:blur(1cqw)}to{opacity:1;transform:none;filter:none}}
 #vq .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
+/* 10 단체사진 — 사람들이 화면 앞 아래쪽에 서므로 글자는 위쪽 · 역광 안 되게 순검정 + 아래에서 은은히 올라오는 브랜드색 오로라(사진에 테두리 빛) */
+#vg{background:#000;color:#f5f5f7;--grey:#86868b;overflow:hidden}
+#vg .aur{position:absolute;left:-20%;right:-20%;bottom:-38%;height:75%;filter:blur(4.5cqw) saturate(1.6);opacity:.9;pointer-events:none;isolation:isolate}
+#vg .aur i{position:absolute;top:34%;height:36%;width:44%;border-radius:50%;mix-blend-mode:screen;animation:gDrift 22s ease-in-out infinite alternate}
+#vg .aur i:nth-child(1){left:6%;background:#ffb547;animation-duration:24s}
+#vg .aur i:nth-child(2){left:34%;top:28%;background:#ff7a59;animation-duration:19s;animation-delay:-6s}
+#vg .aur i:nth-child(3){left:60%;background:#3ddc84;animation-duration:27s;animation-delay:-11s}
+@keyframes gDrift{from{transform:translateX(-8%) scaleY(.85)}to{transform:translateX(8%) scaleY(1.15)}}
+#vg .rim{position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(#0000,#0000004d);pointer-events:none}
+#vg .top{position:absolute;left:0;right:0;top:7cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#6e6e73;font-weight:700}
+#vg .lock{position:absolute;left:0;right:0;top:15cqh;text-align:center}
+#vg .kick{margin:0 0 1.6cqw;font-weight:700;font-size:1.6cqw;letter-spacing:.34em;text-indent:.34em;color:#a1a1a6}
+#vg h1{margin:0;font-weight:900;font-size:10.6cqw;line-height:.9;letter-spacing:-.055em;white-space:nowrap}
+#vg h1 em{font-style:normal;background:var(--grad,linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%));-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em}
+#vg .sub{margin:2cqw 0 0;font-weight:700;font-size:2.4cqw;letter-spacing:-.03em;color:#d2d2d7}
+#vg .an{opacity:0;animation:qIn 1.2s var(--ease-out) both}
 #vj{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%)}
 #vj canvas{position:absolute;inset:0;width:100%;height:100%}
 #vj .pw{position:absolute;left:0;right:0;top:27%;margin:0;text-align:center;font-weight:500;font-size:2.8cqw;letter-spacing:-.02em;color:var(--grey);opacity:0;will-change:opacity,filter,transform}
@@ -257,7 +273,7 @@ body.clean{cursor:none}
   <canvas id="sBeams" aria-hidden="true"></canvas>
   <div class="glow" id="sGlow" aria-hidden="true"></div>
   <div class="copy">
-    <p class="pw" id="sPw">Please welcome.</p>
+    <p class="pw" id="sPw" hidden></p><!-- Jamie: Please welcome. 문구 전부 삭제 -->
     <svg id="sSig" viewBox="0 0 480 150" role="img" aria-label="Scarlett">
       <defs><linearGradient id="sigGrad" x1="0" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffc56b"/><stop offset=".45" stop-color="#ff7a59"/><stop offset="1" stop-color="#3ddc84"/></linearGradient></defs>
       <path pathLength="1" d="M110 32 C135 0 57 2 35 42 C17 75 100 62 94 92 C87 130 8 144 12 112 C14 100 33 94 49 96 C76 100 105 91 124 78"/>
@@ -282,11 +298,23 @@ body.clean{cursor:none}
   <canvas id="rC" aria-hidden="true"></canvas>
   <div class="lamp" id="rLamp">ON AIR</div>
   <div class="readout" id="rRead">FM 98.6 MHz</div>
-  <div class="name"><div><p id="rPw">PLEASE WELCOME</p><h1 id="rName">David.</h1></div></div>
+  <div class="name"><div><p id="rPw" hidden></p><h1 id="rName">David.</h1></div></div>
   <div class="grain"></div><div class="scan"></div><div class="vig"></div>
 </section>
 
 <!-- A -->
+<!-- 10 단체사진 -->
+<section class="v" id="vg" aria-label="10 단체사진">
+  <div class="aur" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="rim" aria-hidden="true"></div>
+  <div class="top an" style="animation-delay:.5s">LINKAGELAB</div>
+  <div class="lock">
+    <p class="kick an" style="animation-delay:.6s">2026 송년회 · 12.04</p>
+    <h1 class="an" style="animation-delay:.75s">SNACK <em>&amp;</em> GARDEN</h1>
+    <p class="sub an" style="animation-delay:1s">함께한 2026, 다가올 2027</p>
+  </div>
+</section>
+
 <!-- 07B 베스트 드레서 투표 -->
 <section class="v" id="vq" aria-label="07B 베스트 드레서 투표">
   <div class="wrap">
@@ -311,7 +339,7 @@ body.clean{cursor:none}
     <div class="ln" style="top:61.111%"><span class="pre">링키지랩 창립 </span><b class="key">10</b><span class="post">주년</span></div>
     <div class="ln" style="top:72.222%"><span class="pre"></span><b class="key">제주</b><span class="post">미션트립 4월 23~25일</span></div>
   </div>
-  <p class="pw" id="jPw">Please welcome.</p>
+  <p class="pw" id="jPw" hidden></p>
   <p class="cap" id="jCap">함께한 2026, 다가올 2027</p>
   <span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Julian</span>
 </section>
@@ -375,6 +403,7 @@ body.clean{cursor:none}
   <button data-v="r">05 데이빗 (5 → Enter)</button>
   <button data-v="j">07 줄리앙 (7)</button>
   <button data-v="q">07B 베스트 드레서 (V)</button>
+  <button data-v="g">10 단체사진 (0)</button>
   <button id="bgmBtn">음악 켜짐 (B)</button>
   <button id="cdSongBtn">카운트다운 곡 선택</button><input type="file" id="cdSongFile" accept="audio/*" hidden>
   <button id="songBtn">스칼렛 입장곡 선택</button><input type="file" id="songFile" accept="audio/*" hidden>
@@ -437,14 +466,14 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ── 시안 전환 ── */
 let cur='',last01='d';
 function show(v,restart){
-  if(!['a','b','c','d','k','o','s','r','j','q'].includes(v))v='d';
-  if(v===cur&&!(restart&&'kosrjq'.includes(v)))return;
+  if(!['a','b','c','d','k','o','s','r','j','q','g'].includes(v))v='d';
+  if(v===cur&&!(restart&&'kosrjqg'.includes(v)))return;
   const prev=cur;cur=v;
   if('abcd'.includes(v))last01=v;
   document.querySelectorAll('.v').forEach(s=>{
     const on=s.id==='v'+v;s.classList.toggle('on',on);
     if(on){ // 재진입 시 입장 모션 다시 재생
-      s.querySelectorAll('.ticket,.chrome>*,#vq .an').forEach(el=>{el.style.animation='none';el.offsetWidth;el.style.animation=''});
+      s.querySelectorAll('.ticket,.chrome>*,#vq .an,#vg .an').forEach(el=>{el.style.animation='none';el.offsetWidth;el.style.animation=''});
     }
   });
   document.querySelectorAll('#panel [data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
@@ -573,7 +602,7 @@ function opening(on,fromCountdown){
 }
 function toggleOp(){if(!op.on)return;op.paused=!op.paused;op.last=performance.now();op.paused?stopBgm(false):playBgm(HANDOFF+op.t)}
 /* ── 04: 스칼렛 — Vogue(1:26~) 116.5 BPM, 첫 박 0.258초, 한 박 0.515초 (분석값) ──
-   1박 'Please welcome.' → 5박 카메라 플래시 + 서명 그리기(6박) → 11박 밑줄·t 가로획 → 이후 박마다 빛이 은은하게 맥박 */
+   5박 카메라 플래시 + 서명 그리기(6박) → 11박 밑줄·t 가로획 → 이후 박마다 빛이 은은하게 맥박 */
 const BEAT=60/116.5,B0=.258,beat=n=>B0+BEAT*n;
 const sc={on:false,t:0,paused:false,last:0};
 const sigPaths=[...document.querySelectorAll('#sSig path')],sigMain=sigPaths.filter(p=>!p.classList.contains('fine')),sigFine=sigPaths.filter(p=>p.classList.contains('fine'));
@@ -742,7 +771,7 @@ function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.no
 /* ── 07: 줄리앙 — 애플 키노트·광고식 ──
    '3' → '고용사업주 3회', '철탑' → '철탑 훈장', '접근성' → '접근성 이벤트'
    (핵심 단어 하나가 화면 가득 꽂힘 → 작아지며 양옆 글자가 풀려 문장 완성 → 위로 사라짐)
-   → 세 줄이 함께 정리 → 별빛 입자로 흩어져 'Julian.'으로 모임 · 아래로 2027 새벽 지평선 → 'Please welcome.' */
+   → 세 줄이 함께 정리 → 별빛 입자로 흩어져 'Julian.'으로 모임 · 아래로 2027 새벽 지평선 */
 const jl={on:false,t:0,paused:false,last:0,dots:null,em:null};
 const jC=$('#jC'),jg=jC.getContext('2d');
 const JLN=[...document.querySelectorAll('#vj .ln')],JY=[250,350,450,550,650];
@@ -976,11 +1005,11 @@ $('#fs').onclick=fullscreen;$('#hd').onclick=togglePanel;
 addEventListener('dblclick',e=>{if(!e.target.closest('#panel'))togglePanel()});
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();
   if(k==='1'){if('abcd'.includes(cur))welcomeMusic(true,true);else show(last01)}else if(k==='2')show('k',true);
-  else if(k==='3')show('o',true);else if(k==='4')show('s',true);else if(k==='5')show('r',true);else if(k==='7')show('j',true);else if(k==='v'||k==='ㅍ')show('q',true);
+  else if(k==='3')show('o',true);else if(k==='4')show('s',true);else if(k==='5')show('r',true);else if(k==='7')show('j',true);else if(k==='v'||k==='ㅍ')show('q',true);else if(k==='0')show('g',true);
   else if(k==='enter'&&cur==='r'){e.preventDefault();radioName()}
   else if(k===' '){e.preventDefault();cur==='o'?toggleOp():cur==='s'?toggleSc():cur==='r'?toggleRd():cur==='j'?toggleJl():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
-  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true);else if(cur==='r')show('j',true);else if(cur==='j')show('q',true)}
-  else if(k==='arrowleft'){if(cur==='q')show('j',true);else if(cur==='j')show('r',true);else if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
+  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true);else if(cur==='r')show('j',true);else if(cur==='j')show('q',true);else if(cur==='q')show('g',true)}
+  else if(k==='arrowleft'){if(cur==='g')show('q',true);else if(cur==='q')show('j',true);else if(cur==='j')show('r',true);else if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
   else if(k==='f'||k==='ㄹ'){e.preventDefault();fullscreen()}else if(k==='h'||k==='ㅗ')togglePanel();});
 show(location.hash.slice(1)||'d');
 </script>
