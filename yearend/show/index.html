@@ -177,6 +177,12 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 /* ───────── 05 · 데이빗 (레트로 라디오) ───────── */
 #vr{background:radial-gradient(120% 100% at 50% 45%,#2a1a0e 0%,#140c06 55%,#070402 100%);color:#f3e3c3;--amber:#ffb547;--cream:#f6e6c6}
 #vr canvas{position:absolute;inset:0;width:100%;height:100%}
+/* 라디오 음성 자막 — 배경에 컴퓨터 화면처럼 한 글자씩 타이핑(커서 깜빡), 지난 줄은 흐리게 */
+#vr .sub{position:absolute;left:6cqw;right:6cqw;top:5cqh;font-weight:700;font-size:2.4cqw;line-height:1.55;letter-spacing:-.01em;color:#ffb547}
+#vr .sub div{opacity:.16;white-space:pre-wrap}#vr .sub div.now{opacity:.6;text-shadow:0 0 .8cqw #ffb54766}
+#vr .sub b{font-weight:800;letter-spacing:.18em;font-size:.72em;margin-right:.8em;color:#f3e3c3}
+#vr .sub i{display:inline-block;width:.55em;height:1.05em;vertical-align:-.15em;background:#ffb547;animation:rCur 1s steps(1) infinite}
+@keyframes rCur{50%{opacity:0}}
 #vr .lamp{position:absolute;left:50%;top:13%;transform:translateX(-50%);padding:1cqw 2.6cqw;border-radius:1.2cqw;font-weight:900;font-size:2.6cqw;letter-spacing:.22em;text-indent:.22em;color:#3a0d08;background:#3a1410;border:.25cqw solid #5a2018;transition:none}
 #vr .lamp.lit{color:#fff4ea;background:radial-gradient(120% 140% at 50% 40%,#ff5a3c,#d1261a 70%);border-color:#ff8a6a;box-shadow:0 0 2cqw #ff4a2a99,0 0 6cqw #ff3a1a55,inset 0 0 1.2cqw #ffd0b088;text-shadow:0 0 .8cqw #ffd6c2}
 #vr .readout{position:absolute;left:50%;top:56%;transform:translateX(-50%);font-weight:800;font-size:1.5cqw;letter-spacing:.3em;color:var(--amber);opacity:0;text-shadow:0 0 .8cqw #ffb54788}
@@ -366,6 +372,7 @@ body.clean{cursor:none}
 
 <!-- 05 데이빗 -->
 <section class="v" id="vr" aria-label="05 데이빗 라디오">
+  <div class="sub" id="rSub" aria-hidden="true"></div>
   <canvas id="rC" aria-hidden="true"></canvas>
   <div class="lamp" id="rLamp">ON AIR</div>
   <div class="readout" id="rRead">FM 98.6 MHz</div>
@@ -938,6 +945,10 @@ function meter(cx,cy,lvl,a){
   rg.strokeStyle='#1c120a';rg.lineWidth=3.5;rg.beginPath();rg.moveTo(px,py);rg.lineTo(px+Math.sin(ang)*(R+4),py-Math.cos(ang)*(R+4));rg.stroke();
   rg.globalAlpha=1;
 }
+// 데이빗 라디오 출연 음성 자막 (받아쓰기 후 문맥 교정, 초 단위)
+const RSUB=[[0,4.8,'진행자','오늘 멍석 한번 제대로 깔고, 자랑도 한번 제대로 해 보죠.'],[4.8,7.7,'진행자','일단 링키지랩, 2016년에 문을 열었다고요?'],
+  [7.7,9.7,'DAVID','네, 맞습니다.'],[9.7,15.5,'DAVID','저희는 2016년에 장애인 일자리 확대를 통한 기업의 사회적 책임,'],
+  [15.5,21.2,'DAVID','이런 부분들을 중심으로 해서 카카오의 자회사형 표준사업장으로 설립을 했고요.']];
 function renderRd(){
   if(!rC.width)rdSize();
   const t=rd.t,W=rC.width,H=rC.height;rg.setTransform(1,0,0,1,0,0);rg.clearRect(0,0,W,H);rg.setTransform(W/1600,0,0,H/900,0,0);
@@ -969,6 +980,11 @@ function renderRd(){
   $('#rName').style.opacity=(reduced&&name?1:seq).toFixed(3);
   {const e=$('#rKr'),p=(u-1)/.5;e.style.opacity=(name?(reduced?1:sm(p)*(.96+.04*Math.sin(u*31))):0).toFixed(3); // 네온 이름이 켜진 뒤 한글 '데이빗': 튀어나왔다 자리 잡고 숨 쉬듯 커졌다 작아짐
     e.style.transform=reduced||!name?'none':`scale(${(1.6-.6*bo(p)+.06*Math.sin(Math.max(0,u-1.5)*3.4)).toFixed(4)})`}
+  // 자막: 라디오 음성(골랐으면 곡 위치, 아니면 ON AIR 순간부터 자체 시계)에 맞춰 한 글자씩 타이핑
+  {const st=window.RadioVoice&&RadioVoice.name&&rd.voice?RadioVoice.el.currentTime:t-LOCK,box=$('#rSub');let h='';
+   for(const [a,b,who,tx] of RSUB){if(st<a)break;const n=Math.min(tx.length,Math.floor((st-a)/Math.max(.05,Math.min((b-a)*.85,tx.length*.09))*tx.length));
+     const now=st<b+.6;h+=`<div class="${now?'now':''}"><b>${who}</b>${tx.slice(0,n)}${now?'<i></i>':''}</div>`}
+   if(box._h!==h){box.innerHTML=h;box._h=h}box.style.opacity=(name?1-sm(u/.6):1).toFixed(3)}
   $('#rPw').style.opacity=(name?sm((u-.25)/.5):0).toFixed(3);
 }
 function radio(on){
