@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>송년회 상영 화면 · 글자 효과 20가지 시연</title>
+<meta name="robots" content="noindex">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="링키지랩">
+<meta property="og:title" content="링키지랩 가든관리 페이지 · 글자 효과 20가지">
+<meta property="og:description" content="연결의 시작 · 송년회 상영 화면에 쓸 글자 효과 미리 보기">
+<meta property="og:url" content="https://linkagelab-edu.pages.dev/yearend/show/fx/">
+<meta property="og:image" content="https://linkagelab-edu.pages.dev/yearend/og-xmas.png?v=1">
+<meta property="og:image:width" content="400">
+<meta property="og:image:height" content="400">
+<style>
+@font-face{font-family:"Kakao Big Sans";src:url(../../fonts/kbs-regular.woff2) format("woff2");font-weight:100 500;font-display:block}
+@font-face{font-family:"Kakao Big Sans";src:url(../../fonts/kbs-bold.woff2) format("woff2");font-weight:600 700;font-display:block}
+@font-face{font-family:"Kakao Big Sans";src:url(../../fonts/kbs-extrabold.woff2) format("woff2");font-weight:800 950;font-display:block}
+:root{--ink:#f5f5f7;--grey:#86868b;--line:#2c2c2e;--ease:cubic-bezier(.23,1,.32,1);--back:cubic-bezier(.34,1.56,.64,1)}
+*{box-sizing:border-box}
+html,body{margin:0;background:#050505;color:var(--ink);font-family:"Kakao Big Sans","Malgun Gothic",sans-serif;word-break:keep-all}
+header{max-width:1440px;margin:0 auto;padding:56px 32px 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+header p{margin:0 0 10px;font-weight:700;font-size:12px;letter-spacing:.34em;color:var(--grey)}
+header h1{margin:0;font-weight:900;font-size:clamp(36px,5vw,64px);letter-spacing:-.05em;line-height:1}
+header .how{margin:0;letter-spacing:0;font-size:14px;line-height:1.7;color:var(--grey);text-align:right}
+header .how b{color:var(--ink)}
+.legend{max-width:1440px;margin:0 auto;padding:0 32px 22px;display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--grey)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+main{max-width:1440px;margin:0 auto;padding:0 32px 80px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media (max-width:1100px){main{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:820px){main{grid-template-columns:repeat(2,1fr)}header .how{text-align:left}}
+@media (max-width:520px){main{grid-template-columns:1fr}}
+.card{all:unset;cursor:pointer;display:block;border-radius:14px;outline-offset:4px}
+.card:focus-visible{outline:2px solid var(--ink)}
+.stage{position:relative;aspect-ratio:16/9;background:#000;border:1px solid var(--line);border-radius:14px;overflow:hidden;container-type:size;display:grid;place-items:center;transition:border-color .2s}
+.card:hover .stage{border-color:#48484a}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 4px 0}
+.meta h2{margin:0;font-weight:700;font-size:15px;letter-spacing:-.01em}
+.meta h2 i{font-style:normal;color:var(--grey);font-weight:500;margin-right:8px;font-variant-numeric:tabular-nums}
+.tag{flex:none;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid #48484a;color:#d1d1d6}
+.tag.rec{background:var(--ink);color:#000;border-color:var(--ink)}
+.tag.use{border-style:solid}
+.tag.care{color:var(--grey);border-style:dashed}
+.tag.no{color:#6e6e73;border-color:#3a3a3c;text-decoration:line-through}
+.where{margin:6px 4px 0;font-size:12.5px;line-height:1.5;color:var(--grey)}
+.t{font-weight:900;letter-spacing:-.05em;line-height:1;white-space:nowrap;font-size:13cqw}
+.t span,.t .c{display:inline-block;white-space:pre}
+
+/* 01 Pop In */
+.run .fx1{animation:pop .7s var(--back) both}
+@keyframes pop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+/* 02 Mask Slide */
+.fx2 .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding:0 .02em .08em}
+.fx2 .w b{display:inline-block;font-weight:900;transform:translateY(110%)}
+.run .fx2 .w b{animation:mslide .8s var(--ease) both}
+.run .fx2 .w:nth-child(2) b{animation-delay:.12s}
+@keyframes mslide{to{transform:none}}
+/* 03 Spin In */
+.run .fx3 .c{animation:spin .9s var(--ease) both;animation-delay:calc(var(--i)*.06s)}
+@keyframes spin{from{opacity:0;transform:rotate(-200deg) scale(.2)}to{opacity:1;transform:none}}
+/* 04 Color Sweep (흰빛 → 은빛 스침) */
+.fx4{background:linear-gradient(100deg,#6e6e73 0%,#6e6e73 40%,#fff 50%,#f5f5f7 60%,#f5f5f7 100%) 0 0/260% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:.08em}
+.run .fx4{animation:sweep 1.4s var(--ease) both}
+@keyframes sweep{from{background-position:0 0}to{background-position:100% 0}}
+/* 05 Box Reveal */
+.fx5{position:relative;padding:.06em .1em}
+.fx5 .txt{opacity:0}
+.fx5::after{content:"";position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left}
+.run .fx5::after{animation:box 1.1s cubic-bezier(.77,0,.18,1) both}
+.run .fx5 .txt{animation:boxt 0s .55s both}
+@keyframes box{0%{transform:scaleX(0);transform-origin:left}50%{transform:scaleX(1);transform-origin:left}50.1%{transform:scaleX(1);transform-origin:right}100%{transform:scaleX(0);transform-origin:right}}
+@keyframes boxt{to{opacity:1}}
+/* 06 Slot Machine */
+.fx6{display:flex;font-variant-numeric:tabular-nums}
+.fx6 .col{display:inline-block;height:1em;overflow:hidden;line-height:1}
+.fx6 .col .reel{display:flex;flex-direction:column}
+.fx6 .dot{display:inline-block;width:.35em;text-align:center}
+/* 07 Shadow Pop */
+.fx7{color:var(--ink)}
+.run .fx7{animation:shp .8s var(--back) both}
+@keyframes shp{from{transform:none;text-shadow:0 0 0 #6e6e73,0 0 0 #3a3a3c}to{transform:translate(-.06em,-.06em);text-shadow:.03em .03em 0 #6e6e73,.06em .06em 0 #3a3a3c,.09em .09em 0 #1c1c1e}}
+/* 08 Neon Flicker */
+.fx8{color:#fff;text-shadow:0 0 .04em #fff,0 0 .2em #ffffffaa,0 0 .5em #ffffff55}
+.run .fx8{animation:neon 1.4s steps(1) both}
+@keyframes neon{0%{opacity:0}8%{opacity:1}12%{opacity:.1}18%{opacity:1}22%{opacity:.2}30%,100%{opacity:1}}
+/* 09 Stretch */
+.run .fx9{animation:stretch .9s var(--ease) both}
+@keyframes stretch{from{opacity:0;transform:scaleX(3.2) scaleY(.2);filter:blur(.08em)}60%{transform:scaleX(.9) scaleY(1.12)}to{opacity:1;transform:none;filter:none}}
+/* 10 Circle Text */
+.fx10{width:62cqh;height:62cqh;position:relative}
+.fx10 svg{width:100%;height:100%;overflow:visible}
+.fx10 text{fill:var(--ink);font-weight:800;font-size:15px;letter-spacing:.18em}
+.run .fx10 svg{animation:rot 8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.fx10 b{position:absolute;inset:0;display:grid;place-items:center;font-size:11cqh;font-weight:900}
+/* 11 Stroke Draw */
+.fx11{width:80%}
+.fx11 text{font-weight:900;font-size:120px;letter-spacing:-6px;fill:transparent;stroke:var(--ink);stroke-width:2.2;stroke-dasharray:900;stroke-dashoffset:900}
+.run .fx11 text{animation:draw 2.4s var(--ease) both}
+@keyframes draw{70%{fill:transparent}to{stroke-dashoffset:0;fill:var(--ink)}}
+/* 12 Skew Slide */
+.run .fx12{animation:skew .8s var(--ease) both}
+@keyframes skew{from{opacity:0;transform:translateX(70%) skewX(-28deg)}70%{transform:translateX(-3%) skewX(6deg)}to{opacity:1;transform:none}}
+/* 13 Spotlight */
+.fx13{color:#1c1c1e;position:relative}
+.fx13::after{content:attr(data-t);position:absolute;inset:0;color:var(--ink);-webkit-mask-image:radial-gradient(circle at var(--x,0%) 50%,#000 0,#000 var(--r,18%),#0000 calc(var(--r,18%) + 14%));mask-image:radial-gradient(circle at var(--x,0%) 50%,#000 0,#000 var(--r,18%),#0000 calc(var(--r,18%) + 14%))}
+/* 14 Kinetic Stack */
+.fx14{display:flex;flex-direction:column;align-items:center;font-size:8.4cqw;line-height:.86}
+.fx14 .r{opacity:0}
+.fx14 .r.o{color:transparent;-webkit-text-stroke:.012em #6e6e73}
+.run .fx14 .r{animation:stack .6s var(--ease) both;animation-delay:calc(var(--i)*.09s)}
+@keyframes stack{from{opacity:0;transform:translateY(-120%) scaleY(1.6)}to{opacity:1;transform:none}}
+/* 16 Pixel Reveal */
+.fx16{position:relative}
+.fx16 .grid{position:absolute;inset:-.05em -.08em;display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(5,1fr)}
+.fx16 .grid i{background:#000}
+/* 17 Jelly */
+.run .fx17{animation:jelly 1s both}
+@keyframes jelly{0%{transform:scale(1)}30%{transform:scale(1.25,.75)}40%{transform:scale(.75,1.25)}50%{transform:scale(1.15,.85)}65%{transform:scale(.95,1.05)}75%{transform:scale(1.05,.95)}100%{transform:scale(1)}}
+/* 18 Echo Trail */
+.fx18{position:relative}
+.fx18 .g{position:absolute;inset:0;color:transparent;-webkit-text-stroke:.012em #8e8e93;opacity:0}
+.run .fx18 .g{animation:echo 1.2s var(--ease) both;animation-delay:calc(var(--i)*.07s)}
+.run .fx18 .m{animation:echom 1.2s var(--ease) .3s both}
+@keyframes echo{from{opacity:.7;transform:translateX(calc(var(--i)*-.18em))}to{opacity:0;transform:none}}
+@keyframes echom{from{opacity:0}to{opacity:1}}
+/* 19 Word Cycle */
+.fx19{display:flex;align-items:baseline;gap:.25em;font-size:9cqw}
+.fx19 .fix{color:var(--grey);font-weight:700}
+.fx19 .win{display:inline-block;height:1.08em;overflow:hidden;line-height:1.08}
+.fx19 .rl{display:flex;flex-direction:column;transition:transform .6s var(--ease)}
+/* 20 Explode In */
+.run .fx20 .c{animation:expl 1s var(--ease) both;animation-delay:calc(var(--i)*.03s)}
+@keyframes expl{from{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(2.4);filter:blur(.06em)}to{opacity:1;transform:none;filter:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-delay:0s!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div><p>2026 송년회 · 상영 화면</p><h1>글자 효과 20가지</h1></div>
+  <p class="how">모든 효과가 <b>4초마다 자동으로 다시</b> 재생돼요.<br>카드를 누르면 그 효과만 바로 다시 볼 수 있어요.</p>
+</header>
+<div class="legend">
+  <span><b class="tag use">사용 중</b> 이미 상영 화면에 있음</span>
+  <span><b class="tag rec">추천</b> 새로 넣기 좋음</span>
+  <span><b class="tag care">조심</b> 한 곳에만</span>
+  <span><b class="tag no">비추천</b> 원칙과 부딪힘</span>
+</div>
+<main id="grid"></main>
+<script>
+'use strict';
+const FX=[
+ ['Pop In','use','한글 이름(스칼렛·데이빗·줄리앙·제이미)','<div class="t fx1">Jamie.</div>'],
+ ['Mask Slide','use','처음 줄리앙 문장 · 장면 제목','<div class="t fx2" style="font-size:10cqw"><span class="w"><b>Goodbye</b></span> <span class="w"><b>2026</b></span></div>'],
+ ['Spin In','care','가장 중요한 순간 한 번','<div class="t fx3 split">Hello</div>'],
+ ['Color Sweep','care','흰빛 → 은빛 스침으로만 (색 금지)','<div class="t fx4">Dresser.</div>'],
+ ['Box Reveal','rec','07B Best Dresser.','<div class="t fx5" style="font-size:10cqw"><span class="txt">Best Dresser.</span></div>'],
+ ['Slot Machine','rec','02 카운트다운 · 09 회고 숫자','<div class="t fx6" data-v="12.04"></div>'],
+ ['Shadow Pop','care','08 식사 안내처럼 가벼운 장면','<div class="t fx7">FRIDAY</div>'],
+ ['Neon Flicker','use','05 데이빗 네온','<div class="t fx8">David.</div>'],
+ ['Stretch','care','가벼운 장면','<div class="t fx9">2027</div>'],
+ ['Circle Text','no','동그란 효과 금지 원칙','<div class="fx10"><svg viewBox="0 0 200 200"><defs><path id="cp" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs><text><textPath href="#cp">SNACK &amp; GARDEN · 2026 · SNACK &amp; GARDEN · 2026 ·</textPath></text></svg><b>26</b></div>'],
+ ['Stroke Draw','use','04 스칼렛 서명','<svg class="fx11" viewBox="0 0 640 180"><text x="320" y="135" text-anchor="middle">Scarlett</text></svg>'],
+ ['Skew Slide','rec','장면 전환 · 큰 글자가 밀고 지나감','<div class="t fx12">Next.</div>'],
+ ['Spotlight','use','04 스칼렛 스포트라이트','<div class="t fx13" data-t="Thank you.">Thank you.</div>'],
+ ['Kinetic Stack','rec','FRIDAY 12.04 · 카운트다운 앞','<div class="t fx14"><span class="r o" style="--i:0">FRIDAY</span><span class="r o" style="--i:1">FRIDAY</span><span class="r" style="--i:2">FRIDAY</span><span class="r o" style="--i:3">FRIDAY</span><span class="r o" style="--i:4">FRIDAY</span></div>'],
+ ['Letter Shuffle','use','엔딩 크레딧 이름 디코딩','<div class="t fx15" data-v="hayden"></div>'],
+ ['Pixel Reveal','rec','10 단체사진 · 레트로 느낌','<div class="t fx16">12.04<span class="grid"></span></div>'],
+ ['Jelly','care','가벼운 장면','<div class="t fx17">젤리</div>'],
+ ['Echo Trail','rec','03 오프닝 Goodbye 2026','<div class="t fx18" style="font-size:11cqw"><span class="g" style="--i:4">Goodbye</span><span class="g" style="--i:3">Goodbye</span><span class="g" style="--i:2">Goodbye</span><span class="g" style="--i:1">Goodbye</span><span class="m">Goodbye</span></div>'],
+ ['Word Cycle','rec','01 입장 · 단어만 계속 바뀜','<div class="t fx19"><span class="fix">다가올</span><span class="win"><span class="rl"><span>2027</span><span>우리</span><span>순간</span><span>2027</span></span></span></div>'],
+ ['Explode In','care','엔딩 Jamie. 처럼 한 번','<div class="t fx20 split boom">Jamie.</div>'],
+];
+const TAG={use:'사용 중',rec:'추천',care:'조심',no:'비추천'};
+const grid=document.getElementById('grid'),R=k=>{const x=Math.sin(k*91.7+7.1)*43758.5453;return x-Math.floor(x)};
+FX.forEach(([name,tag,where,html],i)=>{
+  const b=document.createElement('button');b.className='card';b.type='button';b.setAttribute('aria-label',`${i+1}번 ${name} 다시 재생`);
+  b.innerHTML=`<div class="stage">${html}</div><div class="meta"><h2><i>${String(i+1).padStart(2,'0')}</i>${name}</h2><span class="tag ${tag}">${TAG[tag]}</span></div><p class="where">${where}</p>`;
+  grid.appendChild(b);
+});
+// 글자 하나씩 나누기 (Spin In · Explode In)
+document.querySelectorAll('.split').forEach(el=>{const tx=[...el.textContent];el.textContent='';tx.forEach((c,i)=>{const s=document.createElement('span');s.className='c';s.textContent=c;s.style.setProperty('--i',i);
+  if(el.classList.contains('boom')){s.style.setProperty('--dx',((R(i)-.5)*400)+'%');s.style.setProperty('--dy',((R(i+9)-.5)*500)+'%');s.style.setProperty('--r',((R(i+3)-.5)*540)+'deg')}el.appendChild(s)})});
+// 06 Slot Machine: 숫자마다 릴이 돌다 멈춤
+function slot(el){const v=el.dataset.v;el.innerHTML='';[...v].forEach((ch,i)=>{if(!/\d/.test(ch)){const d=document.createElement('span');d.className='dot';d.textContent=ch;el.appendChild(d);return}
+  const col=document.createElement('span');col.className='col';const reel=document.createElement('span');reel.className='reel';const n=12+i*4;
+  for(let k=0;k<n;k++){const s=document.createElement('span');s.textContent=k===n-1?ch:String(Math.floor(R(k*7+i)*10));reel.appendChild(s)}
+  col.appendChild(reel);el.appendChild(col);reel.animate([{transform:'translateY(0)'},{transform:`translateY(-${(n-1)}em)`}],{duration:900+i*260,easing:'cubic-bezier(.2,.7,.2,1.02)',fill:'forwards'})})}
+// 15 Letter Shuffle
+const SCR='abcdefghijklmnopqrstuvwxyz#%&*';
+function shuffle(el){const v=el.dataset.v,t0=performance.now();cancelAnimationFrame(el._r);
+  (function f(now){const p=Math.min(1,(now-t0)/1300),show=Math.floor(p*(v.length+2));let o='';for(let i=0;i<v.length;i++)o+=i<show?v[i]:SCR[Math.floor(Math.random()*SCR.length)];el.textContent=o;if(p<1)el._r=requestAnimationFrame(f)})(t0)}
+// 13 Spotlight: 빛이 왼쪽에서 들어와 가운데 멈춘 뒤 넓게 퍼지며 글자 전체가 밝아짐
+function spot(el){const t0=performance.now();cancelAnimationFrame(el._r);(function f(now){const s=(now-t0)/1000,p=Math.min(1,s/1.6),q=Math.max(0,Math.min(1,(s-1.8)/.8)),e=x=>1-Math.pow(1-x,3);
+  el.style.setProperty('--x',(-20+70*e(p))+'%');el.style.setProperty('--r',(18+110*e(q))+'%');if(q<1)el._r=requestAnimationFrame(f)})(t0)}
+// 16 Pixel Reveal: 검은 칸이 무작위로 사라짐
+function pixel(el){const g=el.querySelector('.grid');g.innerHTML='';const n=60;for(let i=0;i<n;i++){const c=document.createElement('i');g.appendChild(c);c.animate([{opacity:1},{opacity:0}],{duration:1,delay:150+R(i*13+performance.now()%97)*1100,fill:'forwards'})}}
+// 19 Word Cycle
+function cycle(el){const rl=el.querySelector('.rl');let k=0;clearInterval(el._t);rl.style.transition='none';rl.style.transform='none';rl.offsetWidth;rl.style.transition='';
+  el._t=setInterval(()=>{k++;if(k>3){clearInterval(el._t);return}rl.style.transform=`translateY(-${k*1.08}em)`},900)}
+function play(card){const st=card.querySelector('.stage');st.classList.remove('run');void st.offsetWidth;st.classList.add('run');
+  const q=s=>st.querySelector(s);if(q('.fx6'))slot(q('.fx6'));if(q('.fx15'))shuffle(q('.fx15'));if(q('.fx13'))spot(q('.fx13'));if(q('.fx16'))pixel(q('.fx16'));if(q('.fx19'))cycle(q('.fx19'))}
+const cards=[...document.querySelectorAll('.card')];
+cards.forEach(c=>c.addEventListener('click',()=>play(c)));
+const go=()=>cards.forEach(play);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{go();setInterval(go,4000)});
+</script>
+</body>
+</html>
