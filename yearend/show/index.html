@@ -124,6 +124,16 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vk .fin em{font-style:normal;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent}
 #vk .bar{position:absolute;left:50%;bottom:10.5cqh;width:24cqw;height:.18cqw;margin-left:-12cqw;background:#2a2a2e;border-radius:1cqw;overflow:hidden;opacity:0;transition:opacity .5s}
 #vk .bar i{position:absolute;inset:0;background:var(--grad);transform-origin:left;transform:scaleX(0)}
+/* 02 앞 인트로 'FRIDAY 12.04' (Kinetic Stack → Slot Machine) — 광고 오프닝처럼: 거대한 FRIDAY가 층층이 쾅쾅 쌓임 → 바깥 줄이 좌우로 빠지며 가운데만 남아 위로 → 12.04 숫자 릴이 돌다 하나씩 멈춤 */
+#vk .fri{position:absolute;inset:0;overflow:hidden;opacity:0;pointer-events:none}
+#vk .fri .row{position:absolute;left:50%;top:50%;font-weight:900;font-size:14.5cqw;line-height:1;letter-spacing:-.06em;white-space:nowrap;will-change:transform,opacity}
+#vk .fri .row.o{color:transparent;-webkit-text-stroke:.14cqw #6e6e73}
+#vk .fri .date{position:absolute;left:50%;top:50%;display:flex;align-items:flex-end;font-weight:900;font-size:17cqw;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums;will-change:transform,opacity}
+#vk .fri .col{display:inline-block;height:1em;overflow:hidden}
+#vk .fri .reel{display:flex;flex-direction:column;will-change:transform}
+#vk .fri .reel span{height:1em;line-height:1em;display:block;text-align:center}
+#vk .fri .dt{display:inline-block;width:.32em;text-align:center}
+#vk .fri .sub{position:absolute;left:0;right:0;top:79%;text-align:center;font-weight:700;font-size:1.6cqw;letter-spacing:.42em;text-indent:.42em;color:var(--grey);opacity:0}
 #vk .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
 
 /* ───────── 03 · 오프닝 (키노트 사진 벽) ───────── */
@@ -299,6 +309,11 @@ body.clean{cursor:none}
 
 <!-- 02 카운트다운 -->
 <section class="v" id="vk" aria-label="02 카운트다운">
+  <div class="fri" id="kFri" aria-label="FRIDAY 12.04">
+    <span class="row o">FRIDAY</span><span class="row o">FRIDAY</span><span class="row">FRIDAY</span><span class="row o">FRIDAY</span><span class="row o">FRIDAY</span>
+    <div class="date" id="kDate"></div>
+    <p class="sub" id="kSub">2026 송년회 · 17:00</p>
+  </div>
   <div class="layer att" id="kAtt"><div><h2>잠시 후 시작합니다.</h2><p>모두 화면을 봐 주세요.</p></div></div>
   <div class="layer" id="kNumWrap"><div class="num" id="kNum">10</div></div>
   <div class="layer fin" id="kFin"><p>시작합니다.</p></div>
@@ -673,12 +688,41 @@ function setLayer(el,a,blur,scale){el.style.opacity=a.toFixed(3);el.style.filter
 const useSong=()=>window.CountSong&&CountSong.name;
 function playBgm(at=cd.t){if(!bgmOn)return;if(useSong()){bgm.pause();CountSong.play(at+SONG_SYNC,.35);return}try{bgm.currentTime=at}catch(e){}bgm.play().catch(()=>{})}
 function stopBgm(fade){bgm.pause();if(window.CountSong)fade?CountSong.stop():CountSong.pause()}
-function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는 음악을 끊지 않음
-  const was=cd.on;cd.on=on;cd.t=0;cd.paused=false;cd.last=performance.now();
-  if(on){renderCd();playBgm()}else if(was&&!keepMusic){stopBgm(true)}
+/* ── 02 앞 인트로 'FRIDAY 12.04' (약 5초, 소리 없음) — 끝나면 기존 카운트다운(곡·박자 맞춤 그대로) 시작 ──
+   0~1.1 FRIDAY 5줄이 위에서 쾅쾅 쌓임 · 1.5~2.2 바깥 4줄이 좌우로 빠지고 가운데 FRIDAY가 작아지며 위로
+   · 2.1~3.6 12.04 숫자 릴이 돌다 왼쪽부터 하나씩 멈춤 · 3.4 아래 작은 글씨 · 4.5~5.1 흐려지며 사라짐 */
+const PRE=5.1;
+const kRows=[...document.querySelectorAll('#kFri .row')],kDate=$('#kDate');
+const kReels=[];
+(function(){const R=k=>{const x=Math.sin(k*91.7+7.1)*43758.5453;return x-Math.floor(x)};
+  [...'12.04'].forEach((ch,i)=>{if(ch==='.'){const d=document.createElement('span');d.className='dt';d.textContent='.';kDate.appendChild(d);return}
+    const col=document.createElement('span');col.className='col';const reel=document.createElement('span');reel.className='reel';const n=14+i*3;
+    for(let k=0;k<n;k++){const sp=document.createElement('span');sp.textContent=k===n-1?ch:String(Math.floor(R(k*7+i*31)*10));reel.appendChild(sp)}
+    col.appendChild(reel);kDate.appendChild(col);kReels.push({reel,n,stop:2.1+.75+i*.22})})})();
+function renderPre(){
+  const t=reduced?3.8:cd.pre,fri=$('#kFri');fri.style.opacity=(1-sm((t-4.5)/.6)).toFixed(3);
+  fri.style.filter=t>4.5?`blur(${(sm((t-4.5)/.6)*1).toFixed(2)}cqw)`:'none';
+  const split=eo((t-1.5)/.7);
+  kRows.forEach((r,i)=>{const d=i-2,a=eo((t-.05-i*.09)/.32),hit=Math.exp(-Math.max(0,t-.05-i*.09-.32)/.12)*(t>.05+i*.09+.32?1:0);
+    let x=0,y=d*0.86,sc=1+(1-a)*.5,op=a;
+    if(d!==0){x=(d%2?-1:1)*(d<0?1:-1)*split*120;op=a*(1-split)}
+    else{sc=sc*(1-.42*split);y=-.62*split}
+    r.style.opacity=op.toFixed(3);
+    r.style.transform=`translate(calc(-50% + ${x.toFixed(2)}cqw),calc(-50% + ${(y*14.5-(1-a)*30).toFixed(2)}cqw)) scale(${(sc*(1+.04*hit)).toFixed(4)})`});
+  const da=eo((t-2.05)/.35);kDate.style.opacity=da.toFixed(3);
+  kDate.style.transform=`translate(-50%,calc(-50% + ${(4.2+(1-da)*3).toFixed(2)}cqw))`;
+  kReels.forEach(k=>{const p=Math.max(0,Math.min(1,(t-2.05)/(k.stop-2.05))),e=1-Math.pow(1-p,3),bump=p>=1?Math.exp(-(t-k.stop)/.08)*.06:0;
+    k.reel.style.transform=`translateY(${(-(k.n-1)*e+bump).toFixed(4)}em)`});
+  const sb=$('#kSub');sb.style.opacity=sm((t-3.4)/.6).toFixed(3);
+  // 인트로 동안 카운트다운 화면은 감춤
+  ['#kAtt','#kNumWrap','#kFin'].forEach(q=>$(q).style.opacity=0);$('#kBar').style.opacity=0;
 }
-function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?stopBgm(false):playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause();if(window.CreditSong)CreditSong.pause();ScCredit.pause()}else if(ce.on){const a=creditAudio();(a===ScCredit?ScCredit.started:CreditSong.el.currentTime>0)?a.resume():a.play(0,1.5)}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
+function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는 음악을 끊지 않음
+  const was=cd.on;cd.on=on;cd.t=0;cd.paused=false;cd.last=performance.now();cd.pre=0;cd.inPre=on;
+  if(on){$('#kFri').style.opacity=1;renderPre()}else if(was&&!keepMusic){stopBgm(true)}
+}
+function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();if(cd.inPre)return;cd.paused?stopBgm(false):playBgm()}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause();if(window.CreditSong)CreditSong.pause();ScCredit.pause()}else if(ce.on){const a=creditAudio();(a===ScCredit?ScCredit.started:CreditSong.el.currentTime>0)?a.resume():a.play(0,1.5)}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused&&!cd.inPre)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
@@ -700,7 +744,9 @@ function renderCd(){
   const f=sm((ct-COUNT-.35)/1.2);
   setLayer(fin,f,(1-f)*1.2,1.04-.04*f);
 }
-(function cdLoop(now){requestAnimationFrame(cdLoop);if(!cd.on)return;const dt=Math.min(.25,(now-cd.last)/1000);cd.last=now;if(cd.paused)return;if(cd.t<ATT+COUNT+2){
+(function cdLoop(now){requestAnimationFrame(cdLoop);if(!cd.on)return;const dt=Math.min(.25,(now-cd.last)/1000);cd.last=now;if(cd.paused)return;
+  if(cd.inPre){cd.pre+=dt;renderPre();if(cd.pre>=PRE){cd.inPre=false;cd.t=0;$('#kFri').style.opacity=0;$('#kBar').style.opacity='';renderCd();playBgm()}return}
+  if(cd.t<ATT+COUNT+2){
   const s=useSong()&&bgmOn?CountSong.state:null;
   if(s&&!s.paused&&s.time>SONG_SYNC)cd.t=s.time-SONG_SYNC; // 곡 위치 = 화면 시계
   else if(!(s&&!s.paused))cd.t+=dt;                          // 곡이 없거나 막히면 자체 시계
