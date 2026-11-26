@@ -146,7 +146,14 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vo .veil{position:absolute;inset:0;background:radial-gradient(ellipse 62% 58% at 50% 50%,#000f 0%,#000d 42%,#0007 100%);opacity:0;pointer-events:none}
 #vo .title{position:absolute;inset:0;display:grid;place-content:center;text-align:center;opacity:0;will-change:opacity,filter,transform}
 #vo .yr{font-weight:700;font-size:1.3cqw;letter-spacing:.32em;color:var(--grey);margin-bottom:1.6cqw}
-#vo h1{margin:0;font-weight:800;font-size:11cqw;letter-spacing:-.05em;line-height:1}
+#vo h1{position:relative;margin:0;font-weight:800;font-size:11cqw;letter-spacing:-.05em;line-height:1}
+/* Goodbye 2026 주변 반짝이(Jamie): 글자 위로 빛줄기가 4.5초마다 스치고, 둘레에서 작은 별이 차례로 반짝 */
+#vo h1 .gb{background:linear-gradient(100deg,#fff0 42%,#fff 50%,#fff0 58%) 160% 0/260% 100% no-repeat,linear-gradient(#f5f5f7,#f5f5f7);-webkit-background-clip:text;background-clip:text;color:transparent;animation:oShine 4.5s ease-in-out 12.2s infinite}
+#vo h1 em{background-image:linear-gradient(100deg,#fff0 42%,#fff 50%,#fff0 58%),var(--silver);background-size:260% 100%,100% 100%;background-position:160% 0,0 0;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;animation:oShine 4.5s ease-in-out 12.45s infinite}
+@keyframes oShine{0%{background-position:160% 0,0 0}35%,100%{background-position:-60% 0,0 0}}
+#vo .spk{position:absolute;width:var(--s);height:var(--s);left:var(--x);top:var(--y);transform:translate(-50%,-50%) scale(0);opacity:0;animation:oSpk 2.6s ease-in-out infinite;animation-delay:var(--d);pointer-events:none;filter:drop-shadow(0 0 .35cqw #fff)}
+#vo .spk svg{display:block;width:100%;height:100%;fill:#fff}
+@keyframes oSpk{0%,100%{opacity:0;transform:translate(-50%,-50%) scale(0) rotate(0)}18%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(45deg)}36%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(90deg)}}
 #vo h1 em{font-style:normal;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.04em}
 #vo h1 .amp{color:var(--grey);font-weight:400}
 #vo .title p{margin:2.2cqw 0 0;font-size:2.2cqw;font-weight:500;color:var(--grey);letter-spacing:-.02em}
@@ -327,7 +334,7 @@ body.clean{cursor:none}
 <section class="v" id="vo" aria-label="03 오프닝">
   <div class="plane" id="oPlane" aria-hidden="true"></div>
   <div class="veil" id="oVeil"></div>
-  <div class="title" id="oTitle"><div><div class="yr">SNACK &amp; GARDEN</div><h1>Goodbye <em>2026</em></h1><p>함께한 2026, 다가올 2027</p></div></div>
+  <div class="title" id="oTitle"><div><div class="yr">SNACK &amp; GARDEN</div><h1><span class="gb">Goodbye</span> <em>2026</em><i class="spk" style="--x:-3%;--y:10%;--s:3.74cqw;--d:12.0s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i><i class="spk" style="--x:14%;--y:-14%;--s:2.21cqw;--d:12.5s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i><i class="spk" style="--x:33%;--y:108%;--s:3.06cqw;--d:12.9s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i><i class="spk" style="--x:58%;--y:-18%;--s:4.08cqw;--d:13.3s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i><i class="spk" style="--x:80%;--y:105%;--s:2.38cqw;--d:13.7s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i><i class="spk" style="--x:101%;--y:-6%;--s:3.40cqw;--d:14.1s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i><i class="spk" style="--x:104%;--y:70%;--s:2.55cqw;--d:14.5s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i><i class="spk" style="--x:46%;--y:116%;--s:2.04cqw;--d:13.0s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i><i class="spk" style="--x:24%;--y:-20%;--s:2.72cqw;--d:14.8s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i><i class="spk" style="--x:70%;--y:-12%;--s:1.87cqw;--d:12.7s"><svg viewBox="0 0 20 20"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z"/></svg></i></h1><p>함께한 2026, 다가올 2027</p></div></div>
   <div class="foot" id="oFoot">LINKAGELAB</div>
 </section>
 
