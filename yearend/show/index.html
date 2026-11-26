@@ -226,26 +226,31 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vt .guide b{color:#f5f5f7;font-weight:700}
 #vt .foot{position:absolute;left:0;right:0;bottom:6cqh;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700}
 #vt .an{opacity:0;animation:qIn 1.2s var(--ease-out) both}
-/* 09 마무리 인사 · 제이미 — 영화 엔딩 크레딧: 올해 함께한 크루 이름(영문, 팀별)이 천천히 위로 흐름 → 끝나면 'Jamie.' / 제이미 */
+/* 09 마무리 인사 · 제이미 — 엔딩 크레딧(재미있게): 잡지식으로 크기·굵기·자리가 섞인 이름이 아래에서 들어올 때 글자가 디코딩되며 풀림
+   · 팀이 바뀔 때 뒤로 아주 큰 외곽선 팀 이름이 천천히(시차) 지나감 · 양옆으로 흑백 폴라로이드 크루 사진이 더 빠르게 흘러감
+   · 끝나면 'Jamie.' / 제이미 (모두 ce.t 의 함수 → 일시정지·건너뛰기에도 같은 화면) */
 #ve{background:#000;color:#f5f5f7;--grey:#86868b}
-#ve .roll{position:absolute;inset:0;overflow:hidden;-webkit-mask-image:linear-gradient(#0000,#000 16%,#000 84%,#0000);mask-image:linear-gradient(#0000,#000 16%,#000 84%,#0000)}
-#ve .list{position:absolute;left:0;right:0;top:0;text-align:center;transform:translateY(100cqh);animation:eRoll 34s linear 1.2s both}
-@keyframes eRoll{to{transform:translateY(-100%)}}
-#ve .list .ttl{margin:0 0 1.2cqw;font-weight:700;font-size:1.3cqw;letter-spacing:.34em;text-indent:.34em;color:var(--grey)}
-#ve .list .big{margin:0 0 12cqh;font-weight:900;font-size:6cqw;letter-spacing:-.05em;line-height:1}
-#ve .list h3{margin:10cqh 0 3cqh;font-weight:700;font-size:1.2cqw;letter-spacing:.42em;text-indent:.42em;color:var(--grey)}
-#ve .list ul{list-style:none;margin:0 auto;padding:0;display:grid;grid-template-columns:repeat(2,22cqw);justify-content:center;column-gap:4cqw;row-gap:2.6cqh}
-#ve .list li{font-weight:700;font-size:2.7cqw;letter-spacing:-.02em;line-height:1.1}
-#ve .list li:nth-child(odd){text-align:right}#ve .list li:nth-child(even){text-align:left}
-#ve .list li:last-child:nth-child(odd){grid-column:1/-1;text-align:center}
-#ve .list .end{margin:16cqh 0 0;font-weight:700;font-size:1.3cqw;letter-spacing:.34em;text-indent:.34em;color:var(--grey)}
+#ve .roll{position:absolute;inset:0;overflow:hidden;-webkit-mask-image:linear-gradient(#0000,#000 14%,#000 86%,#0000);mask-image:linear-gradient(#0000,#000 14%,#000 86%,#0000)}
+#ve .it{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform,opacity}
+#ve .nm{font-weight:700;letter-spacing:-.03em;line-height:1}
+#ve .nm.b{font-weight:900;letter-spacing:-.05em}
+#ve .nm.l{font-weight:500;color:#d1d1d6}
+#ve .tw{font-weight:900;font-size:24cqw;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:.12cqw rgba(255,255,255,.2)}
+#ve .tl{font-weight:700;font-size:1.25cqw;letter-spacing:.42em;color:var(--grey)}
+#ve .hd{text-align:center}
+#ve .hd p{margin:0 0 1.2cqw;font-weight:700;font-size:1.3cqw;letter-spacing:.34em;color:var(--grey)}
+#ve .hd h2{margin:0;font-weight:900;font-size:6cqw;letter-spacing:-.05em;line-height:1}
+#ve .ph{width:11.5cqw;aspect-ratio:4/5;padding:.55cqw .55cqw 2cqw;background:#f5f5f7;border-radius:.2cqw;box-shadow:0 1cqw 3cqw #000a}
+#ve .ph img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.08)}
 #ve .fin{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
-#ve .fin h1{margin:0;font-weight:900;font-size:17cqw;letter-spacing:-.06em;line-height:.9;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em;opacity:0;animation:qIn 1.6s var(--ease-out) 35s both}
-#ve .fin .kr{margin:1.4cqw 0 0;font-weight:800;font-size:3.2cqw;letter-spacing:.32em;text-indent:.32em;color:#f5f5f7;opacity:0;animation:krPop .8s cubic-bezier(.34,1.56,.64,1) 36.2s both,krPulse 1.8s ease-in-out 37s infinite alternate}
+#ve .fin h1{margin:0;font-weight:900;font-size:17cqw;letter-spacing:-.06em;line-height:.9;background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em .06em;opacity:0}
+#ve .fin .kr{margin:1.4cqw 0 0;font-weight:800;font-size:3.2cqw;letter-spacing:.32em;text-indent:.32em;color:#f5f5f7;opacity:0}
+#ve.done .fin h1{animation:qIn 1.6s var(--ease-out) .2s both}
+#ve.done .fin .kr{animation:krPop .8s cubic-bezier(.34,1.56,.64,1) 1.4s both,krPulse 1.8s ease-in-out 2.2s infinite alternate}
 @keyframes krPop{from{opacity:0;transform:scale(1.6)}to{opacity:1;transform:scale(1)}}
 @keyframes krPulse{from{opacity:1;transform:scale(1)}to{opacity:1;transform:scale(1.06)}}
-#ve.skip .list{animation:none;opacity:0}
-#ve.skip .fin h1{animation-delay:.1s}#ve.skip .fin .kr{animation-delay:1.2s,2s}
+#ve .roll{transition:opacity 1.2s ease}
+#ve.done .roll{opacity:0}
 #ve.hold *{animation-play-state:paused!important}
 #vj{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#8e8e93 0%,#f5f5f7 50%,#8e8e93 100%)}
 #vj canvas{position:absolute;inset:0;width:100%;height:100%}
@@ -347,12 +352,7 @@ body.clean{cursor:none}
 <!-- A -->
 <!-- 09 마무리 인사 · 제이미 (엔딩 크레딧) -->
 <section class="v" id="ve" aria-label="마무리 인사 · 제이미">
-  <div class="roll"><div class="list">
-      <p class="ttl">2026</p><p class="big">SNACK &amp; GARDEN</p>
-      <h3>SNACK</h3><ul><li>nia</li><li>lyndsey</li><li>marin</li><li>vera</li><li>sara</li><li>samuel</li><li>sally</li><li>sam</li><li>smile</li><li>swan</li><li>asher</li><li>eric</li><li>eva</li><li>evan</li><li>enzo</li><li>ella</li><li>joy</li><li>connie</li><li>tori</li><li>thomas</li><li>tube</li><li>pes</li><li>hayden</li><li>halo</li></ul>
-      <h3>GARDEN</h3><ul><li>nicole</li><li>luca</li><li>ellie</li><li>oliver</li><li>clover</li><li>pine</li></ul>
-      <h3>SUPPORT</h3><ul><li>jetty</li><li>charles</li><li>kaju</li></ul>
-  </div></div>
+  <div class="roll" id="eRoll"></div>
   <div class="fin"><div><h1>Jamie.</h1><p class="kr">제이미</p></div></div>
 </section>
 
@@ -549,8 +549,7 @@ function show(v,restart){
   document.querySelectorAll('.v').forEach(s=>{
     const on=s.id==='v'+v;s.classList.toggle('on',on);
     if(on){ // 재진입 시 입장 모션 다시 재생
-      if(s.id==='ve')s.classList.remove('skip','hold');
-      s.querySelectorAll('.ticket,.chrome>*,#vq .an,#vg .an,#vt .an,#vt .hero,#vt .glow,#ve .list,#ve .fin h1,#ve .fin .kr').forEach(el=>{el.style.animation='none';el.offsetWidth;el.style.animation=''});
+      s.querySelectorAll('.ticket,.chrome>*,#vq .an,#vg .an,#vt .an,#vt .hero,#vt .glow').forEach(el=>{el.style.animation='none';el.offsetWidth;el.style.animation=''});
     }
   });
   document.querySelectorAll('#panel [data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
@@ -568,8 +567,58 @@ function show(v,restart){
   credits(v==='e');
 }
 /* ── 09 마무리 인사(제이미) 크레딧: 곡(골랐으면) 천천히 커지며 재생 · Enter = 크레딧 건너뛰고 바로 이름 · Space = 멈춤 ── */
-let eOn=false;function credits(on){if(on&&!eOn&&window.CreditSong&&bgmOn)CreditSong.play(0,1.5);else if(!on&&eOn&&window.CreditSong)CreditSong.stop();eOn=on}
-function toggleCr(){const v=$('#ve'),h=v.classList.toggle('hold');if(window.CreditSong)h?CreditSong.pause():CreditSong.resume()}
+const CREW_TEAMS=[['SNACK','nia lyndsey marin vera sara samuel sally sam smile swan asher eric eva evan enzo ella joy connie tori thomas tube pes hayden halo'],
+  ['GARDEN','nicole luca ellie oliver clover pine'],['SUPPORT','jetty charles kaju']].map(([t,n])=>[t,n.split(' ')]);
+const ce={on:false,t:0,paused:false,last:0,items:null,end:0,done:false};
+const CV=10.5; // 크레딧이 올라가는 속도(화면 높이 % / 초)
+function ceR(k){const x=Math.sin(k*91.7+7.1)*43758.5453;return x-Math.floor(x)}
+function ceBuild(){
+  const roll=$('#eRoll');roll.innerHTML='';const items=[];let y=8,k=0;
+  const add=(html,cls,o)=>{const el=document.createElement('div');el.className='it '+cls;el.innerHTML=html;roll.appendChild(el);items.push(Object.assign({el,y,par:1,x:50,rot:0},o));return el};
+  add('<p>2026</p><h2>SNACK &amp; GARDEN</h2>','hd',{});y+=34;
+  const xs=[34,50,66];let lastX=-1;
+  CREW_TEAMS.forEach(([team,names])=>{
+    add(team,'tw',{par:.5,x:50,team:1});add(team,'tl',{x:50});y+=13;
+    names.forEach(n=>{let xi=Math.floor(ceR(k)*3);if(xi===lastX)xi=(xi+1)%3;lastX=xi;
+      const r=ceR(k+50),size=r<.16?5.6:r<.5?3.9:r<.82?3.1:2.6,cls=r<.16?'nm b':r>.82?'nm l':'nm';
+      const el=add('','nm-'+k+' '+cls,{x:xs[xi]+(ceR(k+9)-.5)*6,name:n,size});el.style.fontSize=size+'cqw';el.textContent=n;
+      y+=size>5?11:size>3.5?8.5:7.2;k++});
+    y+=12});
+  ce.items=items;ce.len=y;ce.pics=false;cePhotos();
+  ce.end=(y+40)/CV; // 마지막 이름이 화면 가운데쯤 왔을 때 크레딧이 어두워지며 'Jamie.'
+}
+// 양옆 폴라로이드 사진 (오프닝에 쓴 크루 사진, 흑백) — 이름보다 1.3배 빠르게. 사진 목록이 늦게 오면 그때 추가
+function cePhotos(){
+  if(!ce.items||ce.pics)return;const roll=$('#eRoll'),items=ce.items,y=ce.len;
+  const pics=(window.Photos&&Photos.list.length?Photos.list:DEFAULT_PICS).slice(0,16);if(!pics.length)return;ce.pics=true;
+  pics.forEach((src,i)=>{const yy=14+i*(y/pics.length)*1.05,left=i%2===0;
+    items.push(Object.assign({el:(()=>{const d=document.createElement('div');d.className='it ph';d.innerHTML=`<img src="${src}" alt="">`;roll.appendChild(d);return d})(),
+      y:yy,par:1.3,x:left?10+ceR(i+200)*4:86+ceR(i+300)*4,rot:(ceR(i+400)-.5)*14}))});
+}
+const SCR='abcdefghijklmnopqrstuvwxyz#%&*+';
+function renderCe(){
+  if(!ce.items)return;if(!ce.pics)cePhotos();const t=reduced?ce.end+5:ce.t,base=100-CV*t;
+  for(const it of ce.items){
+    // 이름 = 기본 속도 · 큰 팀 글자 = 절반 속도(시차) · 사진 = 1.3배 속도
+    const yy=it.team?50+(base+it.y-50)*it.par:it.par>1?100+it.y-CV*it.par*t:base+it.y;
+    const vis=yy>-30&&yy<130;it.el.style.display=vis?'':'none';if(!vis)continue;
+    it.el.style.transform=`translate(calc(${it.x}cqw - 50%),calc(${yy}cqh - 50%)) rotate(${it.rot}deg)`;
+    if(it.name){ // 아래에서 들어올 때 글자가 무작위 문자 → 이름으로 디코딩
+      const p=reduced?1:Math.max(0,Math.min(1,(96-yy)/22)),n=it.name,show=Math.floor(p*(n.length+2));
+      if(p>=1){if(it.el.textContent!==n)it.el.textContent=n}
+      else{const f=Math.floor(t*14);let o='';for(let i=0;i<n.length;i++)o+=i<show?n[i]:SCR[Math.floor(ceR(f*31+i*7+it.y)*SCR.length)];it.el.textContent=o}
+      it.el.style.opacity=(.35+.65*p).toFixed(3)}
+  }
+  const d=t>=ce.end;if(d!==ce.done){ce.done=d;$('#ve').classList.toggle('done',d)}
+}
+function credits(on){
+  const was=ce.on;Object.assign(ce,{on,t:0,paused:false,last:performance.now(),done:false});$('#ve').classList.remove('done','hold');
+  if(on){ceBuild();renderCe();if(window.CreditSong&&bgmOn)CreditSong.play(0,1.5)}
+  else if(was&&window.CreditSong)CreditSong.stop();
+}
+function toggleCr(){if(!ce.on)return;ce.paused=!ce.paused;ce.last=performance.now();$('#ve').classList.toggle('hold',ce.paused);if(window.CreditSong)ce.paused?CreditSong.pause():CreditSong.resume()}
+function skipCr(){if(!ce.on)return;ce.t=Math.max(ce.t,ce.end);renderCe()}
+(function ceLoop(now){requestAnimationFrame(ceLoop);if(!ce.on)return;const dt=Math.min(.1,(now-ce.last)/1000);ce.last=now;if(ce.paused)return;ce.t+=dt;renderCe()})(performance.now());
 /* ── 11: 마무리 곡(골랐으면) — 천천히 커지며 재생, 떠날 때 줄이며 멈춤 ── */
 let tOn=false;function closing(on){if(on&&!tOn&&window.ClosingSong&&bgmOn)ClosingSong.play(0,2);else if(!on&&tOn&&window.ClosingSong)ClosingSong.stop();tOn=on}
 /* ── 07B: 투표 화면 — 배경음(골랐으면) 반복 재생, 떠날 때 줄이며 멈춤 ── */
@@ -605,7 +654,7 @@ function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는
   if(on){renderCd();playBgm()}else if(was&&!keepMusic){stopBgm(true)}
 }
 function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?stopBgm(false):playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause();if(window.CreditSong)CreditSong.pause()}else if(eOn&&window.CreditSong&&CreditSong.name){CreditSong.el.currentTime>0?CreditSong.resume():CreditSong.play(0,1.5)}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause();if(window.VoteSong)VoteSong.pause();if(window.ClosingSong)ClosingSong.pause();if(window.CreditSong)CreditSong.pause()}else if(ce.on&&window.CreditSong&&CreditSong.name){CreditSong.el.currentTime>0?CreditSong.resume():CreditSong.play(0,1.5)}else if(tOn&&window.ClosingSong&&ClosingSong.name){ClosingSong.el.currentTime>0?ClosingSong.resume():ClosingSong.play(0,1.5)}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();else if(qOn&&window.VoteSong)VoteSong.name&&(VoteSong.el.currentTime>0?VoteSong.resume():VoteSong.play(0,1.2));if(!bgmOn);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
@@ -1099,7 +1148,7 @@ addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=
   if(k==='1'){if('abcd'.includes(cur))welcomeMusic(true,true);else show(last01)}else if(k==='2')show('k',true);
   else if(k==='3')show('o',true);else if(k==='4')show('s',true);else if(k==='5')show('r',true);else if(k==='7')show('j',true);else if(k==='v'||k==='ㅍ')show('q',true);else if(k==='0')show('g',true);else if(k==='9')show('e',true);else if(k==='-')show('t',true);
   else if(k==='enter'&&cur==='r'){e.preventDefault();radioName()}
-  else if(k==='enter'&&cur==='e'){e.preventDefault();$('#ve').classList.add('skip')}
+  else if(k==='enter'&&cur==='e'){e.preventDefault();skipCr()}
   else if(k===' '){e.preventDefault();cur==='o'?toggleOp():cur==='s'?toggleSc():cur==='r'?toggleRd():cur==='j'?toggleJl():cur==='e'?toggleCr():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
   else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true);else if(cur==='r')show('j',true);else if(cur==='j')show('q',true);else if(cur==='q')show('g',true);else if(cur==='g')show('e',true);else if(cur==='e')show('t',true)}
   else if(k==='arrowleft'){if(cur==='t')show('e',true);else if(cur==='e')show('g',true);else if(cur==='g')show('q',true);else if(cur==='q')show('j',true);else if(cur==='j')show('r',true);else if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
