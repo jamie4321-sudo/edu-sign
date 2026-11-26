@@ -232,7 +232,10 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vj .fact{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-weight:900;letter-spacing:-.05em;line-height:1;opacity:0;will-change:opacity,transform,filter}
 #vj .ln span{white-space:pre;color:#8e8e93}
 #vj .ln i{display:inline-block;font-style:normal;white-space:pre;opacity:0;will-change:transform,opacity,filter}
-#vj .ln .key{display:inline-block;opacity:0;will-change:transform,opacity,filter}
+#vj .ln .key{display:inline-block;position:relative;isolation:isolate;opacity:0;will-change:transform,opacity,filter}
+#vj .ln .key{background:none!important;color:#f5f5f7}
+#vj .ln .key .kt{position:relative;z-index:1;color:inherit}
+#vj .ln .key i.hl{position:absolute;left:-.1em;right:-.1em;top:.06em;bottom:.02em;background:#fff;border-radius:.06em;z-index:-1;opacity:1;transform:scaleX(0);transform-origin:left center}
 #vj .key{background:linear-gradient(100deg,#fff0 42%,#fffe 50%,#fff0 58%) 130% 0/300% 100% no-repeat,var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent;padding:.04em 0 .08em}
 #vj .ln{position:absolute;left:0;right:0;transform:translateY(-50%);display:flex;justify-content:center;white-space:nowrap;font-weight:800;font-size:4.6cqw;letter-spacing:-.05em;line-height:1;opacity:0}
 #vj .kr{position:absolute;left:0;right:0;top:67%;margin:0;transform:translateY(-50%);text-align:center;font-weight:800;font-size:2.8cqw;letter-spacing:.32em;text-indent:.32em;color:#f5f5f7;opacity:0}
@@ -825,6 +828,7 @@ addEventListener('resize',()=>{if(jl.on){jlSize();renderJl()}});
 function jlBuild(){
   // 앞뒤 글자를 한 글자씩 나눔 — 단어에 가까운 글자부터 차례로 날아와 붙음
   if(!jl.ch)jl.ch=JLN.map(l=>{const [pre,key,post]=l.children,out=[];
+    if(!key.querySelector('.hl')){const tx=key.textContent;key.textContent='';const hl=document.createElement('i');hl.className='hl';const kt=document.createElement('span');kt.className='kt';kt.textContent=tx;key.append(hl,kt)}
     [[pre,-1],[post,1]].forEach(([sp,side])=>{const txt=[...sp.textContent];sp.textContent='';
       txt.forEach((c,j)=>{const el=document.createElement('i');el.textContent=c;sp.appendChild(el);out.push({el,side,d:side<0?txt.length-j:j+1})})});
     return out});
@@ -874,12 +878,12 @@ function renderJl(){
     l.style.opacity=(1-sOut).toFixed(3);l.style.filter=sOut>.01?`blur(${(sOut*.8).toFixed(2)}cqw)`:'none';
     key.style.opacity=(t<P?0:pop).toFixed(3);key.style.transform=`scale(${(1.7-.7*pop).toFixed(4)})`;
     // 처음엔 흰 글자 → 나머지 글자가 붙는 동안 브랜드 그라데이션으로 물듦
-    const wh=1-sm((t-JA(i)-.05)/.7),glo=reduced?0:Math.exp(-Math.max(0,t-P)/.3),bl=(1-pop)*1.2;
-    key.style.filter=`${bl>.01?`blur(${bl.toFixed(2)}cqw) `:''}drop-shadow(0 0 ${(1*glo).toFixed(2)}cqw rgba(255,255,255,${(.7*glo).toFixed(2)})) drop-shadow(0 0 ${(.8*(1-wh)).toFixed(2)}cqw rgba(255,255,255,${(.22*(1-wh)).toFixed(2)}))`;
-    const sh=sm((t-6.6-i*.14)/.6),w=`rgba(245,245,247,${wh.toFixed(3)})`;
-    key.style.backgroundImage=`linear-gradient(100deg,#fff0 42%,#fffe 50%,#fff0 58%),linear-gradient(${w},${w}),var(--silver)`;
-    key.style.backgroundSize='300% 100%,100% 100%,100% 100%';key.style.backgroundRepeat='no-repeat';
-    key.style.backgroundPosition=`${(130-160*sh).toFixed(1)}% 0,0 0,0 0`;
+    // 포인트: 나머지 글자가 붙는 순간 핵심 단어 뒤로 흰 형광펜 박스가 왼쪽→오른쪽으로 그어지고 글자는 검정으로 뒤집힘
+    const h=reduced?1:eo((t-JA(i)-.3)/.45),glo=reduced?0:Math.exp(-Math.max(0,t-P)/.3),bl=(1-pop)*1.2;
+    key.style.filter=`${bl>.01?`blur(${bl.toFixed(2)}cqw) `:''}drop-shadow(0 0 ${(1*glo+.9*h).toFixed(2)}cqw rgba(255,255,255,${(.7*glo+.35*h).toFixed(2)}))`;
+    const cv=Math.round(245-233*h),w=`rgb(${cv},${cv},${cv+2})`;
+    key.style.color=w;
+    key.querySelector('.hl').style.transform=`scaleX(${h.toFixed(4)})`;
     for(const c of jl.ch[i]){const q=eo((t-JA(i)-c.d*.055)/.5);
       c.el.style.opacity=sm(q/.6).toFixed(3);
       c.el.style.transform=`translateX(${(c.side*(1-q)*(2.5+c.d*.9)).toFixed(3)}cqw) scale(${(1+.9*(1-q)).toFixed(4)})`;
