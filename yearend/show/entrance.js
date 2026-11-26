@@ -53,4 +53,6 @@
   // 01 입장 대기 음악 2곡 — 번갈아 계속 재생
   window.WelcomeSongs=[slot('welcome-song-1',0,'welcome-ready'),slot('welcome-song-2',0,'welcome-ready')];
   window.CountSong=slot('countdown-song',0,'countsong-ready');
+  // 07 줄리앙 입장곡 (처음부터)
+  window.JulianSong=slot('julian-song',0,'julian-ready');
 })();

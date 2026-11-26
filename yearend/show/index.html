@@ -167,6 +167,12 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vr .name h1{margin:0;font-weight:900;font-size:19cqw;letter-spacing:-.04em;line-height:.9;color:#fff1d6;opacity:0;text-shadow:0 0 .6cqw #ffcf8a,0 0 2.2cqw #ffb547cc,0 0 6cqw #ff8a3a88,0 0 12cqw #ff6a2a55}
 #vr .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,#0000 0 .28cqh,#00000038 .28cqh .56cqh);mix-blend-mode:multiply}
 #vr .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,#0000 55%,#000a 100%)}
+/* 07 줄리앙 — 순검정 키노트 · '2026'이 별빛 입자로 흩어져 'Julian.'으로 다시 모이고, 아래로 2027의 새벽 지평선 */
+#vj{background:#000;color:#f5f5f7;--grey:#86868b}
+#vj canvas{position:absolute;inset:0;width:100%;height:100%}
+#vj .pw{position:absolute;left:0;right:0;top:27%;margin:0;text-align:center;font-weight:500;font-size:2.8cqw;letter-spacing:-.02em;color:var(--grey);opacity:0;will-change:opacity,filter,transform}
+#vj .cap{position:absolute;left:0;right:0;bottom:6cqh;margin:0;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700;opacity:0}
+
 
 /* 운영 패널 */
 #panel{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:20;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;padding:8px;border-radius:14px;background:#111114ee;border:1px solid #ffffff1f;box-shadow:0 12px 40px #0009;font-family:"Kakao Big Sans","Malgun Gothic",sans-serif;max-width:calc(100vw - 20px);transition:opacity .2s}
@@ -249,6 +255,14 @@ body.clean{cursor:none}
 </section>
 
 <!-- A -->
+<!-- 07 줄리앙 -->
+<section class="v" id="vj" aria-label="07 줄리앙">
+  <canvas id="jC" aria-hidden="true"></canvas>
+  <p class="pw" id="jPw">Please welcome.</p>
+  <p class="cap" id="jCap">함께한 2026, 다가올 2027</p>
+  <span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Julian</span>
+</section>
+
 <section class="v" id="va" aria-label="A안 리소 포스터">
   <div class="rows" aria-hidden="true">
     <div class="row big solid" style="--d:70s"><div class="track"><span>SNACK<i class="star">✱</i>SNACK<i class="star">✱</i></span><span>SNACK<i class="star">✱</i>SNACK<i class="star">✱</i></span></div></div>
@@ -306,12 +320,14 @@ body.clean{cursor:none}
   <button data-v="o">03 오프닝 (3)</button>
   <button data-v="s">04 스칼렛 (4)</button>
   <button data-v="r">05 데이빗 (5 → Enter)</button>
+  <button data-v="j">07 줄리앙 (7)</button>
   <button id="bgmBtn">음악 켜짐 (B)</button>
   <button id="cdSongBtn">카운트다운 곡 선택</button><input type="file" id="cdSongFile" accept="audio/*" hidden>
   <button id="songBtn">스칼렛 입장곡 선택</button><input type="file" id="songFile" accept="audio/*" hidden>
   <button id="wSong1">입장곡 1 선택</button><input type="file" id="wFile1" accept="audio/*" hidden>
   <button id="wSong2">입장곡 2 선택</button><input type="file" id="wFile2" accept="audio/*" hidden>
   <button id="rvBtn">데이빗 라디오 음성 선택</button><input type="file" id="rvFile" accept="audio/*" hidden>
+  <button id="jSongBtn">줄리앙 입장곡 선택</button><input type="file" id="jSongFile" accept="audio/*" hidden>
   <button id="photoBtn">오프닝 사진 넣기</button><input type="file" id="photoFile" accept="image/*" multiple hidden>
   <span class="sep"></span>
   <a href="original.html">원본 보기</a>
@@ -337,6 +353,9 @@ body.clean{cursor:none}
   WelcomeSongs.forEach((w,i)=>{const b=document.getElementById('wSong'+(i+1)),f=document.getElementById('wFile'+(i+1));
     const l=()=>{b.textContent=w.name?`입장곡 ${i+1} ✓`:`입장곡 ${i+1} 선택`};addEventListener('welcome-ready',l);l();
     b.onclick=()=>f.click();f.onchange=async e=>{const x=e.target.files[0];if(!x)return;await w.pick(x);l();e.target.value='';if(window.welcomeMusic&&'abcd'.includes(cur))welcomeMusic(true)}});
+  const jb=document.getElementById('jSongBtn'),jf=document.getElementById('jSongFile');
+  const jl=()=>{jb.textContent=JulianSong.name?'줄리앙 입장곡 ✓':'줄리앙 입장곡 선택'};addEventListener('julian-ready',jl);jl();
+  jb.onclick=()=>jf.click();jf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await JulianSong.pick(x);jl();e.target.value=''};
   const rb=document.getElementById('rvBtn'),rf=document.getElementById('rvFile');
   const rl=()=>{rb.textContent=RadioVoice.name?'데이빗 라디오 음성 ✓':'데이빗 라디오 음성 선택'};addEventListener('radio-ready',rl);rl();
   rb.onclick=()=>rf.click();rf.onchange=async e=>{const x=e.target.files[0];if(!x)return;await RadioVoice.pick(x);rl();e.target.value=''};
@@ -356,8 +375,8 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ── 시안 전환 ── */
 let cur='',last01='d';
 function show(v,restart){
-  if(!['a','b','c','d','k','o','s','r'].includes(v))v='d';
-  if(v===cur&&!(restart&&'kosr'.includes(v)))return;
+  if(!['a','b','c','d','k','o','s','r','j'].includes(v))v='d';
+  if(v===cur&&!(restart&&'kosrj'.includes(v)))return;
   const prev=cur;cur=v;
   if('abcd'.includes(v))last01=v;
   document.querySelectorAll('.v').forEach(s=>{
@@ -375,6 +394,7 @@ function show(v,restart){
   opening(v==='o',prev==='k');
   scarlett(v==='s');
   radio(v==='r');
+  julian(v==='j');
 }
 
 /* ── 01 입장 음악: 고른 곡(최대 2곡)을 번갈아 반복. 시안끼리 바꿀 때는 끊지 않음, 다른 장면으로 가면 줄이며 멈춤 ── */
@@ -406,7 +426,7 @@ function countdown(on,keepMusic){ // keepMusic: 오프닝으로 넘어갈 때는
   if(on){renderCd();playBgm()}else if(was&&!keepMusic){stopBgm(true)}
 }
 function toggleCd(){if(!cd.on)return;cd.paused=!cd.paused;cd.last=performance.now();cd.paused?stopBgm(false):playBgm()}
-function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn)stopBgm(false);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
+function toggleBgm(){bgmOn=!bgmOn;$('#bgmBtn').textContent=bgmOn?'음악 켜짐 (B)':'음악 꺼짐 (B)';if('abcd'.includes(cur))welcomeMusic(bgmOn);if(!bgmOn){stopBgm(false);if(window.JulianSong)JulianSong.pause()}else if(jl.on&&!jl.paused&&window.JulianSong)JulianSong.resume();if(!bgmOn);else if(cd.on&&!cd.paused)playBgm();else if(op.on&&!op.paused)playBgm(HANDOFF+op.t)}
 $('#bgmBtn').onclick=toggleBgm;
 let lastN=null;
 function renderCd(){
@@ -653,6 +673,67 @@ function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.no
   }
   renderRd()})(performance.now());
 
+
+/* ── 07: 줄리앙 — '2026'이 브랜드 그라데이션 별빛 입자로 떠오름 → 흩어져 위로 들림 → 왼쪽부터 'Julian.'으로 다시 모임
+   동시에 아래로 2027의 새벽 지평선(앰버→코랄→그린)이 천천히 떠오름 → 'Please welcome.' → 빛이 이름 위를 천천히 훑음 ── */
+const jl={on:false,t:0,paused:false,last:0,dots:null};
+const jC=$('#jC'),jg=jC.getContext('2d');
+function jlSize(){const b=$('.stage').getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);jC.width=Math.round(b.width*d);jC.height=Math.round(b.height*d)}
+addEventListener('resize',()=>{if(jl.on){jlSize();renderJl()}});
+function jlBuild(){
+  const c=document.createElement('canvas');c.width=1600;c.height=900;const g=c.getContext('2d',{willReadFrequently:true});
+  g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
+  const pts=step=>{const d=g.getImageData(0,0,1600,900).data,a=[];for(let y=0;y<900;y+=step)for(let x=0;x<1600;x+=step)if(d[(y*1600+x)*4+3]>140)a.push([x,y]);return a};
+  g.font='900 330px "Kakao Big Sans"';g.fillText('2026',800,450);const from=pts(6);
+  g.clearRect(0,0,1600,900);g.font='900 270px "Kakao Big Sans"';g.fillText('Julian.',800,468);const name=pts(4);
+  const R=k=>{const x=Math.sin(k*127.1+311.7)*43758.5453;return x-Math.floor(x)};
+  jl.dots=name.map(([ex,ey],i)=>{const [fx,fy]=from[Math.floor(i*from.length/name.length)],u=R(i); // 2026 점을 빈틈없이 고르게 나눠 씀
+    return {sx:fx+(R(i+1)-.5)*3,sy:fy+(R(i+2)-.5)*3,ex,ey,ph:i*2.399963,u,dl:(ex-300)/1000*.7+R(i+9)*.25,dx:(R(i+3)-.5)*260,dy:-120-R(i+5)*220}});
+}
+const jGrad=x=>{const q=clamp((x-420)/760);return q<.45?[255,181+(122-181)*q/.45,71+(89-71)*q/.45]:[255+(61-255)*(q-.45)/.55,122+(220-122)*(q-.45)/.55,89+(132-89)*(q-.45)/.55]};
+function renderJl(){
+  if(!jC.width)jlSize();if(!jl.dots)return;
+  const t=reduced?12:jl.t,W=jC.width,H=jC.height;jg.setTransform(1,0,0,1,0,0);jg.clearRect(0,0,W,H);jg.setTransform(W/1600,0,0,H/900,0,0);
+  // 새벽 지평선 (3초부터 6.5초까지 천천히 떠오름, 섬광·급확대 없이)
+  const hz=sm((t-3)/3.5);
+  if(hz>0){const lift=60*(1-eo((t-3)/3.5))+Math.sin(t*.2)*2,base=830+lift,apex=650+lift;
+    jg.globalAlpha=hz;
+    const glow=jg.createRadialGradient(800,base,10,800,base,820);glow.addColorStop(0,'rgba(255,138,92,.6)');glow.addColorStop(.28,'rgba(255,181,71,.2)');glow.addColorStop(.62,'rgba(61,220,132,.05)');glow.addColorStop(1,'rgba(0,0,0,0)');
+    jg.fillStyle=glow;jg.fillRect(0,0,1600,900);
+    jg.fillStyle='#000';jg.beginPath();jg.moveTo(-100,base);jg.quadraticCurveTo(800,apex*2-base,1700,base);jg.lineTo(1700,950);jg.lineTo(-100,950);jg.closePath();jg.fill();
+    const edge=jg.createLinearGradient(0,0,1600,0);edge.addColorStop(0,'rgba(255,181,71,0)');edge.addColorStop(.25,'rgba(255,181,71,.55)');edge.addColorStop(.5,'rgba(255,236,214,.95)');edge.addColorStop(.75,'rgba(61,220,132,.55)');edge.addColorStop(1,'rgba(61,220,132,0)');
+    jg.strokeStyle=edge;jg.lineWidth=2.2;jg.shadowColor='rgba(255,170,110,.8)';jg.shadowBlur=18;jg.beginPath();jg.moveTo(-100,base);jg.quadraticCurveTo(800,apex*2-base,1700,base);jg.stroke();jg.shadowBlur=0;
+    jg.globalAlpha=1}
+  // 입자
+  const appear=eo((t-.25)/1.5),lift=sm((t-2.5)/1.6),settled=sm((t-6.6)/1),sweepX=-300+((Math.max(0,t-7.2))%9)/9*2200;
+  for(let i=0;i<jl.dots.length;i++){const p=jl.dots[i];
+    const f=eo((t-4-p.dl)/1.7);
+    // 2026 자리 → (흩어짐) 위로 들리며 퍼짐 → 이름 자리
+    let x=p.sx+(1-appear)*p.dx*.35,y=p.sy+(1-appear)*30;
+    const arc=Math.sin(lift*Math.PI*.5)*(1-f);x+=p.dx*arc*.6+Math.cos(p.ph)*18*lift*(1-f);y+=p.dy*arc*.5+Math.sin(p.ph)*14*lift*(1-f);
+    x=x+(p.ex-x)*f;y=y+(p.ey-y)*f;
+    const tw=.5+.5*Math.sin(t*(.7+p.u*1.3)+p.ph),spark=Math.pow(tw,10),sw=Math.exp(-Math.pow((p.ex-sweepX)/120,2))*settled;
+    const a=Math.min(1,(f>0?.72:.85)+.14*tw+.22*spark*settled+.3*sw)*(f>0?1:appear)*(1-.35*lift*(1-f));
+    if(a<=.01)continue;
+    // 색: 2026은 브랜드 그라데이션, 이름은 흰빛(일부 따뜻한 빛)
+    const gc=jGrad(p.sx),wc=p.u<.12?[255,214,170]:p.u<.2?[190,245,215]:[255,255,255],c=gc.map((v,k)=>Math.round(v+(wc[k]-v)*f));
+    jg.globalAlpha=a;jg.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`;
+    const r=(1.35+.55*p.u)*(1+.25*sw);jg.beginPath();jg.arc(x,y,r,0,6.283);jg.fill();
+    if(p.u>.94&&settled>0){const gl=settled*(.7*spark+.4*sw);if(gl>.2){const l=r*2.6;jg.globalAlpha=gl*.8;jg.strokeStyle='#fff';jg.lineWidth=.6;jg.beginPath();jg.moveTo(x-l,y);jg.lineTo(x+l,y);jg.moveTo(x,y-l);jg.lineTo(x,y+l);jg.stroke()}}
+  }
+  jg.globalAlpha=1;
+  const pw=sm((t-6)/1.1),pwEl=$('#jPw');pwEl.style.opacity=pw.toFixed(3);pwEl.style.filter=pw<.99?`blur(${((1-pw)*.8).toFixed(2)}cqw)`:'none';pwEl.style.transform=`translateY(${((1-eo((t-6)/1.1))*1).toFixed(3)}cqw)`;
+  $('#jCap').style.opacity=sm((t-7.4)/1.2).toFixed(3);
+}
+function julian(on){
+  const was=jl.on;Object.assign(jl,{on,t:0,paused:false,last:performance.now()});
+  if(on){jlSize();if(!jl.dots)(document.fonts?document.fonts.load('900 270px "Kakao Big Sans"'):Promise.resolve()).finally(()=>{jlBuild();renderJl()});else renderJl();
+    if(window.JulianSong&&bgmOn)JulianSong.play(0,1.2)}
+  else if(was&&window.JulianSong)JulianSong.stop();
+}
+function toggleJl(){if(!jl.on)return;jl.paused=!jl.paused;jl.last=performance.now();if(window.JulianSong)jl.paused?JulianSong.pause():JulianSong.resume()}
+(function jlLoop(now){requestAnimationFrame(jlLoop);if(!jl.on)return;const dt=Math.min(.1,(now-jl.last)/1000);jl.last=now;if(jl.paused)return;jl.t+=dt;renderJl()})(performance.now());
+
 (function opLoop(now){requestAnimationFrame(opLoop);if(!op.on)return;const dt=Math.min(.1,(now-op.last)/1000);op.last=now;if(op.paused)return;op.t+=dt;renderOp()})(performance.now());
 
 /* ── D: 아주 잔잔한 별빛 — 작은 점 160개가 3~9초 주기로 천천히 숨쉬듯 반짝, 글자 있는 가운데는 더 옅게 ── */
@@ -771,11 +852,11 @@ $('#fs').onclick=fullscreen;$('#hd').onclick=togglePanel;
 addEventListener('dblclick',e=>{if(!e.target.closest('#panel'))togglePanel()});
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();
   if(k==='1'){if('abcd'.includes(cur))welcomeMusic(true,true);else show(last01)}else if(k==='2')show('k',true);
-  else if(k==='3')show('o',true);else if(k==='4')show('s',true);else if(k==='5')show('r',true);
+  else if(k==='3')show('o',true);else if(k==='4')show('s',true);else if(k==='5')show('r',true);else if(k==='7')show('j',true);
   else if(k==='enter'&&cur==='r'){e.preventDefault();radioName()}
-  else if(k===' '){e.preventDefault();cur==='o'?toggleOp():cur==='s'?toggleSc():cur==='r'?toggleRd():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
-  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true)}
-  else if(k==='arrowleft'){if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
+  else if(k===' '){e.preventDefault();cur==='o'?toggleOp():cur==='s'?toggleSc():cur==='r'?toggleRd():cur==='j'?toggleJl():toggleCd()}else if(k==='b'||k==='ㅠ')toggleBgm();
+  else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true);else if(cur==='r')show('j',true)}
+  else if(k==='arrowleft'){if(cur==='j')show('r',true);else if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
   else if(k==='f'||k==='ㄹ'){e.preventDefault();fullscreen()}else if(k==='h'||k==='ㅗ')togglePanel();});
 show(location.hash.slice(1)||'d');
 </script>
