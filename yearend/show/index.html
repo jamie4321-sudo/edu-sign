@@ -179,7 +179,8 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vr canvas{position:absolute;inset:0;width:100%;height:100%}
 /* 라디오 음성 자막 — 배경에 컴퓨터 화면처럼 한 글자씩 타이핑(커서 깜빡), 지난 줄은 흐리게 */
 #vr .sub{position:absolute;left:6cqw;right:6cqw;top:5cqh;font-weight:700;font-size:2.4cqw;line-height:1.55;letter-spacing:-.01em;color:#ffb547}
-#vr .sub div{opacity:.16;white-space:pre-wrap}#vr .sub div.now{opacity:.6;text-shadow:0 0 .8cqw #ffb54766}
+#vr .shade{position:absolute;inset:0;background:#050302;opacity:0;pointer-events:none} /* 자막 뜰 때 라디오를 아주 어둡게 */
+#vr .sub div{opacity:.3;white-space:pre-wrap}#vr .sub div.now{opacity:.95;text-shadow:0 0 .8cqw #ffb54766}
 #vr .sub .host{color:#cfe3ff}#vr .sub .host.now{text-shadow:0 0 .8cqw #8fbaff66}#vr .sub .host i{background:#cfe3ff} /* 진행자 = 차가운 하늘색, 게스트(데이빗) = 호박색 — 이름은 숨겨 '누구 목소리지?' 궁금하게 */
 #vr .sub b{font-weight:800;letter-spacing:.18em;font-size:.72em;margin-right:.8em;color:#f3e3c3}
 #vr .sub i{display:inline-block;width:.55em;height:1.05em;vertical-align:-.15em;background:#ffb547;animation:rCur 1s steps(1) infinite}
@@ -318,7 +319,7 @@ body.clean{cursor:none}
   <div class="slide"><h1 class="hero">2026.</h1></div>
   <div class="slide"><p class="say">올해도,<br><em>함께여서</em> 가능했습니다.</p></div>
   <div class="slide"><div><h1 class="lock">SNACK <span class="amp">&amp;</span> GARDEN</h1><p class="cap">2026 송년회 · <b>12.04 FRI 17:00</b></p></div></div>
-  <div class="slide"><div><p class="say">Welcome.</p><p class="cap">웰컴 드링크 받고, 편하게 앉아 주세요.</p></div></div>
+  <div class="slide"><div><p class="say">Welcome.</p></div></div>
   <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <div class="foot">LINKAGELAB</div>
 </section>
@@ -373,10 +374,11 @@ body.clean{cursor:none}
 
 <!-- 05 데이빗 -->
 <section class="v" id="vr" aria-label="05 데이빗 라디오">
-  <div class="sub" id="rSub" aria-hidden="true"></div>
   <canvas id="rC" aria-hidden="true"></canvas>
   <div class="lamp" id="rLamp">ON AIR</div>
   <div class="readout" id="rRead">FM 98.6 MHz</div>
+  <div class="shade" id="rShade" aria-hidden="true"></div>
+  <div class="sub" id="rSub" aria-hidden="true"></div>
   <div class="name"><div><p id="rPw" hidden></p><h1 id="rName">David.</h1><p class="kr" id="rKr">데이빗</p></div></div>
   <div class="grain"></div><div class="scan"></div><div class="vig"></div>
 </section>
@@ -917,7 +919,7 @@ function rdAudio(){
     if(window.RadioVoice){const src=actx.createMediaElementSource(RadioVoice.el);src.connect(an);an.connect(actx.destination)}
     // 지지직 잡음: 흰 잡음 → 대역 필터 → 볼륨
     const b=actx.createBuffer(1,actx.sampleRate*2,actx.sampleRate),d=b.getChannelData(0);
-    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(Math.random()<.002?3:1);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(Math.random()<.012?2.6:1);
     const n=actx.createBufferSource();n.buffer=b;n.loop=true;
     const f=actx.createBiquadFilter();f.type='bandpass';f.frequency.value=1600;f.Q.value=.6;
     noiseGain=actx.createGain();noiseGain.gain.value=0;n.connect(f);f.connect(noiseGain);noiseGain.connect(actx.destination);n.start();
@@ -985,7 +987,8 @@ function renderRd(){
   {const st=window.RadioVoice&&RadioVoice.name&&rd.voice?RadioVoice.el.currentTime:t-LOCK,box=$('#rSub');let h='';
    for(const [a,b,who,tx] of RSUB){if(st<a)break;const n=Math.min(tx.length,Math.floor((st-a)/Math.max(.05,Math.min((b-a)*.85,tx.length*.09))*tx.length));
      const now=st<b+.6;h+=`<div class="${now?'now':''} ${who==='진행자'?'host':'guest'}"><b>${who}</b>${tx.slice(0,n)}${now?'<i></i>':''}</div>`}
-   if(box._h!==h){box.innerHTML=h;box._h=h}box.style.opacity=(name?1-sm(u/.6):1).toFixed(3)}
+   if(box._h!==h){box.innerHTML=h;box._h=h}box.style.opacity=(name?1-sm(u/.6):1).toFixed(3);
+   $('#rShade').style.opacity=(h?.93*sm((st+.1)/.8)*(name?1-sm(u/.6):1):0).toFixed(3)}
   $('#rPw').style.opacity=(name?sm((u-.25)/.5):0).toFixed(3);
 }
 function radio(on){
@@ -998,7 +1001,7 @@ function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.no
 (function rdLoop(now){requestAnimationFrame(rdLoop);if(!rd.on)return;const dt=Math.min(.1,(now-rd.last)/1000);rd.last=now;if(rd.paused)return;
   const before=rd.t;rd.t+=dt;if(rd.phase==='name')rd.u+=dt;
   if(rd.phase==='radio'){
-    if(rd.t>.3&&rd.t<LOCK)noise(.05+.03*Math.random(),.05);
+    if(rd.t>.3&&rd.t<LOCK)noise(Math.random()<.18?.75:.32+.2*Math.random(),.02); // 레트로 지지직 크게(가끔 확 튐)
     if(before<LOCK&&rd.t>=LOCK){noise(0,.25);if(window.RadioVoice&&RadioVoice.name&&bgmOn){RadioVoice.play(0,.25);rd.voice=true}}
   }
   renderRd()})(performance.now());
