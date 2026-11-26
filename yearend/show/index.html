@@ -180,6 +180,7 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 /* 라디오 음성 자막 — 배경에 컴퓨터 화면처럼 한 글자씩 타이핑(커서 깜빡), 지난 줄은 흐리게 */
 #vr .sub{position:absolute;left:6cqw;right:6cqw;top:5cqh;font-weight:700;font-size:2.4cqw;line-height:1.55;letter-spacing:-.01em;color:#ffb547}
 #vr .sub div{opacity:.16;white-space:pre-wrap}#vr .sub div.now{opacity:.6;text-shadow:0 0 .8cqw #ffb54766}
+#vr .sub .host{color:#cfe3ff}#vr .sub .host.now{text-shadow:0 0 .8cqw #8fbaff66}#vr .sub .host i{background:#cfe3ff} /* 진행자 = 차가운 하늘색, 게스트(데이빗) = 호박색 — 이름은 숨겨 '누구 목소리지?' 궁금하게 */
 #vr .sub b{font-weight:800;letter-spacing:.18em;font-size:.72em;margin-right:.8em;color:#f3e3c3}
 #vr .sub i{display:inline-block;width:.55em;height:1.05em;vertical-align:-.15em;background:#ffb547;animation:rCur 1s steps(1) infinite}
 @keyframes rCur{50%{opacity:0}}
@@ -947,8 +948,8 @@ function meter(cx,cy,lvl,a){
 }
 // 데이빗 라디오 출연 음성 자막 (받아쓰기 후 문맥 교정, 초 단위)
 const RSUB=[[0,4.8,'진행자','오늘 멍석 한번 제대로 깔고, 자랑도 한번 제대로 해 보죠.'],[4.8,7.7,'진행자','일단 링키지랩, 2016년에 문을 열었다고요?'],
-  [7.7,9.7,'DAVID','네, 맞습니다.'],[9.7,15.5,'DAVID','저희는 2016년에 장애인 일자리 확대를 통한 기업의 사회적 책임,'],
-  [15.5,21.2,'DAVID','이런 부분들을 중심으로 해서 카카오의 자회사형 표준사업장으로 설립을 했고요.']];
+  [7.7,9.7,'게스트','네, 맞습니다.'],[9.7,15.5,'게스트','저희는 2016년에 장애인 일자리 확대를 통한 기업의 사회적 책임,'],
+  [15.5,21.2,'게스트','이런 부분들을 중심으로 해서 카카오의 자회사형 표준사업장으로 설립을 했고요.']];
 function renderRd(){
   if(!rC.width)rdSize();
   const t=rd.t,W=rC.width,H=rC.height;rg.setTransform(1,0,0,1,0,0);rg.clearRect(0,0,W,H);rg.setTransform(W/1600,0,0,H/900,0,0);
@@ -983,7 +984,7 @@ function renderRd(){
   // 자막: 라디오 음성(골랐으면 곡 위치, 아니면 ON AIR 순간부터 자체 시계)에 맞춰 한 글자씩 타이핑
   {const st=window.RadioVoice&&RadioVoice.name&&rd.voice?RadioVoice.el.currentTime:t-LOCK,box=$('#rSub');let h='';
    for(const [a,b,who,tx] of RSUB){if(st<a)break;const n=Math.min(tx.length,Math.floor((st-a)/Math.max(.05,Math.min((b-a)*.85,tx.length*.09))*tx.length));
-     const now=st<b+.6;h+=`<div class="${now?'now':''}"><b>${who}</b>${tx.slice(0,n)}${now?'<i></i>':''}</div>`}
+     const now=st<b+.6;h+=`<div class="${now?'now':''} ${who==='진행자'?'host':'guest'}"><b>${who}</b>${tx.slice(0,n)}${now?'<i></i>':''}</div>`}
    if(box._h!==h){box.innerHTML=h;box._h=h}box.style.opacity=(name?1-sm(u/.6):1).toFixed(3)}
   $('#rPw').style.opacity=(name?sm((u-.25)/.5):0).toFixed(3);
 }
