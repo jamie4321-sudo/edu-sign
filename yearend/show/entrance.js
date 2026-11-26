@@ -9,10 +9,56 @@
   async function save(key,file){const db=await idb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(file,key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
   async function load(key){const db=await idb();return new Promise(res=>{const r=db.transaction(STORE).objectStore(STORE).get(key);r.onsuccess=()=>res(r.result||null);r.onerror=()=>res(null)})}
 
+  // ── 모바일·다른 PC에서도 소리 나게 ──
+  // ① 브라우저는 사람이 한 번 누르기 전엔 소리를 막음 → 첫 터치/클릭/키 때 모든 음원을 '무음으로 한 번 재생→멈춤'해서 잠금 해제
+  // ② 아이폰·아이패드는 audio.volume 이 안 먹음(항상 100%) → 페이드·잔잔한 볼륨이 안 되고, 멈춤 페이드가 끝나지 않아 곡이 안 꺼짐
+  //    → 그 기기에서만 Web Audio 볼륨(게인)으로 연결하고, el.volume 을 그 게인으로 바꿔 끼움 (기존 코드 그대로 동작)
+  const FIXED_VOL=(()=>{try{const a=document.createElement('audio');a.volume=.5;return a.volume!==.5}catch(e){return false}})();
+  const mediaPlay=HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play=function(){if(this._prime){this._prime=false;this.muted=false}return mediaPlay.apply(this,arguments)};
+  const ELS=new Set();let ctx=null,unlocked=false;
+  function getCtx(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){ctx=null}}return ctx}
+  function wrap(el){ // 아이폰용: 요소 → 게인 → 스피커, el.volume = 게인 값
+    if(el._gain||!getCtx())return;
+    try{const src=ctx.createMediaElementSource(el),g=ctx.createGain();let v=1;g.gain.value=1;src.connect(g);g.connect(ctx.destination);
+      el._src=src;el._gain=g;
+      Object.defineProperty(el,'volume',{configurable:true,get(){return v},set(x){v=Math.max(0,Math.min(1,+x||0));g.gain.value=v}});
+    }catch(e){}
+  }
+  function prime(el){
+    if(!el.paused||!(el.currentSrc||el.src))return;
+    el._prime=true;el.muted=true;
+    const p=mediaPlay.call(el);
+    const done=()=>{if(el._prime){el._prime=false;el.pause();try{el.currentTime=0}catch(e){}el.muted=false}};
+    p&&p.then?p.then(done,done):done();
+  }
+  function unlock(){
+    const c=getCtx();if(c&&c.state!=='running')c.resume().catch(()=>{});
+    if(unlocked)return;unlocked=true;
+    try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){} // 아이폰 무음 스위치여도 재생
+    document.querySelectorAll('audio').forEach(a=>ELS.add(a));
+    if(FIXED_VOL)ELS.forEach(wrap);
+    ELS.forEach(prime);
+    document.documentElement.classList.add('snd-on');
+    setTimeout(()=>window.dispatchEvent(new Event('sound-unlocked')),450);
+  }
+  ['pointerdown','touchend','keydown','click'].forEach(t=>addEventListener(t,unlock,{capture:true,passive:true}));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ctx&&ctx.state!=='running'&&unlocked)ctx.resume().catch(()=>{})});
+  window.ShowAudio={
+    get unlocked(){return unlocked},fixedVolume:FIXED_VOL,
+    ctx:getCtx,
+    tap(el){ // 분석기(라디오 화면 파형)에 연결할 출력 노드. 이미 감싼 요소면 그 게인을 넘겨줌
+      const c=getCtx();if(!c)return null;
+      if(el._gain){try{el._gain.disconnect()}catch(e){}return el._gain}
+      if(!el._src){try{el._src=c.createMediaElementSource(el)}catch(e){return null}}
+      return el._src;
+    }
+  };
+
   const DEF={'countdown-song':'audio/countdown.mp3','scarlett-song':'audio/scarlett.mp3','welcome-song-1':'audio/welcome1.mp3',
     'radio-voice':'audio/david-voice.m4a','radio-bed':'audio/david-bed.mp3','julian-song':'audio/julian.mp3','closing-song':'audio/closing.mp3'};
   function slot(key,START,event){
-    const audio=new Audio();audio.preload='auto';
+    const audio=new Audio();audio.preload='auto';ELS.add(audio);
     let url=null,name='',fadeT=null;
     function use(file){if(url&&url.startsWith('blob:'))URL.revokeObjectURL(url);url=URL.createObjectURL(file);audio.src=url;name=file.name||key}
     function useDef(){if(url||!DEF[key])return;url=DEF[key];audio.src=url;name='기본 음원'}

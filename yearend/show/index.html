@@ -323,9 +323,14 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #panel .hint{font-size:11px;color:#9a9aa3;padding:0 4px}
 body.clean{cursor:none}
 @media (prefers-reduced-motion:reduce){*{animation-duration:0s!important;animation-iteration-count:1!important;transition:none!important}}
+/* 모바일·다른 PC: 첫 터치 전엔 브라우저가 소리를 막음 → 안내 한 줄, 누르면 사라짐 */
+#sndTap{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:30;font:inherit;font-size:13px;letter-spacing:.02em;color:#f1eee4;background:#000000b3;border:1px solid #ffffff33;border-radius:9px;padding:9px 14px;cursor:pointer;backdrop-filter:blur(6px);transition:opacity .5s}
+#sndTap b{color:#FFB547;font-weight:700}
+.snd-on #sndTap{opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
+<button id="sndTap" type="button">화면을 <b>한 번 누르면</b> 소리가 나와요</button>
 <main id="show" aria-label="송년회 01 입장 화면 시안">
 <div class="stage">
 
@@ -543,7 +548,7 @@ body.clean{cursor:none}
   <span class="hint">1 입장 · 2 카운트다운(다시 누르면 처음부터) · Space 일시정지 · 더블클릭 = 패널 표시</span>
 </nav>
 <audio id="bgm" src="bgm.mp3" preload="auto"></audio>
-<script src="entrance.js?v=1126b"></script>
+<script src="entrance.js?v=1126c"></script>
 <script>
 (function(){ // 입장곡은 여기서 골라도 원본 상영본(04 스칼렛)과 같이 쓰입니다
   const btn=document.getElementById('songBtn'),input=document.getElementById('songFile');
@@ -960,9 +965,9 @@ let actx=null,an=null,anData=null,noiseGain=null;
 function rdAudio(){
   if(actx)return;
   try{
-    actx=new (window.AudioContext||window.webkitAudioContext)();
+    actx=window.ShowAudio?ShowAudio.ctx():new (window.AudioContext||window.webkitAudioContext)();if(!actx)throw 0;if(actx.state!=='running')actx.resume().catch(()=>{});
     an=actx.createAnalyser();an.fftSize=1024;anData=new Uint8Array(an.fftSize);
-    if(window.RadioVoice){const src=actx.createMediaElementSource(RadioVoice.el);src.connect(an);an.connect(actx.destination)}
+    if(window.RadioVoice){const src=window.ShowAudio?ShowAudio.tap(RadioVoice.el):actx.createMediaElementSource(RadioVoice.el);if(src){src.connect(an);an.connect(actx.destination)}}
     // 지지직 잡음: 흰 잡음 → 대역 필터 → 볼륨
     const b=actx.createBuffer(1,actx.sampleRate*2,actx.sampleRate),d=b.getChannelData(0);
     for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(Math.random()<.012?2.6:1);
@@ -1306,6 +1311,11 @@ addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=
   else if(k==='arrowright'){if('abcd'.includes(cur))show('k',true);else if(cur==='k')show('o',true);else if(cur==='o')show('s',true);else if(cur==='s')show('r',true);else if(cur==='r')show('j',true);else if(cur==='j')show('q',true);else if(cur==='q')show('g',true);else if(cur==='g')show('e',true);else if(cur==='e')show('t',true)}
   else if(k==='arrowleft'){if(cur==='t')show('e',true);else if(cur==='e')show('g',true);else if(cur==='g')show('q',true);else if(cur==='q')show('j',true);else if(cur==='j')show('r',true);else if(cur==='r')show('s',true);else if(cur==='s')show('o',true);else if(cur==='o')show('k',true);else if(cur==='k')show(last01)}
   else if(k==='f'||k==='ㄹ'){e.preventDefault();fullscreen()}else if(k==='h'||k==='ㅗ')togglePanel();});
+// 첫 터치/클릭/키로 소리 잠금이 풀렸는데 지금 장면 음악이 막혀 있었다면 → 이 장면 소리를 다시 시작
+addEventListener('sound-unlocked',()=>{if(!bgmOn)return;
+  const sl=[window.Entrance,window.RadioVoice,window.RadioBed,window.CountSong,window.JulianSong,window.VoteSong,window.ClosingSong,window.CreditSong,...(window.WelcomeSongs||[])].filter(Boolean);
+  if(sl.some(x=>x.playing&&!x.el._prime)||(!bgm.paused&&!bgm._prime)||ScCredit.started)return;
+  if('abcd'.includes(cur))welcomeMusic(true,true);else show(cur,true)});
 show(location.hash.slice(1)||'d');
 </script>
 </body>
