@@ -168,9 +168,14 @@ html,body{margin:0;height:100%;background:#050505;overflow:hidden;font-family:"K
 #vr .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,#0000 0 .28cqh,#00000038 .28cqh .56cqh);mix-blend-mode:multiply}
 #vr .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,#0000 55%,#000a 100%)}
 /* 07 줄리앙 — 순검정 키노트 · '2026'이 별빛 입자로 흩어져 'Julian.'으로 다시 모이고, 아래로 2027의 새벽 지평선 */
-#vj{background:#000;color:#f5f5f7;--grey:#86868b}
+#vj{background:#000;color:#f5f5f7;--grey:#86868b;--grad:linear-gradient(100deg,#ffb547 0%,#ff7a59 38%,#3ddc84 100%)}
 #vj canvas{position:absolute;inset:0;width:100%;height:100%}
 #vj .pw{position:absolute;left:0;right:0;top:27%;margin:0;text-align:center;font-weight:500;font-size:2.8cqw;letter-spacing:-.02em;color:var(--grey);opacity:0;will-change:opacity,filter,transform}
+#vj .fact{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-weight:900;letter-spacing:-.05em;line-height:1;opacity:0;will-change:opacity,transform,filter}
+#vj .fact span,#vj .ln span{display:inline-flex;overflow:hidden;white-space:pre}
+#vj .fact .pre{justify-content:flex-end}
+#vj .key{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:.04em 0 .08em}
+#vj .ln{position:absolute;left:0;right:0;transform:translateY(-50%);display:flex;justify-content:center;white-space:nowrap;font-weight:800;font-size:4.5cqw;letter-spacing:-.05em;line-height:1;opacity:0}
 #vj .cap{position:absolute;left:0;right:0;bottom:6cqh;margin:0;text-align:center;font-size:1.05cqw;letter-spacing:.3em;color:#55555a;font-weight:700;opacity:0}
 
 
@@ -258,6 +263,14 @@ body.clean{cursor:none}
 <!-- 07 줄리앙 -->
 <section class="v" id="vj" aria-label="07 줄리앙">
   <canvas id="jC" aria-hidden="true"></canvas>
+  <div class="fact" id="jF0"><span class="pre">고용사업주 </span><b class="key">3</b><span class="post">회</span></div>
+  <div class="fact" id="jF1"><span class="pre"></span><b class="key">철탑</b><span class="post"> 훈장</span></div>
+  <div class="fact" id="jF2"><span class="pre"></span><b class="key">접근성</b><span class="post"> 이벤트</span></div>
+  <div id="jSum">
+    <div class="ln" style="top:36.667%"><span>고용사업주 </span><b class="key">3</b><span>회</span></div>
+    <div class="ln" style="top:50.000%"><span></span><b class="key">철탑</b><span> 훈장</span></div>
+    <div class="ln" style="top:63.333%"><span></span><b class="key">접근성</b><span> 이벤트</span></div>
+  </div>
   <p class="pw" id="jPw">Please welcome.</p>
   <p class="cap" id="jCap">함께한 2026, 다가올 2027</p>
   <span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Julian</span>
@@ -674,29 +687,54 @@ function toggleRd(){if(!rd.on)return;rd.paused=!rd.paused;rd.last=performance.no
   renderRd()})(performance.now());
 
 
-/* ── 07: 줄리앙 — '2026'이 브랜드 그라데이션 별빛 입자로 떠오름 → 흩어져 위로 들림 → 왼쪽부터 'Julian.'으로 다시 모임
-   동시에 아래로 2027의 새벽 지평선(앰버→코랄→그린)이 천천히 떠오름 → 'Please welcome.' → 빛이 이름 위를 천천히 훑음 ── */
-const jl={on:false,t:0,paused:false,last:0,dots:null};
+/* ── 07: 줄리앙 — 애플 키노트·광고식 ──
+   '3' → '고용사업주 3회', '철탑' → '철탑 훈장', '접근성' → '접근성 이벤트'
+   (핵심 단어 하나가 화면 가득 꽂힘 → 작아지며 양옆 글자가 풀려 문장 완성 → 위로 사라짐)
+   → 세 줄이 함께 정리 → 별빛 입자로 흩어져 'Julian.'으로 모임 · 아래로 2027 새벽 지평선 → 'Please welcome.' */
+const jl={on:false,t:0,paused:false,last:0,dots:null,em:null};
 const jC=$('#jC'),jg=jC.getContext('2d');
+const JF=[0,1,2].map(i=>$('#jF'+i)),JLN=[...document.querySelectorAll('#vj .ln')];
+const JT=k=>.4+k*3.9,JS=12.2,J0=15; // 단어 시작 · 세 줄 정리 · 입자 시작
 function jlSize(){const b=$('.stage').getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);jC.width=Math.round(b.width*d);jC.height=Math.round(b.height*d)}
 addEventListener('resize',()=>{if(jl.on){jlSize();renderJl()}});
 function jlBuild(){
+  // 양옆 글자 폭(em) 측정 — 풀릴 때 이 폭까지 열림
+  jl.em=JF.map(f=>{const fs=parseFloat(getComputedStyle(f).fontSize)||1;return [...f.querySelectorAll('span')].map(sp=>{sp.style.width='auto';const w=sp.scrollWidth/fs;return w})});
   const c=document.createElement('canvas');c.width=1600;c.height=900;const g=c.getContext('2d',{willReadFrequently:true});
-  g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
+  g.textBaseline='middle';g.textAlign='left';
   const pts=step=>{const d=g.getImageData(0,0,1600,900).data,a=[];for(let y=0;y<900;y+=step)for(let x=0;x<1600;x+=step)if(d[(y*1600+x)*4+3]>140)a.push([x,y]);return a};
-  g.font='900 330px "Kakao Big Sans"';g.fillText('2026',800,450);const from=pts(6);
-  g.clearRect(0,0,1600,900);g.font='900 270px "Kakao Big Sans"';g.fillText('Julian.',800,468);const name=pts(4);
+  // 세 줄 정리 화면과 같은 자리의 점 (핵심 단어 / 나머지 따로)
+  g.font='800 72px "Kakao Big Sans"';try{g.letterSpacing='-3.6px'}catch(e){}
+  const parts=JLN.map(l=>[...l.children].map(x=>x.textContent));
+  const keyPts=[],restPts=[];
+  [330,450,570].forEach((y,i)=>{const [p,k,q]=parts[i],wp=g.measureText(p).width,wk=g.measureText(k).width,wq=g.measureText(q).width,x0=800-(wp+wk+wq)/2;
+    g.clearRect(0,0,1600,900);g.fillStyle='#fff';g.fillText(k,x0+wp,y+4);keyPts.push(...pts(4));
+    g.clearRect(0,0,1600,900);g.fillText(p,x0,y+4);g.fillText(q,x0+wp+wk,y+4);restPts.push(...pts(4))});
+  const from=[...keyPts.map(p=>[...p,1]),...restPts.map(p=>[...p,0])].sort((a,b)=>a[1]-b[1]||a[0]-b[0]);
+  try{g.letterSpacing='0px'}catch(e){}
+  g.clearRect(0,0,1600,900);g.textAlign='center';g.font='900 270px "Kakao Big Sans"';g.fillText('Julian.',800,468);const name=pts(4);
   const R=k=>{const x=Math.sin(k*127.1+311.7)*43758.5453;return x-Math.floor(x)};
-  jl.dots=name.map(([ex,ey],i)=>{const [fx,fy]=from[Math.floor(i*from.length/name.length)],u=R(i); // 2026 점을 빈틈없이 고르게 나눠 씀
-    return {sx:fx+(R(i+1)-.5)*3,sy:fy+(R(i+2)-.5)*3,ex,ey,ph:i*2.399963,u,dl:(ex-300)/1000*.7+R(i+9)*.25,dx:(R(i+3)-.5)*260,dy:-120-R(i+5)*220}});
+  jl.dots=name.map(([ex,ey],i)=>{const [fx,fy,key]=from[Math.floor(i*from.length/name.length)],u=R(i);
+    return {sx:fx+(R(i+1)-.5)*2,sy:fy+(R(i+2)-.5)*2,key,ex,ey,ph:i*2.399963,u,dl:(ex-300)/1000*.7+R(i+9)*.25,dx:(R(i+3)-.5)*260,dy:-120-R(i+5)*220}});
 }
 const jGrad=x=>{const q=clamp((x-420)/760);return q<.45?[255,181+(122-181)*q/.45,71+(89-71)*q/.45]:[255+(61-255)*(q-.45)/.55,122+(220-122)*(q-.45)/.55,89+(132-89)*(q-.45)/.55]};
+const sty=(el,a,blur,tf)=>{el.style.opacity=a.toFixed(3);el.style.filter=blur>.01?`blur(${blur.toFixed(2)}cqw)`:'none';el.style.transform=tf};
 function renderJl(){
   if(!jC.width)jlSize();if(!jl.dots)return;
-  const t=reduced?12:jl.t,W=jC.width,H=jC.height;jg.setTransform(1,0,0,1,0,0);jg.clearRect(0,0,W,H);jg.setTransform(W/1600,0,0,H/900,0,0);
-  // 새벽 지평선 (3초부터 6.5초까지 천천히 떠오름, 섬광·급확대 없이)
-  const hz=sm((t-3)/3.5);
-  if(hz>0){const lift=60*(1-eo((t-3)/3.5))+Math.sin(t*.2)*2,base=830+lift,apex=650+lift;
+  const t=reduced?J0+12:jl.t,W=jC.width,H=jC.height;jg.setTransform(1,0,0,1,0,0);jg.clearRect(0,0,W,H);jg.setTransform(W/1600,0,0,H/900,0,0);
+  // ① 단어 하나씩: 크게 꽂힘 → 작아지며 양옆 글자가 풀림 → 위로 사라짐
+  JF.forEach((f,k)=>{const T=JT(k),inA=eo((t-T)/.42),unf=sm((t-T-1.3)/.8),out=sm((t-T-3.3)/.45);
+    if(t<T||out>=1){f.style.opacity=0;return}
+    f.style.fontSize=(24-14*unf).toFixed(3)+'cqw';
+    sty(f,inA*(1-out),(1-inA)*1.4+out*1.2,`translateY(${(-out*3).toFixed(2)}cqw) scale(${(1.22-.22*inA).toFixed(4)})`);
+    [...f.querySelectorAll('span')].forEach((sp,j)=>{sp.style.width=(jl.em[k][j]*unf).toFixed(4)+'em';sp.style.opacity=sm((unf-.15)/.7).toFixed(3);
+      const m=unf>=1?'none':`linear-gradient(${j?'to left':'to right'},#0000,#000 ${((1-unf)*75).toFixed(1)}%)`;sp.style.maskImage=sp.style.webkitMaskImage=m})});
+  // ② 세 줄 함께 정리
+  const sOut=sm((t-J0+.15)/.35);
+  JLN.forEach((l,i)=>{const a=eo((t-JS-i*.18)/.6);sty(l,a*(1-sOut),(1-a)*.8,`translateY(calc(-50% + ${((1-a)*1.2).toFixed(3)}cqw))`)});
+  // ③ 새벽 지평선
+  const tt=t-J0,hz=sm((tt-.6)/3.5);
+  if(hz>0){const lift=60*(1-eo((tt-.6)/3.5))+Math.sin(t*.2)*2,base=830+lift,apex=650+lift;
     jg.globalAlpha=hz;
     const glow=jg.createRadialGradient(800,base,10,800,base,820);glow.addColorStop(0,'rgba(255,138,92,.6)');glow.addColorStop(.28,'rgba(255,181,71,.2)');glow.addColorStop(.62,'rgba(61,220,132,.05)');glow.addColorStop(1,'rgba(0,0,0,0)');
     jg.fillStyle=glow;jg.fillRect(0,0,1600,900);
@@ -704,26 +742,25 @@ function renderJl(){
     const edge=jg.createLinearGradient(0,0,1600,0);edge.addColorStop(0,'rgba(255,181,71,0)');edge.addColorStop(.25,'rgba(255,181,71,.55)');edge.addColorStop(.5,'rgba(255,236,214,.95)');edge.addColorStop(.75,'rgba(61,220,132,.55)');edge.addColorStop(1,'rgba(61,220,132,0)');
     jg.strokeStyle=edge;jg.lineWidth=2.2;jg.shadowColor='rgba(255,170,110,.8)';jg.shadowBlur=18;jg.beginPath();jg.moveTo(-100,base);jg.quadraticCurveTo(800,apex*2-base,1700,base);jg.stroke();jg.shadowBlur=0;
     jg.globalAlpha=1}
-  // 입자
-  const appear=eo((t-.25)/1.5),lift=sm((t-2.5)/1.6),settled=sm((t-6.6)/1),sweepX=-300+((Math.max(0,t-7.2))%9)/9*2200;
-  for(let i=0;i<jl.dots.length;i++){const p=jl.dots[i];
-    const f=eo((t-4-p.dl)/1.7);
-    // 2026 자리 → (흩어짐) 위로 들리며 퍼짐 → 이름 자리
-    let x=p.sx+(1-appear)*p.dx*.35,y=p.sy+(1-appear)*30;
-    const arc=Math.sin(lift*Math.PI*.5)*(1-f);x+=p.dx*arc*.6+Math.cos(p.ph)*18*lift*(1-f);y+=p.dy*arc*.5+Math.sin(p.ph)*14*lift*(1-f);
-    x=x+(p.ex-x)*f;y=y+(p.ey-y)*f;
-    const tw=.5+.5*Math.sin(t*(.7+p.u*1.3)+p.ph),spark=Math.pow(tw,10),sw=Math.exp(-Math.pow((p.ex-sweepX)/120,2))*settled;
-    const a=Math.min(1,(f>0?.72:.85)+.14*tw+.22*spark*settled+.3*sw)*(f>0?1:appear)*(1-.35*lift*(1-f));
-    if(a<=.01)continue;
-    // 색: 2026은 브랜드 그라데이션, 이름은 흰빛(일부 따뜻한 빛)
-    const gc=jGrad(p.sx),wc=p.u<.12?[255,214,170]:p.u<.2?[190,245,215]:[255,255,255],c=gc.map((v,k)=>Math.round(v+(wc[k]-v)*f));
-    jg.globalAlpha=a;jg.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`;
-    const r=(1.35+.55*p.u)*(1+.25*sw);jg.beginPath();jg.arc(x,y,r,0,6.283);jg.fill();
-    if(p.u>.94&&settled>0){const gl=settled*(.7*spark+.4*sw);if(gl>.2){const l=r*2.6;jg.globalAlpha=gl*.8;jg.strokeStyle='#fff';jg.lineWidth=.6;jg.beginPath();jg.moveTo(x-l,y);jg.lineTo(x+l,y);jg.moveTo(x,y-l);jg.lineTo(x,y+l);jg.stroke()}}
-  }
-  jg.globalAlpha=1;
-  const pw=sm((t-6)/1.1),pwEl=$('#jPw');pwEl.style.opacity=pw.toFixed(3);pwEl.style.filter=pw<.99?`blur(${((1-pw)*.8).toFixed(2)}cqw)`:'none';pwEl.style.transform=`translateY(${((1-eo((t-6)/1.1))*1).toFixed(3)}cqw)`;
-  $('#jCap').style.opacity=sm((t-7.4)/1.2).toFixed(3);
+  // ④ 세 줄 → 별빛 입자 → 'Julian.'
+  if(tt>-.15){
+    const appear=sm((tt+.15)/.35),lift=sm((tt-.2)/1.4),settled=sm((tt-4)/1),sweepX=-300+((Math.max(0,tt-4.6))%9)/9*2200;
+    for(let i=0;i<jl.dots.length;i++){const p=jl.dots[i];
+      const f=eo((tt-1.1-p.dl)/1.7);
+      let x=p.sx,y=p.sy;
+      const arc=Math.sin(lift*Math.PI*.5)*(1-f);x+=p.dx*arc*.6+Math.cos(p.ph)*18*lift*(1-f);y+=p.dy*arc*.5+Math.sin(p.ph)*14*lift*(1-f);
+      x=x+(p.ex-x)*f;y=y+(p.ey-y)*f;
+      const tw=.5+.5*Math.sin(t*(.7+p.u*1.3)+p.ph),spark=Math.pow(tw,10),sw=Math.exp(-Math.pow((p.ex-sweepX)/120,2))*settled;
+      const a=Math.min(1,(f>0?.72:.9)+.14*tw+.22*spark*settled+.3*sw)*appear*(1-.3*lift*(1-f));
+      if(a<=.01)continue;
+      const gc=p.key?jGrad(p.sx):[245,245,247],wc=p.u<.12?[255,214,170]:p.u<.2?[190,245,215]:[255,255,255],c=gc.map((v,k)=>Math.round(v+(wc[k]-v)*f));
+      jg.globalAlpha=a;jg.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`;
+      const r=(1.35+.55*p.u)*(1+.25*sw);jg.beginPath();jg.arc(x,y,r,0,6.283);jg.fill();
+      if(p.u>.94&&settled>0){const gl=settled*(.7*spark+.4*sw);if(gl>.2){const l=r*2.6;jg.globalAlpha=gl*.8;jg.strokeStyle='#fff';jg.lineWidth=.6;jg.beginPath();jg.moveTo(x-l,y);jg.lineTo(x+l,y);jg.moveTo(x,y-l);jg.lineTo(x,y+l);jg.stroke()}}
+    }
+    jg.globalAlpha=1}
+  const pw=sm((tt-3.4)/1.1),pwEl=$('#jPw');pwEl.style.opacity=pw.toFixed(3);pwEl.style.filter=pw<.99?`blur(${((1-pw)*.8).toFixed(2)}cqw)`:'none';pwEl.style.transform=`translateY(${((1-eo((tt-3.4)/1.1))*1).toFixed(3)}cqw)`;
+  $('#jCap').style.opacity=sm((tt-4.8)/1.2).toFixed(3);
 }
 function julian(on){
   const was=jl.on;Object.assign(jl,{on,t:0,paused:false,last:performance.now()});
