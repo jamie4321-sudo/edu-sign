@@ -927,7 +927,7 @@ function toggleSc(){if(!sc.on)return;sc.paused=!sc.paused;sc.last=performance.no
    음성 크기에 맞춰 VU 계기판 바늘 2개가 움직임 → (멘트 후) Enter → 다이얼 어두워지고 네온 'David.' 깜빡이며 켜짐 */
 const rd={on:false,t:0,u:0,phase:'radio',paused:false,last:0,lvl:[0,0],voice:false,bed:false};
 // 음성이 끝나기 0.8초 전부터 배경음을 2.5초에 걸쳐 키워 자연스럽게 이어 붙임 (음성 없으면 자막 끝난 뒤)
-function bedIn(){if(rd.bed||!window.RadioBed||!RadioBed.name||!bgmOn)return;rd.bed=true;RadioBed.play(0,2.5)}
+function bedIn(){if(rd.bed||!window.RadioBed||!RadioBed.name||!bgmOn)return;rd.bed=true;RadioBed.play(0,3.5)} // 곡 18초 지점부터 3.5초에 걸쳐 페이드인
 const rC=$('#rC'),rg=rC.getContext('2d'),LOCK=2.6,FREQ=98.6;
 let actx=null,an=null,anData=null,noiseGain=null;
 function rdAudio(){
